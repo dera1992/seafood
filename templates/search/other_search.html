@@ -4,9 +4,10 @@
 {% load thumbnail %}
 
 
-<div class="header-advance-search">
+<div class="header-advance-search modern-search">
     <form method="GET" action="{% url 'product_search:product_filter' %}">
-        <input type="text" name="title_contains_query" placeholder="Search your product" value="{{ request.GET.title_contains_query.strip }}">
-        <button><span class="icon_search"></span></button>
+        <span class="search-icon" aria-hidden="true"><span class="icon_search"></span></span>
+        <input type="text" name="title_contains_query" placeholder="Search fresh deals and nearby shops" value="{{ request.GET.title_contains_query.strip }}">
+        <button type="submit">Search</button>
     </form>
 </div>

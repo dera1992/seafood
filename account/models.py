@@ -71,7 +71,7 @@ class Profile(models.Model):
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
-        return self.user.username
+        return self.user.email
 
     # @property
     # def fullname(self):

@@ -9,41 +9,11 @@
 {% block title %}{% endblock %}
 
 {% block content %}
+    <div class="modern-home">
     <div class="hero-slider-with-category-container mt-35 mb-35">
 		<div class="container">
 			<div class="row">
-				<div class="col-lg-3 col-md-12">
-					<!--=======  slider left category  =======-->
-
-					<div class="hero-side-category">
-						<!-- Category Toggle Wrap -->
-						<div class="category-toggle-wrap">
-							<!-- Category Toggle -->
-							<button class="category-toggle"> <span class="arrow_carrot-right_alt2 mr-2"></span> All Categories</button>
-						</div>
-
-						<!-- Category Menu -->
-						<nav class="category-menu">
-							<ul>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Vegetables">Vegetables</a></li>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Fruits">Fruits</a></li>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Grains">Grains</a></li>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Seafood">Seafood</a></li>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Spices">Spices</a></li>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Meats">Meats</a></li>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Oil">Cooking Oil</a></li>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Honey">Honey</a></li>
-								<li class="hidden"><a href="{% url 'product_search:product_filter' %}?category=Eggs">Eggs</a></li>
-								<li class="hidden"><a href="{% url 'product_search:product_filter' %}?category=Others">Others</a></li>
-								<li><a href="#" id="more-btn"><span class="icon_plus_alt2"></span> More Categories</a></li>
-							</ul>
-						</nav>
-					</div>
-
-					<!--=======  End of slider left category  =======-->
-				</div>
-
-				<div class="col-lg-9 col-md-12">
+				<div class="col-lg-12 col-md-12">
 					<!--=======  slider container  =======-->
 
 					<div class="slider-container">
@@ -53,16 +23,28 @@
 
                             <!--=======  Hero slider item  =======-->
 
-                            <div class="hero-slider-item slider-bg-4">
-                                <div class="slider-content">
-                                    <h1>Fresh<span> & Cheap</span></h1>
-                                    <h1 class="change-text">Now in <span> Season</span></h1>
+                            <div class="hero-slider-item slider-bg-4 modern-hero">
+                                <div class="slider-content modern-hero__content">
+                                    <div class="hero-badges">
+                                        <span class="hero-badge">Cut food waste</span>
+                                        <span class="hero-badge">Local shops</span>
+                                        <span class="hero-badge">Fresh deals</span>
+                                    </div>
+                                    <h1>Save more on<span> fresh food</span></h1>
+                                    <h1 class="change-text">Shop near-expiry<span> deals</span></h1>
 
-                                    <p><img src="{% static 'assets/images/icon-slider.png' %}" alt=""> <span>save up to 10%</span></p>
-                                    <p><img src="{% static 'assets/images/icon-slider.png' %}" alt=""> <span>Buy nice food</span></p>
-                                    <p><img src="{% static 'assets/images/icon-slider.png' %}" alt=""> <span>From trusted farmers</span></p>
+                                    <p class="hero-subtitle">Discover trusted neighborhood shops, buy surplus items, and keep good food out of the bin.</p>
 
-                                    <a href="{% url 'home:ads_list' %}" class="slider-two-btn mt-20">start buying</a>
+                                    <div class="hero-highlights">
+                                        <span><img src="{% static 'assets/images/icon-slider.png' %}" alt=""> Save up to 10%</span>
+                                        <span><img src="{% static 'assets/images/icon-slider.png' %}" alt=""> Pick up fast</span>
+                                        <span><img src="{% static 'assets/images/icon-slider.png' %}" alt=""> Verified sellers</span>
+                                    </div>
+
+                                    <div class="hero-actions">
+                                        <a href="{% url 'home:ads_list' %}" class="slider-two-btn">Start buying</a>
+                                        <a href="{% url 'product_search:product_filter' %}" class="slider-two-btn hero-secondary">Browse offers</a>
+                                    </div>
                                 </div>
                             </div>
 
@@ -79,14 +61,60 @@
 		</div>
 	</div>
 
+    <section class="category-pill-section">
+        <div class="container">
+            <div class="category-pill-list">
+                <a href="{% url 'product_search:product_filter' %}?category=Vegetables">Vegetables</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Fruits">Fruits</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Grains">Grains</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Seafood">Seafood</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Spices">Spices</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Meats">Meats</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Oil">Cooking Oil</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Honey">Honey</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Eggs">Eggs</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Others">Others</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="modern-feature-section mb-35">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-20">
+                    <div class="modern-feature-card">
+                        <div class="feature-icon"><span class="icon_cart_alt"></span></div>
+                        <h4>Shop surplus, save money</h4>
+                        <p>Find quality items at reduced prices as they get closer to expiry.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-20">
+                    <div class="modern-feature-card">
+                        <div class="feature-icon"><span class="icon_pin_alt"></span></div>
+                        <h4>Buy from nearby stores</h4>
+                        <p>Support small shops and get deliveries or pickups faster.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-20">
+                    <div class="modern-feature-card">
+                        <div class="feature-icon"><span class="icon_like_alt"></span></div>
+                        <h4>Help reduce waste</h4>
+                        <p>Every purchase prevents good food from being thrown away.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
 	<div class="slider multisale-slider mb-35">
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-12">
 					<!--=======  multisale  slider section title  =======-->
 
-					<div class="section-title">
-						<h3>deal of the day</h3>
+					<div class="section-title modern-section-title">
+						<span class="section-pill">Deal of the day</span>
+                        <span class="pulse-dot" aria-hidden="true"></span>
 					</div>
 
 					<!--=======  End of multisale slider section title  =======-->
@@ -135,6 +163,17 @@
 									<a>{{ latest.category}}</a>
 								</div>
 								<h3 class="product-title"><a href="{{ latest.get_absolute_url }}">{{ latest.title }}</a></h3>
+                                {% if latest.expires_on %}
+                                    <div class="product-expiry">
+                                        {% if latest.is_expired %}
+                                            <span class="expiry-badge expired">Expired</span>
+                                        {% elif latest.is_expiring_soon %}
+                                            <span class="expiry-badge expiring">Expires in {{ latest.days_to_expire }} days</span>
+                                        {% else %}
+                                            <span class="expiry-badge fresh">Good for {{ latest.days_to_expire }} days</span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
 								<div class="price-box">
                                      {% if latest.discount_price %}
                                       <span class="discounted-price">₦{{ latest.discount_price|intcomma}}</span>
@@ -155,7 +194,7 @@
 		</div>
 	</div>
 
-	<div class="featured-product-image-gallery mb-80 pt-120 section-bg">
+	<div class="featured-product-image-gallery mb-80 pt-120 section-bg modern-promo-strip">
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-12">
@@ -178,8 +217,8 @@
 				<div class="col-lg-12">
 					<!--=======  multisale  slider section title  =======-->
 
-					<div class="section-title">
-						<h3>Tubers,Meats,Cooking Oils and Others</h3>
+					<div class="section-title modern-section-title">
+						<span class="section-pill">Tubers, Meats, Cooking Oils and Others</span>
 					</div>
 
 					<!--=======  End of multisale slider section title  =======-->
@@ -214,8 +253,19 @@
 									<a>{{ ad.category}}</a>
 								</div>
 								<h3 class="product-title"><a href="{{ ad.get_absolute_url }}">{{ ad.title }}</a></h3>
+                                {% if ad.expires_on %}
+                                    <div class="product-expiry">
+                                        {% if ad.is_expired %}
+                                            <span class="expiry-badge expired">Expired</span>
+                                        {% elif ad.is_expiring_soon %}
+                                            <span class="expiry-badge expiring">Expires in {{ ad.days_to_expire }} days</span>
+                                        {% else %}
+                                            <span class="expiry-badge fresh">Good for {{ ad.days_to_expire }} days</span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
 								<div class="price-box">
-                                    {% if ad.discount_price %}
+                                     {% if ad.discount_price %}
                                       <span class="discounted-price">₦{{ ad.discount_price|intcomma}}</span>
                                       <span class="main-price">₦{{ ad.discount_price|intcomma}}</span>
                                      {% else %}
@@ -240,8 +290,8 @@
 				<div class="col-lg-12">
 					<!--=======  multisale  slider section title  =======-->
 
-					<div class="section-title">
-						<h3>Vegetables</h3>
+					<div class="section-title modern-section-title">
+						<span class="section-pill">Vegetables</span>
 					</div>
 
 					<!--=======  End of multisale slider section title  =======-->
@@ -302,8 +352,8 @@
 				<div class="col-lg-12">
 					<!--=======  multisale  slider section title  =======-->
 
-					<div class="section-title">
-						<h3>Fruits</h3>
+					<div class="section-title modern-section-title">
+						<span class="section-pill">Fruits</span>
 					</div>
 
 					<!--=======  End of multisale slider section title  =======-->
@@ -365,8 +415,8 @@
 				<div class="col-lg-12">
 					<!--=======  multisale  slider section title  =======-->
 
-					<div class="section-title">
-						<h3>Grains</h3>
+					<div class="section-title modern-section-title">
+						<span class="section-pill">Grains</span>
 					</div>
 
 					<!--=======  End of multisale slider section title  =======-->
@@ -427,8 +477,8 @@
 				<div class="col-lg-12">
 					<!--=======  multisale  slider section title  =======-->
 
-					<div class="section-title">
-						<h3>Seafoods</h3>
+					<div class="section-title modern-section-title">
+						<span class="section-pill">Seafoods</span>
 					</div>
 
 					<!--=======  End of multisale slider section title  =======-->
@@ -489,8 +539,8 @@
 				<div class="col-lg-12">
 					<!--=======  multisale  slider section title  =======-->
 
-					<div class="section-title">
-						<h3>Spices</h3>
+					<div class="section-title modern-section-title">
+						<span class="section-pill">Spices</span>
 					</div>
 
 					<!--=======  End of multisale slider section title  =======-->
@@ -553,5 +603,5 @@
 
     <br>
 
-
+    </div>
 {% endblock %}
