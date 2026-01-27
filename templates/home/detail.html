@@ -1,0 +1,366 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+{% load hitcount_tags %}
+{% load humanize %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load ratings %}
+
+
+{% block title %}Property Detail{% endblock %}
+
+{% block content %}
+
+    <div class="breadcrumb-area mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="breadcrumb-container">
+                        <ul>
+                            <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                            <li><a href="{% url 'product_search:product_filter' %}?category={{ ad.category }}">{{ ad.category }}</a></li>
+                            <li class="active">{{ ad.title }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--=====  End of breadcrumb area  ======-->
+
+    <!--=============================================
+    =            single product content         =
+    =============================================-->
+
+    <div class="single-product-content ">
+        <div class="container">
+            <!--=======  single product content container  =======-->
+            <div class="single-product-content-container mb-35">
+                <div class="row">
+                    <div class="col-lg-6 col-md-12 col-xs-12">
+
+                         <!-- product image gallery -->
+                        <div class="product-image-slider d-flex flex-custom-xs-wrap flex-sm-nowrap align-items-center mb-sm-35">
+                            <!--Modal Tab Menu Start-->
+                            <div class="product-small-image-list">
+                                <div class="nav small-image-slider-single-product" role="tablist">
+                                    {% for adv2 in adsimage %}
+                                    <div class="single-small-image img-full">
+                                     <a data-toggle="tab" id="single-slide-tab-{{forloop.counter}}" href="#single-slide{{forloop.counter}}">
+                                      {% thumbnail adv2.product_image "98x98" crop="center"  as im %}
+                                         <img  style="margin:{{ im|margin:"98x98" }}" src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" class="img-fluid" alt="Alt">
+                                       {% endthumbnail %}
+                                      </a>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                             </div>
+                               <!--Modal Tab Menu End-->
+
+                            <!--Modal Tab Content Start-->
+                            <div class="tab-content product-large-image-list">
+                            {% for adv in adsimage %}
+                                <div class="tab-pane fade show {% if forloop.first %}active{% endif %}" id="single-slide{{forloop.counter}}" role="tabpane{{forloop.counter}}" aria-labelledby="single-slide-tab-{{forloop.counter}}">
+                                    <!--Single Product Image Start-->
+                                    {% if adv.product_image %}
+                                    <div class="single-product-img easyzoom img-full">
+{#                                        <img src="{{adv.product_image.url}}" class="img-fluid" alt="">#}
+                                            <span class="{{ ad.get_label_display }}">{{ ad.get_status_display }}</span>
+                                            {% if ad.delivery %}
+                                                <span class="days">Del:{{ ad.delivery }}</span>
+                                            {% endif %}
+
+                                            {% thumbnail adv.product_image "388x388" crop="10px 10px"  as im %}
+                                                <img  style="margin:{{ im|margin:"388x388" }}" src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" alt="" class="img-fluid" />
+                                             {% endthumbnail %}
+                                             <a href="{{adv.product_image.url}}" class="big-image-popup"><i class="fa fa-search-plus"></i></a>
+
+                                    </div>
+                                    {% endif %}
+                                    <!--Single Product Image End-->
+                                </div>
+                            {% endfor %}
+                            </div>
+                            <!--Modal Content End-->
+
+                        </div>
+                        <!-- end of product image gallery -->
+                    </div>
+                    <div class="col-lg-6 col-md-12 col-xs-12">
+                        <!-- product quick view description -->
+                        <div class="product-feature-details">
+                            <h2 class="product-title mb-15">{{ ad.title }}</h2>
+                            <div class="icon-content">
+                              <div class="rating-star">
+                                <span>
+                                   <i class="fa fa-star{% if ad.averageReview < 0.5 %}-o{% elif ad.averageReview >= 0.5 and ad.averageReview < 1 %}-half-o {% endif %}" aria-hidden="true"></i>
+                                  <i class="fa fa-star{% if ad.averageReview < 1.5 %}-o{% elif ad.averageReview >= 1.5 and ad.averageReview < 2 %}-half-o {% endif %}" aria-hidden="true"></i>
+                                  <i class="fa fa-star{% if ad.averageReview < 2.5 %}-o{% elif ad.averageReview >= 2.5 and ad.averageReview < 3 %}-half-o {% endif %}" aria-hidden="true"></i>
+                                  <i class="fa fa-star{% if ad.averageReview < 3.5 %}-o{% elif ad.averageReview >= 3.5 and ad.averageReview < 4 %}-half-o {% endif %}" aria-hidden="true"></i>
+                                  <i class="fa fa-star{% if ad.averageReview < 4.5 %}-o{% elif ad.averageReview >= 4.5 and ad.averageReview < 5 %}-half-o {% endif %}" aria-hidden="true"></i>
+                                  </span>
+                                 <span class="rating_num">({{ad.countReview}})</span>
+                              </div>
+                            </div>
+
+                            <h2 class="product-price mb-15">
+                                {% if ad.discount_price %}
+                                  <span class="discounted-price">₦{{ ad.discount_price|intcomma}}</span>
+                                  <span class="main-price">₦{{ ad.discount_price|intcomma}}</span>
+                                 {% else %}
+                                  <span class="discounted-price">₦{{ ad.price|intcomma}}</span>
+                                {% endif %}
+                            </h2>
+
+                            <p class="product-description mb-20"> {{ ad.description.capitalize }}</p>
+
+                            <div class="cart-buttons mb-20">
+
+                                    <div class="add-to-cart-btn">
+                                        <a href="{{ ad.get_add_to_cart_url }}"><i class="fa fa-shopping-cart"></i> Add to Cart</a>
+                                    </div>
+
+                            </div>
+
+                            <div class="single-product-action-btn mb-20">
+                                {% if is_favourite %}
+                                   <a href="{% url 'home:favourite_ad' id=ad.id %}" data-tooltip="Added to wishlist"> <span class="icon_heart"></span> Added to wishlist</a>
+                                {% else %}
+                                     <a href="{% url 'home:favourite_ad' id=ad.id %}" data-tooltip="Add to wishlist"> <span class="icon_heart_alt"></span> Add to wishlist</a>
+                                {% endif %}
+                            </div>
+
+
+                            <div class="single-product-category mb-20">
+                                <h3>Categories: <span>{{ ad.category }}</span></h3>
+                            </div>
+
+
+                            <div class="social-share-buttons">
+                                <h3>share this product</h3>
+                                <ul>
+                                    <li><a href="https://www.facebook.com/sharer/sharer.php?u={{request.built_absolute_url}} "
+                                               class="facebook"><i class="fa fa-facebook"></i></a></li>
+                                    <li><a href="https://twitter.com/home?status=I'm%20going%20to%20learn%20to%20Code
+                                                ...%20Come%20build%20an%20web%20apsp%20with%20me!%20%23CFE%20and%20@justinmitchel%20
+                                                {{request.built_absolute_url}}" class="twitter"><i class="fa fa-twitter"></i></a></li>
+                                    <li><a href="https://plus.google.com/share?url= {{request.built_absolute_url}}" class="google-plus"><i class="fa fa-google-plus"></i></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- end of product quick view description -->
+                    </div>
+                </div>
+            </div>
+
+        <!--=======  End of single product content container  =======-->
+
+        </div>
+
+    </div>
+
+    <!--=====  End of single product content  ======-->
+
+    <!--=============================================
+    =            single product tab         =
+    =============================================-->
+
+    <div class="single-product-tab-section mb-35">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="tab-slider-wrapper">
+                        <nav>
+                            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                                <a class="nav-item nav-link active" id="description-tab" data-toggle="tab" href="#description" role="tab"
+                                    aria-selected="true">Description</a>
+                                <a class="nav-item nav-link" id="review-tab" data-toggle="tab" href="#review" role="tab"
+                                aria-selected="false">Reviews({{ad.countReview}})</a>
+                            </div>
+                        </nav>
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+                                <p class="product-desc">{{ ad.description.capitalize }}</p>
+                            </div>
+                            <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="review-tab">
+                            <div class="product-ratting-wrap">
+                                <div class="pro-avg-ratting">
+                                    <h4>Total Average: {{ad.averageReview}} <span>(Overall)</span></h4>
+                                    <span>Total Count: {{ad.countReview}}</span>
+                                </div>
+                                <div class="rattings-wrapper">
+
+                                    {% for review in reviews %}
+                                        <div class="comment">
+                                            <div class="comment_container">
+                                                <div class="comment-text">
+                                                <div class="rating-star">
+                                                <img class="avatar avatar-60 photo" src="{{review.user.photo.url}}" alt="" style="width: 30px; height:30px">
+                                                  <span>
+                                                    <i class="fa fa-star{% if review.rating == 0.5 %}-half-o{% elif review.rating < 1 %}-o {% endif %}" aria-hidden="true"></i>
+                                                    <i class="fa fa-star{% if review.rating == 1.5 %}-half-o{% elif review.rating < 2 %}-o {% endif %}" aria-hidden="true"></i>
+                                                    <i class="fa fa-star{% if review.rating == 2.5 %}-half-o{% elif review.rating < 3 %}-o {% endif %}" aria-hidden="true"></i>
+                                                    <i class="fa fa-star{% if review.rating == 3.5 %}-half-o{% elif review.rating < 4 %}-o {% endif %}" aria-hidden="true"></i>
+                                                    <i class="fa fa-star{% if review.rating == 4.5 %}-half-o{% elif review.rating < 5 %}-o {% endif %}" aria-hidden="true"></i>
+                                                  </span>
+                                                  <span class="rating_num">({{review.rating}})</span>
+                                                </div>
+                                                    <p class="meta">
+                                                        <strong class="author">{{review.user.user.get_full_name}}</strong>
+                                                        <span><i class="fa fa-clock-o"></i> {{review.updated_at}}</span>
+                                                    </p>
+                                                <div class="description">
+                                                        <p>{{review.subject}}</p>
+                                                    </div>
+                                                    <div class="description">
+                                                        <p>{{review.review}}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="ratting-form-wrapper fix">
+                                    <h3>Add your Rating</h3>
+                                    <form action="{% url 'home:submit_review' ad.id %}" method="POST">
+                                      {% csrf_token %}
+
+                                      <div>
+                                        <!-- Rating stars -->
+                                        <div class="ncnc">
+                                          <input type="radio" name="rating" id="rating10" value="5" required /><label for="rating10" title="5"></label>
+                                          <input type="radio" name="rating" id="rating9" value="4.5" required /><label for="rating9" title="4.5" class="half"></label>
+                                          <input type="radio" name="rating" id="rating8" value="4" required /><label for="rating8" title="4"></label>
+                                          <input type="radio" name="rating" id="rating7" value="3.5" required /><label for="rating7" title="3.5" class="half"></label>
+                                          <input type="radio" name="rating" id="rating6" value="3" required /><label for="rating6" title="3"></label>
+                                          <input type="radio" name="rating" id="rating5" value="2.5" required /><label for="rating5" title="2.5" class="half"></label>
+                                          <input type="radio" name="rating" id="rating4" value="2" required /><label for="rating4" title="2"></label>
+                                          <input type="radio" name="rating" id="rating3" value="1.5" required /><label for="rating3" title="1.5" class="half"></label>
+                                          <input type="radio" name="rating" id="rating2" value="1" required /><label for="rating2" title="1"></label>
+                                          <input type="radio" name="rating" id="rating1" value="0.5" required /><label for="rating1" title="0.5" class="half"></label>
+                                        </div>
+                                        <br>
+                                        Review Title:
+                                        <input type="text" class="form-control" name="subject">
+                                        <br>
+                                        Review:
+                                        <textarea name="review" rows="4" class="form-control"></textarea>
+                                        <br>
+                                        {% if user.is_authenticated %}
+
+                                            <input type="submit" value="Submit Review" class="site-button">
+                                        {% else %}
+                                        <p>You must be logged in to post a review. <span><a href="{% url 'login' %}">Login now</a></span></p>
+                                        {% endif %}
+
+                                      </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--=====  End of single product tab  ======-->
+
+    <!--=============================================
+	=            Related Product slider         =
+	=============================================-->
+
+	<div class="slider related-product-slider mb-35">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <!--=======  multisale  slider section title  =======-->
+
+                    <div class="section-title">
+                        <h3>Related Product</h3>
+                    </div>
+
+                    <!--=======  End of multisale slider section title  =======-->
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <!--=======  related product slider wrapper  =======-->
+
+                    <div class="related-product-slider-wrapper">
+                        <!--=======  single related slider product  =======-->
+
+                        {% for similar in ad_similar %}
+                        <div class="gf-product related-slider-product">
+                            <div class="image">
+                                <a href="{{ similar.get_absolute_url }}">
+                                    <span class="similar.get_label_display">{{ similar.status }}</span>
+                                    {% if similar.delivery %}
+                                        <span class="days">Del:{{ similar.delivery }}</span>
+                                    {% endif %}
+                                    {% for image in similar.get_second_image %}
+                                        {% thumbnail image.product_image "268x200" crop="10px 10px"  as im %}
+                                            <img  style="margin:{{ im|margin:"268x200" }}" src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" class=" mx-auto"  />
+                                        {% endthumbnail %}
+                                    {% endfor %}
+                                </a>
+                                <div class="product-hover-icons" id = "part{{ similar.id }}">
+                                    {% if request.user.is_authenticated %}
+                                        {% if request.user in similar.favourite.all %}
+                                            {% csrf_token %}
+                                            <a href="#" id = "cart" data-id="{{ similar.id }}"  data-tooltip="Add to cart"> <span class="icon_cart_alt"></span></a>
+                                            <a href="#" id = "wishlist" data-id="{{ similar.id }}"  data-tooltip="Add to wishlist"> <span class="icon_heart"></span> </a>
+
+                                        {% else %}
+                                            <a href="#" id = "cart" data-id="{{ similar.id }}"  data-tooltip="Add to cart"> <span class="icon_cart_alt"></span></a>
+                                            <a href="#" id = "wishlist" data-id="{{ similar.id }}"  data-tooltip="Add to wishlist"> <span class="icon_heart_alt"></span> </a>
+                                        {% endif %}
+                                    {% else %}
+                                        <a href="{{ ad.get_add_to_cart_url }}"  data-tooltip="Add to cart"> <span class="icon_cart_alt"></span></a>
+                                        <a href="{% url 'home:favourite_ad' id=similar.id %}" data-tooltip="Add to wishlist"> <span class="icon_heart_alt"></span> </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="product-content">
+                                <div class="product-categories">
+                                    <a>{{ similar.category }}</a>
+                                </div>
+                                <h3 class="product-title"><a href="{{ similar.get_absolute_url }}">{{ similar.title }}</a></h3>
+                                <div class="price-box">
+                                    {% if similar.discount_price %}
+                                      <span class="discounted-price">₦{{ similar.discount_price|intcomma}}</span>
+                                      <span class="main-price">₦{{ similar.discount_price|intcomma}}</span>
+                                     {% else %}
+                                      <span class="discounted-price">₦{{ similar.price|intcomma}}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        </div>
+                        {% empty %}
+                               <div class="container-fluid">
+                                   <h6 style="text-align:center;">No related food found </h6>
+                                </div>
+                       {% endfor %}
+
+                    </div>
+
+                    <!--=======  End of related product slider wrapper  =======-->
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'home/affiliate.html' %}
+
+
+    {% insert_hit_count_js_variables for ad %}
+{% endblock %}
+{% block favourite %}
+
+{% endblock %}

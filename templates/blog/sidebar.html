@@ -1,0 +1,103 @@
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+{% load humanize %}
+
+
+ <div class="sidebar-area">
+
+    <!--=======  single sidebar  =======-->
+
+    <div class="sidebar mb-35">
+        <h3 class="sidebar-title">Search</h3>
+        <!--=======  search box  =======-->
+
+        <div class="sidebar-search-box">
+            <form action="{% url 'blog:list' %}" method="get">
+                <input type="search" placeholder="Search" name="q" >
+                <button type="submit"><i class="fa fa-search"></i></button>
+            </form>
+        </div>
+
+        <!--=======  End of search box  =======-->
+    </div>
+
+    <!--=======  End of single sidebar  =======-->
+
+    <!--=======  single sidebar  =======-->
+
+    <div class="sidebar mb-35">
+        <h3 class="sidebar-title">Recent Posts</h3>
+        <!--=======  block container  =======-->
+
+        <div class="block-container">
+
+            <!--=======  single block  =======-->
+            {% for post in most_recent %}
+            <div class="single-block d-flex">
+                <div class="image">
+                    <a href="{{ post.get_absolute_url }}">
+                        <img src="{{ post.image.url }}" class="img-fluid" alt="">
+                    </a>
+                </div>
+                <div class="content">
+                    <p><a href="{{ post.get_absolute_url }}">{{ post.title }}</a> <span>{{ post.timestamp|timesince }} ago</span></p>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!--=======  End of single block  =======-->
+
+        </div>
+
+        <!--=======  End of block container  =======-->
+    </div>
+
+    <!--=======  End of single sidebar  =======-->
+
+    <!--=======  single sidebar  =======-->
+    <div class="sidebar mb-35">
+        <h3 class="sidebar-title">CATEGORIES</h3>
+        <ul class="product-categories">
+            {% for cat in category_count %}
+              <li><a class="" href="#">{{ cat.categories__title }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!--=======  End of single sidebar  =======-->
+
+     <div class="sidebar mb-35">
+        <h3 class="sidebar-title">Trending Seafood</h3>
+        <!--=======  block container  =======-->
+
+        <div class="block-container">
+
+            <!--=======  single block  =======-->
+            {% for late in lates %}
+            <div class="single-block d-flex">
+                <div class="image">
+                    {% for images in late.get_second_image %}
+                        {% thumbnail images.product_image "80x53" crop="10px 10px"  as im %}
+                        <a href="{{ late.get_absolute_url }}">
+                            <img  style="margin:{{ im|margin:"80x53" }}" src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" class="img-fluid"  />
+                        </a>
+                        {% endthumbnail %}
+                    {% endfor %}
+                </div>
+                <div class="content">
+                    <p><a href="{{ late.get_absolute_url }}">{{ late.title }}</a> <span>₦{{ late.price|intcomma }}</span></p>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!--=======  End of single block  =======-->
+
+        </div>
+
+        <!--=======  End of block container  =======-->
+    </div>
+
+</div>
+

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+{% load i18n %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load thumbnail %}
+{% load humanize %}
+{% load cart_template_tags %}
+<html lang="en">
+
+<!-- Mirrored from creativethemes.co.in/demo/organic-store/html/ecommerce/main/ecommerce-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 21 Dec 2019 03:23:07 GMT -->
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!-- Tell the browser to be responsive to screen width -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<!-- Favicon icon -->
+<link rel="icon" href="{% static 'assets/images/favicon.png' %}">
+<title>{% block title %}Bunchfood Admin Panel{% endblock %}</title>
+<link href="{% static 'assets/vendors/perfect-scrollbar/css/perfect-scrollbar.css' %}" rel="stylesheet">
+<!-- This page CSS -->
+<!-- Editable CSS -->
+
+<link href="{% static 'assets/vendors/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+<link type="text/css" rel="stylesheet" href="{% static 'assets/vendors/jsgrid/dist/jsgrid.min.css' %}" />
+<link type="text/css" rel="stylesheet" href="{% static 'assets/vendors/jsgrid/dist/jsgrid-theme.min.css' %}" />
+<!-- chartist CSS -->
+<link href="{% static 'assets/vendors/morrisjs/morris.css' %}" rel="stylesheet">
+<link href="{% static 'assets/css/basic.css' %}" rel="stylesheet">
+
+<!--c3 CSS -->
+<link href="{% static 'assets/vendors/c3-master/c3.min.css' %}" rel="stylesheet">
+<!-- flot css -->
+<link href="{% static 'css/pages/float-chart.css' %}" rel="stylesheet">
+<!--Toaster Popup message CSS -->
+<link href="{% static 'assets/vendors/toast-master/css/jquery.toast.css' %}" rel="stylesheet">
+<!-- Custom CSS -->
+<link href="{% static 'css/master-stylesheet.css' %}" rel="stylesheet">
+<!-- You can change the theme colors from here -->
+<link href="{% static 'css/colors/default.css' %}" id="theme" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'date/jquery-ui.css' %}">
+<link rel='stylesheet' href="{% static 'date/jquery-ui-timepicker-addon.css' %}" />
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+</head>
+<body class="fix-header fix-sidebar card-no-border">
+<div id="main-wrapper">
+  <!-- ============================================================== -->
+  <!-- Topbar header - style you can find in pages.scss -->
+  <!-- ============================================================== -->
+  <header class="topbar">
+    <nav class="navbar top-navbar navbar-expand-md navbar-light">
+      <!-- ============================================================== -->
+      <!-- Logo -->
+      <!-- ============================================================== -->
+      <div class="navbar-header"> <a class="navbar-brand" href="/">
+        <!-- Logo icon -->
+        <b>
+        <img src="{% static 'assets/images/logo.png' %}" alt="homepage" class="dark-logo" />
+        </b>
+        <!--End Logo icon -->
+        </a> </div>
+      <!-- ============================================================== -->
+      <!-- End Logo -->
+      <!-- ============================================================== -->
+      <div class="navbar-collapse">
+        <!-- ============================================================== -->
+        <!-- toggle and nav items -->
+        <!-- ============================================================== -->
+        <ul class="navbar-nav mr-auto">
+          <!-- This is  -->
+          <li class="nav-item"> <a class="nav-link nav-toggler hidden-md-up waves-effect waves-dark" href="javascript:void(0)"><i class="sl-icon-menu"></i></a> </li>
+          <li class="nav-item"> <a class="nav-link sidebartoggler hidden-sm-down waves-effect waves-dark" href="javascript:void(0)"><i class="sl-icon-menu"></i></a> </li>
+{#          <li>#}
+{#            <div class="time-date"><i class="fa fa-calendar-o"></i> &nbsp; Sat, 17  jan 2019 <img src="../assets/images/sep.png" alt=""> <i class="fa fa-clock-o"></i> &nbsp;  10 : 33 : 22 AM</div>#}
+{#          </li>#}
+        </ul>
+        <!-- ============================================================== -->
+        <!-- User profile and search -->
+        <!-- ============================================================== -->
+        <ul class="navbar-nav my-lg-0">
+          {% if user.is_authenticated %}
+           <li class="nav-item dropdown u-pro">
+              <a class="nav-link dropdown-toggle waves-effect waves-dark profile-pic" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                 {% if request.user.profile.photo %}
+                     <img src="{{ request.user.profile.photo.url }}" alt="user" class="" width="30px" height="30px" />
+                 {% else %}
+                     <img src="{% static 'images/users/1.jpg' %}" alt="user" class="" width="30px" height="30px" />
+                 {% endif %}
+                     <span class="hidden-md-down">Hi, {{ request.user.get_full_name }} &nbsp;<i class="fa fa-angle-down"></i></span>
+              </a>
+            <div class="dropdown-menu dropdown-menu-right animated fadeIn">
+              <ul class="dropdown-user">
+                <li><a href="{% url "profile_display" %}"><i class="ti-user"></i> Profile</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="{% url "password_change" %}"><i class="ti-settings"></i> Change Password</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="{% url "logout" %}"><i class="fa fa-power-off"></i> Logout</a></li>
+              </ul>
+            </div>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  {% include 'sidebar_admin.html' %}
+
+
+  <div class="page-wrapper">
+     {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% block content %}
+
+    {% endblock %}
+
+
+    {% include 'footer_admin.html' %}
+
+  </div>
+  <!-- ============================================================== -->
+  <!-- End Wrapper -->
+  <!-- ============================================================== -->
+</div>
+<!-- ============================================================== -->
+<!-- All Jquery -->
+<!-- ============================================================== -->
+<script src="{% static 'assets/vendors/jquery/jquery.min.js' %}"></script>
+<!-- Bootstrap popper Core JavaScript -->
+<script src="{% static 'assets/vendors/bootstrap/js/popper.min.js' %}"></script>
+<script src="{% static 'assets/vendors/bootstrap/js/bootstrap.min.js' %}"></script>
+<!-- slimscrollbar scrollbar JavaScript -->
+<script src="{% static 'assets/vendors/ps/perfect-scrollbar.jquery.min.js' %}"></script>
+<!--Wave Effects -->
+<script src="{% static 'js/waves.js' %}"></script>
+<!--Menu sidebar -->
+<script src="{% static 'js/sidebarmenu.js' %}"></script>
+<!--Custom JavaScript -->
+<script src="{% static 'js/custom.min.js' %}"></script>
+<!-- This is data table -->
+<script src="{% static 'assets/vendors/datatables/jquery.dataTables.min.js' %}"></script>
+<!-- start - This is for export functionality only -->
+<script src="{% static 'assets/vendors/datatables-2/buttons/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'assets/vendors/datatables-2/buttons/buttons.flash.min.js' %}"></script>
+<script src="{% static 'assets/vendors/datatables-2/pdfmake/jszip.min.js' %}"></script>
+<script src="{% static 'assets/vendors/datatables-2/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static 'assets/vendors/datatables-2/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static 'assets/vendors/datatables-2/buttons/buttons.html5.min.js' %}"></script>
+<script src="{% static 'assets/vendors/datatables-2/buttons/buttons.print.min.js' %}"></script>
+<!-- end - This is for export functionality only -->
+<script src="{% static 'js/support-tickets.js' %}"></script>
+<!--jquery knob -->
+<script src="{% static 'assets/vendors/knob/jquery.knob.js' %}"></script>
+<script src="{% static 'js/knob-init.js' %}"></script>
+<!-- ============================================================== -->
+<!-- Style switcher -->
+<!-- ============================================================== -->
+<script src="{% static 'assets/vendors/styleswitcher/jQuery.style.switcher.js' %}"></script>
+<!--Morris JavaScript -->
+<script src="{% static 'assets/vendors/raphael/raphael-min.js' %}"></script>
+<script src="{% static 'assets/vendors/morrisjs/morris.js' %}"></script>
+<!-- maps -->
+<script src="{% static 'js/lib/4/maps.js' %}"></script>
+<!-- maps -->
+<!-- Editable -->
+<script src="{% static 'assets/vendors/jsgrid/db.js' %}"></script>
+<script src="{% static 'assets/vendors/jsgrid/dist/jsgrid.min.js' %}"></script>
+<script src="{% static 'js/jsgrid-init.js' %}"></script>
+<script src="{% static 'assets/vendors/jsgrid/jsgrid-data.js' %}"></script>
+<!-- Resources -->
+<script src="{% static 'assets/vendors/amcharts/core2.js' %}"></script>
+<script src="{% static 'assets/vendors/amcharts/maps2.js' %}"></script>
+<script src="{% static 'assets/vendors/amcharts/worldLow.js' %}"></script>
+<script src="{% static 'assets/vendors/amcharts/animated2.js' %}"></script>
+<!--Sparkline JavaScript -->
+<script src="{% static 'assets/vendors/sparkline/jquery.sparkline.min.js' %}"></script>
+<script src="{% static 'js/map-ecommerce.js' %}"></script>
+<script src="{% static 'js/ecommerce-dashboard.js' %}"></script>
+<!--Sparkline JavaScript -->
+<script src="{% static 'assets/vendors/sparkline/jquery.sparkline.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+<script src="{% static 'date/jquery-ui.js' %}" ></script>
+<script src="{% static 'date/jquery-ui-timepicker-addon.js' %}"></script>
+<script>
+  $( function() {
+    $( "#id_date_of_birth" ).datepicker({dateFormat: 'yy-mm-dd'}).attr("autocomplete", "off");
+  } );
+  </script>
+<script>
+
+    $(function () {
+
+      var $categoryChart = $("#category-chart");
+      $.ajax({
+        url: $categoryChart.data("url"),
+        success: function (data) {
+
+          var ctx = $categoryChart[0].getContext("2d");
+
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: data.labels,
+              datasets: [{
+                label: 'Category',
+                backgroundColor: 'blue',
+                data: data.data
+              }]
+            },
+            options: {
+              responsive: true,
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: 'Category Bar Chart'
+              }
+            }
+          });
+
+        }
+      });
+
+
+    });
+
+  </script>
+{% block script %}
+
+{% endblock %}
+{% block favourite %}
+
+{% endblock %}
+</body>
+
+<!-- Mirrored from creativethemes.co.in/demo/organic-store/html/ecommerce/main/ecommerce-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 21 Dec 2019 03:26:29 GMT -->
+</html>

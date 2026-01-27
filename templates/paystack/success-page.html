@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+{% load humanize %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Payment Confirmation</title>
+</head>
+<body>
+
+{% autoescape off %}
+Hi {{ payment.user.get_full_name }},
+
+    <p>Success</p>
+    <p>Congratulations! You have successfully paid for your purchase.</p>
+
+     <tbody>
+        <tr>
+          <td><a href="mailto:test@example.com">{{ payment.user.email }}</a></td>
+          <td>
+              {% for ord_item in payment.items.all %}
+                  <p>Purchase Item : {{ ord_item.item.title }}</p>
+                  <p>Quantity : {{ ord_item.quantity }}</p>
+                  <p>Amount : ₦{{ ord_item.get_total|intcomma }}</p>
+              {% endfor %}
+          </td>
+          <td>{{ payment.ref }}</td>
+          <td>{{ payment.date_ordered }}</td>
+        </tr>
+      </tbody>
+
+<P>Regards,</P>
+
+<p>Bunchfood</p>
+{% endautoescape %}
+
+</body>
+</html>

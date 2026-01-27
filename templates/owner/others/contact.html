@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+
+{% block title %}Contact us{% endblock %}
+
+
+{% block content %}
+     <div class="breadcrumb-area mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="breadcrumb-container">
+                        <ul>
+                            <li><a href="{% url 'home:home' %}"><i class="fa fa-home"></i> Home</a></li>
+                            <li class="active">Contact</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<div class="page-content mb-50">
+
+		<!--=====  End of google map container  ======-->
+
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-3 col-md-4 mb-xs-35">
+					<!--=======  contact page side content  =======-->
+
+					<div class="contact-page-side-content">
+						<h3 class="contact-page-title">Contact Us</h3>
+
+						<!--=======  single contact block  =======-->
+
+						<div class="single-contact-block">
+							<h4><img src="{% static 'assets/images/icons/contact-icon2.png ' %}" alt=""> Phone</h4>
+							<p>Hotline: +234 806 362 7547</p>
+						</div>
+
+						<!--=======  End of single contact block  =======-->
+
+						<!--=======  single contact block  =======-->
+
+						<div class="single-contact-block">
+							<h4><img src="{% static 'assets/images/icons/contact-icon3.png ' %}" alt=""> Email</h4>
+							<p>bunchfood@gmail.com</p>
+						</div>
+
+						<!--=======  End of single contact block  =======-->
+					</div>
+
+					<!--=======  End of contact page side content  =======-->
+
+				</div>
+				<div class="col-lg-9 col-md-8 pl-100 pl-xs-15">
+					<!--=======  contact form content  =======-->
+
+					<div class="contact-form-content">
+						<h3 class="contact-page-title">Tell Us Your Message</h3>
+
+						<div class="contact-form">
+							<form method="POST" action="" novalidate="novalidate" enctype="multipart/form-data">
+                                {% csrf_token %}
+								<div class="form-group">
+									{% bootstrap_field form.name %}
+								</div>
+								<div class="form-group">
+									{% bootstrap_field form.email %}
+								</div>
+								<div class="form-group">
+									{% bootstrap_field form.subject %}
+								</div>
+								<div class="form-group">
+									{% bootstrap_field form.message %}
+								</div>
+								<div class="form-group">
+									<button type="submit" value="submit" id="submit" class="contact-form-btn" name="submit">Send</button>
+								</div>
+							</form>
+						</div>
+						<p class="form-messege pt-10 pb-10 mt-10 mb-10"></p>
+					</div>
+
+					<!--=======  End of contact form content =======-->
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

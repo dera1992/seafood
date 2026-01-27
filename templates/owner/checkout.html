@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+{% load humanize %}
+
+{% block title %}Bookmarked property{% endblock %}
+
+{% block content %}
+     <div class="breadcrumb-area mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="breadcrumb-container">
+                        <ul>
+                            <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                            <li class="active">Checkout</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<div class="page-section section mb-50">
+		<div class="container">
+			<div class="row">
+				<div class="col-12">
+
+					<!-- Checkout Form s-->
+					<form action="." id="signup_form" method="post" data-cities-url="{% url 'order:ajax_load_cities' %}" class="order-form">
+                        {% csrf_token %}
+						<div class="row row-40">
+
+							<div class="col-lg-7 mb-20">
+
+								<!-- Billing Address -->
+								<div id="billing-form" class="mb-40">
+									<h4 class="checkout-title">Billing Address</h4>
+
+									<div class="row">
+
+{#                                        {{ form }}#}
+
+										<div class="form-group col-12 mb-20">
+											<label for="street_address">Address 1</label>
+											<input type="text" name="street_address" placeholder="Address line 1" class='form-control'>
+										</div>
+                                        <div class="form-group col-12 mb-20">
+											<label for="apartment_address">Address 2</label>
+											<input type="text" name="apartment_address" placeholder="Address line 2" class='form-control'>
+										</div>
+										<div class="col-md-6 col-12 mb-20">
+											<label>State</label>
+											<select required id="id_state" class="form-control" name="state">
+                                                <option value="">&nbsp;</option>
+                                                {% for state in states %}
+                                                  <option value="{{state.id}}">
+                                                      {{ state }}
+                                                  </option>
+                                                {% endfor %}
+                                            </select>
+                                            <i class="ti-briefcase"></i>
+										</div>
+										<div class=" col-md-6 col-12 mb-20">
+											<label>City</label>
+											<select required id="id_city" class="form-control" name="city">
+                                                <option value="">&nbsp;</option>
+                                                {% for cit in cities %}
+                                                  <option value="{{cit.id}}">
+                                                      {{ cit }}
+                                                  </option>
+                                                {% endfor %}
+                                            </select>
+                                            <i class="ti-briefcase"></i>
+										</div>
+                                        <div class="form-group col-12 mb-20">
+                                            <input {% if form.same_billing_address.value %}checked{% endif %} type="checkbox" id="id_same_billing_address" name="same_billing_address">
+                                            <label for="id_same_billing_address">Shipping address is the same as billing address</label>
+                                        </div>
+
+                                        <div class="form-group col-12 mb-20">
+                                            <input {% if form.save_info.value %}checked{% endif %}  type="checkbox" id="id_save_info" name="save_info">
+                                            <label for="id_save_info">Save this information for the next transaction</label>
+                                        </div>
+
+									</div>
+
+								</div>
+
+							</div>
+
+							<div class="col-lg-5">
+								<div class="row">
+
+									<!-- Cart Total -->
+									<div class="col-12 mb-60">
+
+										<h4 class="checkout-title">Cart Total</h4>
+
+										<div class="checkout-cart-total">
+
+											<h4>Product <span>Total</span></h4>
+
+											<ul>
+                                                {% for order_item in order.items.all %}
+												    <li>{{ order_item.item.title }} X {{ order_item.quantity }} <span>₦{{ order_item.get_total_item_price|intcomma }}</span></li>
+												{% endfor %}
+											</ul>
+                                            {% for order_item in order.items.all %}
+											<p>Sub Total <span>₦{{ order_item.get_final_price |intcomma}}</span></p>
+                                            {% endfor %}
+                                            <p>Shipping Fee <span>₦00.00</span></p>
+                                            {% if order.coupon %}
+											    <p>Promo Code : {{ order.coupon.code }} <span>-₦{{ order.coupon.amount|intcomma }}</span></p>
+                                            {% endif %}
+											<h4>Grand Total <span>₦{{ order.get_total|intcomma }}</span></h4>
+
+										</div>
+
+									</div>
+
+									<!-- Payment Method -->
+									<div class="col-12">
+
+										<h4 class="checkout-title">Payment Method</h4>
+
+										<div class="checkout-payment-method">
+                                            {% for value, name in form.fields.payment_option.choices %}
+                                                <div class="single-method">
+                                                    <input type="radio" id="{{ name }}" name="payment_option" value="{{ value }}">
+                                                    <label for="{{ name }}">{{ name }}</label>
+                                                </div>
+                                            {% endfor %}
+										</div>
+
+										<button type="submit" class="place-order">Place order</button>
+
+									</div>
+
+								</div>
+							</div>
+
+						</div>
+					</form>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% block script %}
+    <script>
+        $("#id_state").change(function () {
+          var url = $("#signup_form").attr("data-cities-url");  // get the url of the `load_cities` view
+          var stateId = $(this).val();  // get the selected country ID from the HTML input
+
+          $.ajax({                       // initialize an AJAX request
+            url: url,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+            data: {
+              'state': stateId       // add the country id to the GET parameters
+            },
+            success: function (data) {   // `data` is the return of the `load_cities` view function
+              $("#id_city").html(data);  // replace the contents of the city input with the data that came from the server
+            }
+          });
+
+        });
+      </script>
+{% endblock %}
+{% endblock %}

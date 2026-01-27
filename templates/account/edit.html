@@ -1,0 +1,149 @@
+{% extends "base_admin.html" %}
+{% load django_bootstrap5 %}
+{% load static %}
+{% load i18n %}
+{#{% bootstrap_css %}#}
+{#{% bootstrap_javascript jquery='full' %}#}
+{#{{ profile_form.media }}#}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+    <!-- ============================================================== -->
+    <!-- Bread crumb and right sidebar toggle -->
+    <!-- ============================================================== -->
+    <div class="row page-titles">
+      <div class="col-6 align-self-center">
+        <h3>Account Settings</h3>
+      </div>
+      <div class="col-6 text-right font-12"> <a href="{% url 'home:home' %}">Home</a>  &gt;  Profile Edit</div>
+      <div class="">
+        <button class="right-side-toggle waves-effect waves-light bg-primary btn btn-circle btn-sm pull-right ml-10"><i class="ti-settings text-white"></i></button>
+      </div>
+    </div>
+       <!-- ============================================================== -->
+    <!-- Bread crumb and right sidebar toggle -->
+    <!-- ============================================================== -->
+
+   <div class="row">
+
+      <div class="col-lg-4 col-md-6 col-sm-12 userprofile">
+        <div class="p-relative"> <img src="{% static 'images/profile/edit-cover-image.jpg' %}" class="img-fluid" alt="" title="">
+          <div class="userpic">
+              {% if request.user.profile.photo %}
+                     <img src="{{ request.user.profile.photo.url }}" class="userpicimg"/>
+               {% else %}
+                 <img src="{% static 'images/users/1.jpg' %}" class="userpicimg" />
+               {% endif %}
+          </div>
+          <div class="card">
+            <div class="card-body"> </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-lg-8 col-md-6 col-sm-12">
+      <form  id="signup_form" method="post" action="{% url 'edit' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+        <div class="card">
+          <div class="card-body">
+            <h2 class="font-20 text-blue">Basic Info</h2>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {% bootstrap_field user_form.first_name %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {% bootstrap_field user_form.last_name %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {% bootstrap_field user_form.username %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {% bootstrap_field user_form.email %}
+                </div>
+              </div>
+                <div class="col-md-6">
+                <div class="form-group">
+                  {% bootstrap_field profile_form.date_of_birth %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {% bootstrap_field profile_form.phone %}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  {% bootstrap_field profile_form.address %}
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  {% bootstrap_field profile_form.photo %}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h2 class="font-20 text-blue">About</h2>
+             {% bootstrap_field profile_form.description %}
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h2 class="font-20  text-blue"><img src="{% static 'main/assets/images/profile/user-img.png' %}" alt="" title="" >&nbsp; Social Links</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                      {% bootstrap_field profile_form.facebook %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                       {% bootstrap_field profile_form.google %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                       {% bootstrap_field profile_form.twitter %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                       {% bootstrap_field profile_form.linkedin %}
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="text-right">
+                <button class="btn btn-rounded btn-success font-13 text-dark" type="submit">Save</button>
+          </div>
+        </div>
+        <div class="clearfix"></div>
+       </div>
+      </form>
+      </div>
+    <!-- ============================================================== -->
+    <!-- End PAge Content -->
+    <!-- ============================================================== -->
+
+    <!-- ============================================================== -->
+  </div>
+ </div>
+
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base_admin.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+{% load humanize %}
+{% load hitcount_tags %}
+
+{% block title %}Property List{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+  <!-- ============================================================== -->
+  <!-- Bread crumb and right sidebar toggle -->
+  <!-- ============================================================== -->
+  <div class="row page-titles">
+    <div class="col-md-6 align-self-center">
+      <h3>Product List</h3>
+    </div>
+    <div class="col-md-6 text-right font-12"> <a href="index.html">Admin</a>  &gt; Product List</div>
+    <div class="">
+      <button class="right-side-toggle waves-effect waves-light bg-primary btn btn-circle btn-sm pull-right ml-10"><i class="ti-settings text-white"></i></button>
+    </div>
+  </div>
+  <!-- ============================================================== -->
+  <!-- Start Page Content -->
+  <!-- ============================================================== -->
+  <div class="card">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-12">
+          <div class="table-responsive">
+            <table id="myTable" class="table color-table table-bordered product-table table-hover">
+                <thead>
+                  <tr>
+                     <td>ID</td>
+                     <td>Product</td>
+                     <td>Category</td>
+                     <td>Price</td>
+                     <td>QTY</td>
+                     <td>Status</td>
+                     <td class="op-0">&nbsp;</td>
+                    <td class="op-0">&nbsp;</td>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for ad in ads %}
+                  <tr>
+                     <td>{{ ad.id }}</td>
+                     <td class="text-dark weight-600">
+                      {% for images in ad.get_second_image %}
+                        {% thumbnail images.product_image "50x50" crop="10px 10px"  as im %}
+                            <img  style="margin:{{ im|margin:"50x50" }}" src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}">
+                            <a href="{{ ad.get_absolute_url }}">{{ ad.title }}</a> <br>
+                        {% endthumbnail %}
+                      {% endfor %}
+                     </td>
+                     <td>{{ ad.category }}</td>
+                     <td>₦{{ ad.price|intcomma}}</td>
+                     <td>25</td>
+                     <td>{{ ad.get_status_display }}</td>
+                     <td class="text-center"><a href="{% url 'foodcreate:edit_post' pk=ad.pk %}"><i class="fa fa-pencil"></i></a></td>
+                         <td class="text-center"><a href="{% url 'owner:delete_post' pk=ad.pk %}"><i class="fa fa-trash text-danger"></i></a></td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,61 @@
+/* Hide Radio button */
+.ncnc > input{
+  display: none;
+}
+
+.ncnc{
+  display: inline-block;;
+  border: 0;
+}
+
+.ncnc > label{
+  float: right !important;
+}
+
+/* Showing the stars */
+.ncnc > label:before{
+  display: inline-block;
+  font-size: 1.1rem;
+  font-family: FontAwesome;
+  content: "\f005" !important;
+  margin:0;
+  padding:0.3rem .2rem;
+  cursor: pointer;
+}
+
+/* Half star */
+.ncnc .half:before{
+  content: "\f089" !important;
+  position: absolute;
+  padding-right: 0;
+}
+
+/* Click and hover */
+input[type=radio]:checked ~ label, label:hover ~ label{
+  color: #ffb503;
+}
+
+/* hover hightlight */
+input[type=radio]:checked + label:hover, input[type=radio]:checked ~ label:hover,input[type=radio]:checked ~ label:hover ~ label,
+label:hover ~ input[type=radio]:checked ~ label{
+  color: #cc9000;
+}
+
+.rating-star i{
+  color: #ffb503 !important;
+}
+
+ul.thumb{
+  margin:0 auto;
+  padding: 0;
+  float: left;
+}
+ul.thumb li{
+  list-style: none;
+  margin: 10px;
+}
+ul.thumb li img{
+  width: 80px;
+  height: 80px;
+  border: 1px solid grey;
+}

@@ -1,0 +1,125 @@
+{% load static %}
+
+<footer>
+		<!--=======  newsletter section  =======-->
+
+		<div class="newsletter-section pt-50 pb-50">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-4 col-md-12 col-sm-12 mb-sm-20 mb-xs-20">
+						<!--=======  newsletter title =======-->
+
+						<div class="newsletter-title">
+							<h1>
+								<img src="{% static 'assets/images/icon-newsletter.png' %}" alt="">
+								Send Newsletter
+							</h1>
+						</div>
+
+						<!--=======  End of newsletter title  =======-->
+					</div>
+
+					<div class="col-lg-8 col-md-12 col-sm-12">
+						<!--=======  subscription-form wrapper  =======-->
+
+						<div class="subscription-form-wrapper d-flex flex-wrap flex-sm-nowrap">
+							<p class="mb-xs-20">Sign up for our newsletter</p>
+							<div class="subscription-form">
+								<form  method="POST" action="{% url 'marketing:email-list-signup' %}" class="mc-form subscribe-form">
+                                    {% csrf_token %}
+									<input type="email" id="mc-email" name="email" autocomplete="off" placeholder="Your email address">
+									<button id="mc-submit" type="submit"> subscribe!</button>
+								</form>
+							</div>
+						</div>
+
+						<!--=======  End of subscription-form wrapper  =======-->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!--=======  End of newsletter section  =======-->
+		<!--=======  footer navigation  =======-->
+
+		<div class="footer-navigation-section pt-40 pb-40">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 mb-xs-30">
+						<!--=======  single navigation section  =======-->
+
+						<div class="single-navigation-section">
+							<h3 class="nav-section-title">INFORMATION</h3>
+							<ul>
+								<li> <a><p>Phone: <span>+234 806 362 7547</span></p></a></li>
+								<li> <a><p>Email: <span>bunchfood@gmail.com</span></p></a></li>
+                                <li>
+                                     <div class="social-links">
+                                        <a href="#" title="facebook"><i class="fa fa-facebook"></i></a>
+                                        <a href="#" title="instagram +"><i class="fa fa-instagram"></i></a>
+                                        <a href="#" title="twitter"><i class="fa fa-twitter"></i></a>
+                                        <a href="#" title="Linkedin"><i class="fa fa-pinterest"></i></a>
+                                    </div>
+                                </li>
+							</ul>
+						</div>
+
+						<!--=======  End of single navigation section  =======-->
+					</div>
+					<div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 mb-xs-30 col-offset-1">
+						<!--=======  single navigation section  =======-->
+
+						<div class="single-navigation-section">
+							<h3 class="nav-section-title">INFORMATION</h3>
+							<ul>
+								<li> <a href="{% url "owner:about_us" %}">About Us</a></li>
+								<li> <a href="{% url "owner:create_contact" %}">Contact Us</a></li>
+								<li> <a href="{% url "owner:faq" %}">Faq</a></li>
+								<li> <a href="#">Terms & Condition</a></li>
+							</ul>
+						</div>
+
+						<!--=======  End of single navigation section  =======-->
+					</div>
+					<div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 mb-xs-30 col-lg-offset-1">
+						<!--=======  single navigation section  =======-->
+
+						<div class="single-navigation-section">
+							<h3 class="nav-section-title">MY ACCOUNT</h3>
+							<ul>
+								<li> <a href="{% url "profile_display" %}">My Account</a></li>
+								<li> <a href="{% url "home:favourites" %}">Wishlist</a></li>
+								<li> <a href="{% url 'cart:order-summary' %}">Shopping Cart</a></li>
+								<li> <a href="{% url 'blog:list' %}">Newsletter</a></li>
+							</ul>
+						</div>
+
+						<!--=======  End of single navigation section  =======-->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!--=======  End of footer navigation  =======-->
+
+
+		<!--=======  copyright section  =======-->
+
+		<div class="copyright-section pt-35 pb-35">
+			<div class="container">
+                <div class="text-center">
+                    <!--=======  copyright text	  =======-->
+
+                    <div class="copyright-segment" style="text-align: center">
+                        <p class="copyright-text">&copy; {%now "Y"%} <a href="https://demo.hasthemes.com/">Rockflint</a>. All Rights Reserved</p>
+                    </div>
+
+                    <!--=======  End of copyright text	  =======-->
+
+                </div>
+			</div>
+		</div>
+
+		<!--=======  End of copyright section  =======-->
+	</footer>
+

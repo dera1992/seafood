@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+{% load humanize %}
+
+{% block title %}Payment{% endblock %}
+
+
+{% block content %}
+     <div class="breadcrumb-area mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="breadcrumb-container">
+                        <ul>
+                            <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                            <li class="active">Payment</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<div class="page-section section mb-50">
+		<div class="container">
+{#			<div class="row">#}
+				<div class="card">
+                    <div class="card-header" style="text-align: center">
+                        <h5 class="card-title">Make Payment for: ₦{{ amt|intcomma }}</h5>
+                    </div>
+                    <div class="card-body" style="text-align: center">
+                        <script src ="https://js.paystack.co/v1/inline.js"></script>
+                        <button class="btn btn-large btn-success" onclick="payWithPayStack()" id="django-paystack-button">Make Payment</button>
+                    </div>
+                </div>
+                <br>
+                <div class="col-12">
+                    <h4 class="checkout-title">Cart Total</h4>
+                    <div class="checkout-cart-total">
+
+                        <h4>Product <span>Total</span></h4>
+                        <ul>
+                            {% for order_item in order.items.all %}
+                                <li>{{ order_item.item.title }}  X {{ order_item.quantity }}
+                                    {% if order_item.item.discount_price %}
+                                        <span>₦{{ order_item.get_total_discount_item_price|intcomma }}</span>
+                                    {% else %}
+                                        <span>₦{{ order_item.get_total_item_price |intcomma}}</span>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+
+                        {% for order_item in order.items.all %}
+                            <p>Sub Total <span>₦{{ order_item.get_final_price|intcomma }}</span></p>
+                        {% endfor %}
+                        <p>Shipping Fee <span>₦00.00</span></p>
+                        {% if order.coupon %}
+                            <p>Promo Code : {{ order.coupon.code }} <span>-₦{{ order.coupon.amount|intcomma }}</span></p>
+                        {% endif %}
+                        <h4>Grand Total <span>₦{{ order.get_total|intcomma }}</span></h4>
+
+                    </div>
+				</div>
+{#			</div>#}
+		</div>
+	</div>
+    <script>
+        function  payWithPayStack() {
+            let currency = "NGN";
+            let plan = "";
+            let ref = "{{ order.ref }}";
+            let obj ={
+                key: "{{ paystack_public_key }}",
+                email:'{{ order.user.email }}',
+                amount:'{{ amount }}',
+                ref:ref,
+                callback:function (response) {
+                    window.location.href = "{% url 'order:verify_payment' order.ref %}";
+                }
+            }
+
+            if (Boolean(currency)) {
+                obj.currency = currency.toUpperCase()
+            }
+
+            if (Boolean(plan)){
+                obj.plan = plan;
+            }
+            var handler = PaystackPop.setup(obj);
+            handler.openIframe();
+        }
+    </script>
+{% endblock %}
+

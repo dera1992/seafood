@@ -1,0 +1,65 @@
+{% extends "base_admin.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+{% load humanize %}
+{% load hitcount_tags %}
+
+{% block title %}Customer List{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+  <!-- ============================================================== -->
+  <!-- Bread crumb and right sidebar toggle -->
+  <!-- ============================================================== -->
+  <div class="row page-titles">
+    <div class="col-md-6 align-self-center">
+      <h3>Customer List</h3>
+    </div>
+    <div class="col-md-6 text-right font-12"> <a href="index.html">Admin</a>  &gt; Customer List</div>
+    <div class="">
+      <button class="right-side-toggle waves-effect waves-light bg-primary btn btn-circle btn-sm pull-right ml-10"><i class="ti-settings text-white"></i></button>
+    </div>
+  </div>
+  <!-- ============================================================== -->
+  <!-- Start Page Content -->
+  <!-- ============================================================== -->
+  <div class="card">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-12">
+          <div class="table-responsive">
+            <table id="myTable" class="table color-table table-bordered product-table table-hover">
+                <thead>
+                  <tr>
+                     <th>User</th>
+                     <th>Opened By</th>
+                     <th>Email</th>
+                     <th>Phone</th>
+                     <th>Address</th>
+                     <th>Date Created</th>
+{#                     <th>Action</th>#}
+                  </tr>
+                </thead>
+                <tbody>
+                {% for customer in customers %}
+                  <tr>
+                     <td><img src="{{ customer.photo.url }}" alt="" title="" class="profile-img2 img-circle"></td>
+                     <td>{{ customer.user.get_full_name }}</td>
+                     <td>{{ customer.user.email }}</td>
+                     <td>{{ customer.phone }}</td>
+                     <td>{{ customer.address }}</td>
+                     <td>{{ customer.created }}</td>
+{#                     <td><a href="#" class="pencil-icon"><i class="fa fa-pencil" aria-hidden="true"></i></a> <a href="#" class="delete-icon"><i class="fa fa-trash" aria-hidden="true"></i></a></td>#}
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+{% endblock %}

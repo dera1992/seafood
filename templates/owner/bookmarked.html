@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+{% load humanize %}
+
+{% block title %}Bookmarked property{% endblock %}
+
+{% block content %}
+  <div class="breadcrumb-area mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="breadcrumb-container">
+                    <ul>
+                        <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                        <li class="active">Wishlist</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <div class="page-section section mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <form action="#">
+                        <!--=======  cart table  =======-->
+
+                        <div class="cart-table table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="pro-thumbnail">Image</th>
+                                        <th class="pro-title">Product</th>
+                                        <th class="pro-price">Price</th>
+                                        <th class="add-to-cart-th"><p>Add to Cart</p></th>
+                                        <th class="pro-remove">Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for p in favourite_posts %}
+                                    <tr>
+                                        <td class="pro-thumbnail">
+                                             {% for images in p.get_second_image %}
+                                                {% thumbnail images.product_image "120x120" crop="10px 10px"  as im %}
+                                                <a href="{{ p.get_absolute_url }}">
+                                                    <img   src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" class=""  />
+                                                </a>
+                                                {% endthumbnail %}
+                                              {% endfor %}
+                                        </td>
+                                        <td class="pro-title"><a href="{{ p.get_absolute_url }}">{{p.title}}</a></td>
+                                        <td class="pro-price"><span>₦{{ p.price|intcomma}}</span></td>
+                                        <td class="text-center">
+                                            {% if request.user.is_authenticated %}
+                                                {% csrf_token %}
+                                                <a href="#" id = "cart" data-id="{{ p.id }}" class="add-to-cart"><i class="fa fa-shopping-cart"></i><span class="hidden-xs">&nbsp; Add To Cart</span></a>
+                                            {% else %}
+                                                <a href="{% url 'home:favourite_ad' id=p.id %}" class="add-to-cart"><i class="fa fa-shopping-cart"></i><span class="hidden-xs">&nbsp; Add To Cart</span></a>
+                                            {% endif %}
+                                        </td>
+                                        <td class="pro-remove"><a href="{% url 'home:favourite_delete' id=p.id %}" class="delete" id="delete"><i class="fa fa-trash-o"></i></a></td>
+                                    </tr>
+                                {% empty %}
+                                     <tr>
+                                        <td class="container-fluid" >
+                                            <h3 style="text-align:center;"> No Wishlist Found</h3>
+                                        </td>
+                                     </tr>
+                               {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!--=======  End of cart table  =======-->
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

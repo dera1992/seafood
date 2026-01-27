@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Registration Confirmation</title>
+</head>
+<body>
+
+{% autoescape off %}
+Hi {{ user.username }},
+
+    <p>Thanks you for registering with us.</p>
+    <p>Please click on the link below to confirm your registration.</p>
+
+<a href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}">Confirm your registration</a>
+
+<P>Regards,</P>
+
+<p>Bunchfood</p>
+{% endautoescape %}
+
+</body>
+</html>

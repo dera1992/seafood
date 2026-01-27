@@ -1,0 +1,12 @@
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+
+
+<div class="header-advance-search">
+    <form method="GET" action="{% url 'product_search:product_filter' %}">
+        <input type="text" name="title_contains_query" placeholder="Search your product" value="{{ request.GET.title_contains_query.strip }}">
+        <button><span class="icon_search"></span></button>
+    </form>
+</div>

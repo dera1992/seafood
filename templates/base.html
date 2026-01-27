@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+{% load i18n %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load thumbnail %}
+{% load humanize %}
+{#{% bootstrap_css %}#}
+{#{% bootstrap_javascript %}#}
+<html class="no-js" lang="zxx">
+
+
+<!-- Mirrored from demo.hasthemes.com/greenfarm-preview/greenfarm/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 18 Dec 2019 09:58:38 GMT -->
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>{% block title %}Bunchfood{% endblock %}</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    {% block extra_head %}
+    {% endblock %}
+	<!-- Favicon -->
+	<link rel="icon" href="{% static 'assets/images/favicon.png' %}">
+
+	<!-- CSS
+	============================================ -->
+	<!-- Bootstrap CSS -->
+
+	<link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet">
+	<link href="{% static 'assets/css/font-awesome.min.css' %}" rel="stylesheet">
+
+	<!-- Elegent CSS -->
+	<link href="{% static 'assets/css/elegent.min.css' %}" rel="stylesheet">
+
+	<!-- Plugins CSS -->
+	<link href="{% static 'assets/css/plugins.css' %}" rel="stylesheet">
+
+	<!-- Helper CSS -->
+	<link href="{% static 'assets/css/helper.css' %}" rel="stylesheet">
+
+	<!-- Main CSS -->
+	<link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+
+    <link href="{% static 'assets/css/custom.css' %}" rel="stylesheet">
+
+	<!-- Modernizer JS -->
+	<script src="{% static 'assets/js/vendor/modernizr-2.8.3.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'star-ratings/css/star-ratings.css' %}">
+
+</head>
+
+<body>
+
+{#    <div id="output_box"></div>#}
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+    {% endif %}
+	{% include 'navbar.html' %}
+
+    {% block content %}
+
+    {% endblock %}
+
+
+    {% include 'footer.html' %}
+
+	<!-- scroll to top  -->
+	<a href="#" class="scroll-top"></a>
+	<!-- end of scroll to top -->
+
+	<!-- JS
+	============================================ -->
+	<!-- jQuery JS -->
+	<script src="{% static 'assets/js/vendor/jquery.min.js' %}"></script>
+
+    <!-- Popper JS -->
+	<script src="{% static 'assets/js/popper.min.js' %}"></script>
+
+    <!-- Bootstrap JS -->
+	<script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+
+	<!-- Plugins JS -->
+	<script src="{% static 'assets/js/plugins.js' %}"></script>
+
+	<!-- Main JS -->
+	<script src="{% static 'assets/js/main.js' %}"></script>
+    <script type="text/javascript" src="{% static 'star-ratings/js/dist/star-ratings.min.js' %}"></script>
+
+{#    <script src="https://maps.google.com/maps/api/js?sensor=false&amp;libraries=geometry&amp;v=3.22&amp;key=AIzaSyDAq7MrCR1A2qIShmjbtLHSKjcEIEBEEwM"></script>#}
+
+    <script src="{% static 'hitcount/hitcount-jquery.js' %}"></script>
+     <script type="text/javascript">
+          $(document).ready(function(event){
+              $('#delete').click(function(){
+              return confirm("Are you sure to delete this post?");
+            });
+
+             $('.reply-btn').click(function() {
+              $(this).parent().parent().next('.replied-comments').fadeToggle()
+            });
+
+             $(document).on('submit', '.comment-form', function(event){
+              event.preventDefault();
+              console.log($(this).serialize());
+              $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function(response) {
+                  $('.main-comment-section').html(response['form']);
+                  $('textarea').val('');
+                  $('.reply-btn').click(function() {
+                    $(this).parent().parent().next('.replied-comments').fadeToggle();
+                    $('textarea').val('');
+                  });
+                },
+                error: function(rs, e) {
+                  console.log(rs.responseText);
+                },
+              });
+            });
+
+
+            $(document).on('submit', '.reply-form', function(event){
+              event.preventDefault();
+              console.log($(this).serialize());
+              $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function(response) {
+                  $('.main-comment-section').html(response['form']);
+                  $('textarea').val('');
+                  $('.reply-btn').click(function() {
+                    $(this).parent().parent().next('.replied-comments').fadeToggle();
+                    $('textarea').val('');
+                  });
+                },
+                error: function(rs, e) {
+                  console.log(rs.responseText);
+                },
+              });
+            });
+
+           $(document).on('click', '#wishlist', function(event){
+              event.preventDefault();
+              var pk = $(this).data('id');
+              var check = pk;
+              $.ajax({
+                type: 'POST',
+                url: '{% url 'home:favourite_ads'%}',
+                data: {'id':pk, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                dataType: 'json',
+                success: function(response){
+                    $('#part' + check).html(response['form']);
+                  {#console.log($('#part' + check).html(response['form']));#}
+                },
+                error: function(rs, e){
+                  console.log(rs.responseText);
+                },
+              });
+            });
+
+           $(document).on('click', '#cart', function(event){
+              event.preventDefault();
+              var pk = $(this).data('id');
+              var check = pk;
+              $.ajax({
+                type: 'POST',
+                url: '{% url 'cart:add_to_cart_ajax'%}',
+                data: {'id':pk, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                dataType: 'json',
+                success: function(data){
+                    if (data['status'] == 'ok') {
+                        alert('This item quantity was updated');
+                        $('#part' + check).html(response['ok']);
+                    }
+                    elseif:
+                     if (data['status'] == 'ook') {
+                        alert('This item was added to your cart');
+                        $('#part' + check).html(response['ok']);
+                    }
+                    elseif:
+                     if (data['status'] == 'ko') {
+                        alert('This item was added to your cart');
+                        $('#part' + check).html(response['ok']);
+                    }
+                },
+                error: function(rs, e){
+                  console.log(rs.responseText);
+                },
+              });
+            });
+
+           {#$(document).ready(function() {#}
+           {#   $.ajaxSetup({ cache: false }); // This part addresses an IE bug.  without it, IE will only load the first number and will never refresh#}
+           {#   var pathname = window.location.pathname;#}
+           {#   var my_refresh = setInterval(function() {#}
+           {#     $('#carts').load(pathname);#}
+           {#   }, 10000); // the "1000"#}
+           {# });#}
+
+
+           {#$(document).on('click', '#sort', function(event){#}
+           {#     var latest = $(this).data('latest');#}
+           {#     var descending = $(this).data('descending');#}
+           {#     var ascending = $(this).data('ascending');#}
+           {#     $.ajax({#}
+           {#         url:'{% url 'search:filter'%}',#}
+           {#         method:"POST",#}
+           {#         data:{latest:latest, descending:descending, ascending:ascending ,'csrfmiddlewaretoken': '{{ csrf_token }}'},#}
+           {#         dataType: 'json',#}
+           {#         success:function(data){#}
+           {#             $('.filter_data').html(data);#}
+           {#         }#}
+           {#     });#}
+           {# });#}
+
+          });
+
+        </script>
+
+        {% block script %}
+
+        {% endblock %}
+        {% block favourite %}
+
+        {% endblock %}
+        {% block extra_scripts %}
+
+        {% endblock %}
+
+</body>
+
+
+<!-- Mirrored from demo.hasthemes.com/greenfarm-preview/greenfarm/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 18 Dec 2019 09:59:31 GMT -->
+</html>

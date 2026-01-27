@@ -1,0 +1,171 @@
+{% extends "base_admin.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+{% load humanize %}
+
+{% block title %}Bookmarked property{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+      <!-- ============================================================== -->
+      <!-- Bread crumb and right sidebar toggle -->
+      <!-- ============================================================== -->
+      <div class="row page-titles">
+        <div class="col-md-6 align-self-center">
+          <h3>Order Status</h3>
+        </div>
+        <div class="col-md-6 text-right font-12"> <a href="index.html">Admin</a>  &gt;  Food Orders</div>
+        <div class="">
+          <button class="right-side-toggle waves-effect waves-light bg-primary btn btn-circle btn-sm pull-right ml-10"><i class="ti-settings text-white"></i></button>
+        </div>
+      </div>
+      <!-- ============================================================== -->
+      <!-- Start Page Content -->
+      <!-- ============================================================== -->
+    <div class="row">
+        {% if user.is_superuser %}
+            <div class="col-lg-3 col-md-6 col-sm-6">
+              <div class="card">
+                <div class="card-body">
+                  <div class="d-flex pa-10 no-block row">
+                  <div class="col-lg-7 col-md-7 col-sm-7 col p-0">
+                  <h4 class="text-muted mb-10 font-14">Order Placed</h4>
+                  <h2>{{ today_order.count }}</h2>
+                  <h6 class="font-12">Today's Order</h6>
+                  </div>
+
+                  <div class="col-lg-5 col-md-5 col-sm-5  col p-0">
+                  <div class="text-center">
+                  <input data-plugin="knob" data-width="93%" data-height="93%" data-linecap=round data-fgColor="#ffc8c9" data-displayInput=false  value="40" data-skin="tron" data-angleOffset="180" data-readOnly=true data-thickness=".1" />
+                  </div>
+                  </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+              <div class="card">
+                <div class="card-body">
+                <div class="d-flex pa-10 no-block row">
+                    <div class="col-lg-7 col-md-7 col-sm-7 col  p-0">
+                     <h4 class="text-muted mb-10 font-14">Pending Orders</h4>
+                      <h2>{{ pending_order.count }}</h2>
+                      <h6 class="font-12">In Process</h6>
+                    </div>
+                    <div class="col-lg-5 col-md-5 col-sm-5  col p-0">
+                      <div class="text-center">
+                        <input data-plugin="knob" data-width="93%" data-height="93%" data-linecap=round data-fgColor="#cfcfff" data-displayInput=false  value="40" data-skin="tron" data-angleOffset="180" data-readOnly=true data-thickness=".1" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+              <div class="card">
+                <div class="card-body">
+                    <div class="d-flex pa-10 no-block row">
+                    <div class="col-lg-7 col-md-7 col-sm-7 col p-0">
+                      <h4 class="text-muted mb-10 font-14">Paid Orders</h4>
+                      <h2>{{ paid_order.count }}</h2>
+                      <h6 class="font-12">Paid Today</h6>
+                    </div>
+                    <div class="col-lg-5 col-md-5 col-sm-5 col p-0">
+                      <div class="text-center">
+                        <input data-plugin="knob" data-width="93%" data-height="93%" data-linecap=round data-fgColor="#ffd9bd" data-displayInput=false  value="40" data-skin="tron" data-angleOffset="180" data-readOnly=true data-thickness=".1" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex pa-10 no-block row">
+                <div class="col-lg-7 col-md-7 col-sm-7 col p-0">
+                  <h4 class="text-muted mb-10 font-14">Delivered</h4>
+                  <h2>{{ delivered_order.count }}</h2>
+                  <h6 class="font-12">Delivered Today</h6>
+                </div>
+                  <div class="col-lg-5 col-md-5 col-sm-5 col p-0">
+                  <div class="text-center">
+                  <input data-plugin="knob" data-width="93%" data-height="93%" data-linecap=round data-fgColor="#c6f0b1" data-displayInput=false  value="40" data-skin="tron" data-angleOffset="180" data-readOnly=true data-thickness=".1" />
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% else %}
+            <div class="col-lg-3 col-md-6 col-sm-6">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex pa-10 no-block row">
+              <div class="col-lg-7 col-md-7 col-sm-7 col p-0">
+              <h4 class="text-muted mb-10 font-14">Order Placed</h4>
+              <h2>{{ my_order.count }}</h2>
+              <h6 class="font-12">Today's Order</h6>
+              </div>
+
+              <div class="col-lg-5 col-md-5 col-sm-5  col p-0">
+              <div class="text-center">
+              <input data-plugin="knob" data-width="93%" data-height="93%" data-linecap=round data-fgColor="#ffc8c9" data-displayInput=false  value="40" data-skin="tron" data-angleOffset="180" data-readOnly=true data-thickness=".1" />
+              </div>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12">
+              <div class="table-responsive">
+                <table id="example23" class="display nowrap table table-hover">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Ordered By</th>
+                      <th>Email</th>
+                      <th>Product</th>
+                      <th>Phone</th>
+                      <th>Paid</th>
+                      <th>Ref Code</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for ord in allorder %}
+                    <tr>
+                      <td>
+                          {% if ord.user.profile.photo %}
+                             <img src="{{ ord.user.profile.photo.url }}" alt="" title="" class="profile-img2 img-circle">
+                          {% endif %}
+                      </td>
+                      <td>{{ ord.user.first_name }} {{ ord.user.last_name }}</td>
+                      <td><a href="mailto:test@example.com">{{ ord.user.email }}</a></td>
+                      <td>
+                          {% for ord_item in ord.items.all %}
+                              {{ ord_item.quantity }}X {{ ord_item.item.title }}
+                          {% endfor %}
+                      </td>
+                      <td>{{ ord.user.profile.phone}}</td>
+                      <td><a href="#" class="btn waves-effect waves-light btn-rounded close-bt">{{ ord.paid }} </a></td>
+                      <td>{{ ord.ref }}</td>
+                      <td>{{ ord.date_ordered }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}

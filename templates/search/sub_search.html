@@ -1,0 +1,63 @@
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+
+
+<div class="col-lg-3 order-2 order-lg-1">
+					<!--=======  sidebar area  =======-->
+
+					<div class="sidebar-area">
+                        <form method="GET" action="{% url 'product_search:product_filter' %}">
+                            <input type="hidden" name="order" value="{{ request.GET.order.strip }}"/>
+                            <input type="hidden" name="title_contains_query" value="{{ request.GET.title_contains_query.strip }}"/>
+                            <!--=======  single sidebar  =======-->
+
+                            <div class="sidebar mb-35">
+                                <h3 class="sidebar-title">PRODUCT CATEGORIES</h3>
+                                <div class="row">
+                                    {% for category in categories %}
+                                    <div class="col-lg-8 col-md-8 col-sm-8">
+
+                                            <input type="radio" id="{{ category.name }}" {% if category.name == request.GET.category.strip %}checked{% endif %} name="category" value="{{ category.name }}">
+                                            <label for="{{ category.name }}">{{ category.name }}</label>
+
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!--=======  End of single sidebar  =======-->
+
+                            <!--=======  single sidebar  =======-->
+
+                            <div class="sidebar mb-35">
+                                <h3 class="sidebar-title">Filter By Price</h3>
+                                <div class="sidebar-price">
+                                    <div id="price-range"></div>
+                                    <input type="text" id="price-amount" readonly>
+                                </div>
+                                <div>
+                                    <label for="txtMin"></label>
+                                    <input type="hidden" name="price_min" id="txtMin" value="{{ request.GET.price_min.strip }}"/>
+                                </div>
+                                <div>
+                                    <label for="txtMax"></label>
+                                    <input type="hidden" name="price_max" id="txtMax" value="{{ request.GET.price_max.strip }}"/>
+                                </div>
+
+                            </div>
+
+                            <div class="">
+                                <button class="sidebar-title btn btn-success">Search</button>
+                            </div>
+
+                        </form>
+
+					</div>
+
+					<!--=======  End of sidebar area  =======-->
+				</div>
+
+
+

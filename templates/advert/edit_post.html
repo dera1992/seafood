@@ -1,0 +1,160 @@
+{% extends "base_admin.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+
+{% block title %}Edit your property{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+      <!-- ============================================================== -->
+      <!-- Bread crumb and right sidebar toggle -->
+      <!-- ============================================================== -->
+      <div class="row page-titles">
+        <div class="col-6 align-self-center">
+          <h3>Add/Edit Products</h3>
+        </div>
+        <div class="col-6 text-right font-12"> <a href="{% url 'home:home' %}">Home</a>  &gt; Edit Products</div>
+        <div class="">
+          <button class="right-side-toggle waves-effect waves-light bg-primary btn btn-circle btn-sm pull-right ml-10"><i class="ti-settings text-white"></i></button>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- Start Page Content -->
+      <!-- ============================================================== -->
+      <div class="row">
+        <div class="col-lg-12 col-md-12">
+          <div class="card">
+            <div class="card-body">
+              <h4> General </h4>
+              <div class="row">
+                <div class="form-wrap form-wrap2 col-12">
+                  <form class="form-horizontal"  id="post_form" method="post" data-cities-url="{% url 'foodcreate:ajax_load_subcategories' %}" action="." enctype="multipart/form-data">
+                  {% csrf_token %}
+                    <div>
+                      <div class="form-group">
+                        <div >
+                            {% bootstrap_field postForm.title %}
+{#                          <input type="email" class="form-control font-14"  placeholder="Name">#}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="form-group">
+                      <div class="row">
+                        <div class="col-sm-6 col-xs-12 mb-10">
+                          <div>
+                              {% bootstrap_field postForm.category %}
+                          </div>
+                        </div>
+                        <div class="col-md-6 col-xs-12 mb-10">
+                          <div >
+                              {% bootstrap_field postForm.subcategory %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="form-group">
+                      <div class="col-md-6 col-xs-12 mb-10">
+                          <div>
+                            {% bootstrap_field postForm.price %}
+                          </div>
+                        </div>
+                        <div class="col-md-6 col-xs-12 mb-10">
+                          <div >
+                            {% bootstrap_field postForm.discount_price %}
+                          </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="form-group">
+                        <div class="col-md-6 col-xs-12 mb-10">
+                          <div >
+                            {% bootstrap_field postForm.status %}
+                          </div>
+                        </div>
+                        <div class="col-md-6 col-xs-12 mb-10">
+                          <div >
+                            {% bootstrap_field postForm.label %}
+                          </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+
+                    <div class="card-body">
+                      <h4 class="font-18 text-blue text-uppercase mb-20">Upload More Photos </h4>
+                      <div class="row">
+                        {% for form in formset %}
+                            <div class="form-group col-md-4">
+                                {{ form.as_table }}
+                            </div>
+                        {% endfor %}
+                        {{ formset.management_form }}
+                        <div class="clearfix"></div>
+                      </div>
+                    </div>
+
+                    <div class="form-group row mb-0">
+                      <div class="col-sm-12 p-0">
+                        <div class="col-12">
+                          {% bootstrap_field postForm.description %}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card">
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-md-6 col-xs-12 mb-10">
+                          <div>
+                            {% bootstrap_field postForm.delivery %}
+                          </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 mb-20">
+                          <label class="switch">
+                            {% bootstrap_field postForm.available %}
+                            <span class="slider"></span> </label>
+                          <span class="font-14"></span> </div>
+                        <div class="col-md-6 col-sm-6 text-right">
+                          <div class="5">
+                            <button type="submit" class="btn btn-rounded waves-effect waves-light bg-green font-14 text-white">Save</button>
+                            <button type="button" class="btn btn-rounded waves-effect waves-light btn-outline-default font-14"><a href="{% url 'home:home' %}">Cancel</a></button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    {% block script %}
+        <script>
+            $("#id_category").change(function () {
+              var url = $("#post_form").attr("data-cities-url");  // get the url of the `load_cities` view
+              var categoryId = $(this).val();  // get the selected country ID from the HTML input
+
+              $.ajax({                       // initialize an AJAX request
+                url: url,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+                data: {
+                  'category': categoryId       // add the country id to the GET parameters
+                },
+                success: function (data) {   // `data` is the return of the `load_cities` view function
+                  $("#id_subcategory").html(data);  // replace the contents of the city input with the data that came from the server
+                }
+              });
+
+            });
+          </script>
+    {% endblock %}
+
+
+{% endblock %}

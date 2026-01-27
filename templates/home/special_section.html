@@ -1,0 +1,15 @@
+{% if request.user.is_authenticated %}
+
+    {% if request.user in ad.favourite.all %}
+        {% csrf_token %}
+        <a href="#" id = "cart" data-id="{{ ad.id }}"  data-tooltip="Add to cart"> <span class="icon_cart_alt"></span></a>
+        <a href="#" id = "wishlist" data-id="{{ ad.id }}"  data-tooltip="Added to wishlist"> <span class="icon_heart"></span> </a>
+
+    {% else %}
+        <a href="#" id = "cart" data-id="{{ ad.id }}"  data-tooltip="Add to cart"> <span class="icon_cart_alt"></span></a>
+        <a href="#" id = "wishlist" data-id="{{ ad.id }}"  data-tooltip="Add to wishlist"> <span class="icon_heart_alt"></span> </a>
+    {% endif %}
+{% else %}
+    <a href="{{ ad.get_add_to_cart_url }}"  data-tooltip="Add to cart"> <span class="icon_cart_alt"></span></a>
+    <a href="{% url 'home:favourite_ad' id=ad.id %}" data-tooltip="Add to wishlist"> <span class="icon_heart_alt"></span> </a>
+{% endif %}

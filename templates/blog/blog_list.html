@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+{% load humanize %}
+
+{% block title %}Blog post{% endblock %}
+
+{% block content %}
+
+    <div class="breadcrumb-area mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="breadcrumb-container">
+                        <ul>
+                            <li><a href="{% url 'home:home' %}"><i class="fa fa-home"></i> Home</a></li>
+                            <li class="active">Blog</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--=====  End of breadcrumb area  ======-->
+
+
+    <!--=============================================
+    =            Blog Page Container         =
+    =============================================-->
+
+    <div class="blog-page-container mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 order-2">
+					<!--=======  sidebar area  =======-->
+
+					{% include 'blog/sidebar.html' with most_recent=most_recent category_count=category_count lates=lates %}
+
+                    <!--=======  End of sidebar area  =======-->
+                </div>
+                <div class="col-lg-9 order-1">
+                    <!--=======  blog post container  =======-->
+
+                    <div class="blog-post-container">
+
+                        <div class="row">
+                        {% for obj in object_list %}
+                            <div class="col-md-6">
+                            <!--=======  single blog post  =======-->
+
+                            <div class="single-blog-post mb-35">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="single-blog-post-media mb-20">
+                                            <div class="image">
+                                                {% if obj.image %}
+                                                    <a href="{{ obj.get_absolute_url }}"><img src="{{ obj.image.url }}" class="" width="338px" height="291px" alt="" /></a>
+                                                {% endif%}
+                                            </div>
+                                            <div class="blog-categories">
+                                                <ul>
+                                                    <li>{{ obj.category }}</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="single-blog-post-content">
+                                            <h3 class="post-title"> <a href="{{ obj.get_absolute_url }}"> {{ obj.title }}</a></h3>
+                                            <div class="post-meta">
+                                                <p><span><i class="fa fa-user-circle"></i> Posted By: </span> <a href="#">{{ obj.profile.user.get_full_name }}</a>
+                                                    <span class="separator">/</span> <span><i class="fa fa-calendar"></i> Posted On: <a href="#">{{ obj.publish }}</a></span></p>
+                                            </div>
+
+                                            <p class="post-excerpt">
+                                                {{ obj.content|linebreaks|truncatechars_html:50 }}
+                                            </p>
+                                            <a href="{{ obj.get_absolute_url }}" class="blog-readmore-btn">continue</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--=======  End of single blog post  =======-->
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+
+                    <!--=======  End of blog post container  =======-->
+
+                    <!--=======  Pagination container  =======-->
+
+					<div class="pagination-container mb-sm-35 mb-xs-35">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <!--=======  pagination-content  =======-->
+
+                                    <div class="pagination-content text-center">
+                                        {% if object_list.has_other_pages %}
+                                          <ul>
+                                            {% if object_list.has_previous %}
+                                              <li><a href="?page={{ object_list.previous_page_number }}"> <i class="fa fa-angle-left"></i></a></li>
+                                            {% else %}
+                                              <li class="disabled"><span>&laquo;</span></li>
+                                            {% endif %}
+                                            {% for i in object_list.paginator.page_range %}
+                                              {% if object_list.number == i %}
+                                                <li ><a class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></a></li>
+                                              {% else %}
+                                                <li><a href="?page={{ i }}">{{ i }}</a></li>
+                                              {% endif %}
+                                            {% endfor %}
+                                            {% if object_list.has_next %}
+                                              <li><a href="?page={{ object_list.next_page_number }}"> <i class="fa fa-angle-right"></i></a></li>
+                                            {% else %}
+                                              <li class="disabled"><span>&raquo;</span></li>
+                                            {% endif %}
+                                          </ul>
+                                        {% endif %}
+                                    </div>
+
+                                    <!--=======  End of pagination-content  =======-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--=======  End of Pagination container  =======-->
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+     {% include 'home/affiliate.html' %}
+
+{% endblock %}

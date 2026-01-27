@@ -1,0 +1,106 @@
+{% extends "base_admin.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+{% load humanize %}
+{% load hitcount_tags %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <!-- Content Wrapper. Contains page content -->
+  <div class="container-fluid">
+      <!-- ============================================================== -->
+      <!-- Bread crumb and right sidebar toggle -->
+      <!-- ============================================================== -->
+      <div class="row page-titles">
+        <div class="col-6 align-self-center">
+          <h3>Bunchfood Dashboard</h3>
+        </div>
+        <div class="col-6 text-right font-12"> <a href="index.html">Admin</a> &gt;  Bunchfood Dashboard</div>
+        <div class="">
+          <button class="right-side-toggle waves-effect waves-light bg-primary btn btn-circle btn-sm pull-right ml-10"><i class="ti-settings text-white"></i></button>
+        </div>
+      </div>
+      <!-- ============================================================== -->
+      <!-- End Bread crumb and right sidebar toggle -->
+      <!-- ============================================================== -->
+      <!-- ============================================================== -->
+      <!-- Info box -->
+      <!-- ============================================================== -->
+      <div class="row ">
+        <!-- Column -->
+        <div class="col-lg-3 col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex pa-10 no-block">
+                <div class="align-slef-center ">
+                  <h2 class="counter text-themecolor"><span class="">{{ ads.count }}</span></h2>
+                  <h6 class="text-muted mb-0 text-uppercase">Total products</h6>
+                </div>
+                <div class="align-self-center display-6 ml-auto text-themecolor"><i class="icon-Over-Time"></i> </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Column -->
+        <!-- Column -->
+        <div class="col-lg-3 col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex pa-10 no-block">
+                <div class="align-slef-center ">
+                  <h2 class="counter text-themecolor"><span class="">{{ users.count }}</span></h2>
+                  <h6 class="text-muted mb-0 text-uppercase">Users</h6>
+                </div>
+                <div class="align-self-center display-6 ml-auto text-themecolor"><i class="icon-Big-Data"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Column -->
+        <!-- Column -->
+        <div class="col-lg-3 col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex pa-10 no-block">
+                <div class="align-slef-center ">
+                  <h2 class="counter text-themecolor"><span class="">{{ order.count }}</span></h2>
+                  <h6 class="text-muted mb-0 text-uppercase">Orders</h6>
+                </div>
+                <div class="align-self-center display-6 ml-auto text-themecolor"><i class="icon-Arrow-Refresh"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Column -->
+        <!-- Column -->
+        <div class="col-lg-3 col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex pa-10 no-block">
+                <div class="align-slef-center ">
+                  <h2 class="counter text-themecolor"><span class="">{{ blog.count }}</span></h2>
+                  <h6 class="text-muted mb-0 text-uppercase">Blogs</h6>
+                </div>
+                <div class="align-self-center display-6 ml-auto text-themecolor"><i class="ti-shopping-cart-full"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Column -->
+{#        <div class="col-lg-12 col-md-12">#}
+{#          <div class="card">#}
+{#            <div class="card-body">#}
+                <div id="container" style="width: 100%;">
+                    <canvas id="category-chart" data-url="{% url 'home:category_chart' %}"></canvas>
+                 </div>
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+      </div>
+
+    </div>
+  <!-- /.content-wrapper -->
+{% endblock %}

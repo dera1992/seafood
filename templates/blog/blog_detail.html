@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+
+{% block title %}Blog Detail{% endblock %}
+
+{% block content %}
+
+    <div class="breadcrumb-area mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="breadcrumb-container">
+                        <ul>
+                            <li><a href="{% url 'home:home' %}"><i class="fa fa-home"></i> Home</a></li>
+                            <li><a href="{% url 'blog:list' %}">Blog</a></li>
+                            <li class="active">{{ instance.title }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--=====  End of breadcrumb area  ======-->
+
+
+    <!--=============================================
+    =            Blog Page Container         =
+    =============================================-->
+
+    <div class="blog-page-container mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 order-2">
+					<!--=======  sidebar area  =======-->
+
+					{% include 'blog/sidebar.html' with most_recent=most_recent category_count=category_count lates=lates %}
+
+                    <!--=======  End of sidebar area  =======-->
+                </div>
+                <div class="col-lg-9 order-1 mb-sm-35 mb-xs-35">
+                    <!--=======  blog post container  =======-->
+
+                    <div class="blog-single-post-container mb-35">
+
+                        <!--=======  post title  =======-->
+
+
+                        <h3 class="post-title">{{ instance.title }}</h3>
+
+                        <!--=======  End of post title  =======-->
+
+
+                        <!--=======  Post meta  =======-->
+                        <div class="post-meta">
+                            <p><span><i class="fa fa-user-circle"></i> Posted By: </span> <a href="#">{{ instance.profile.user.get_full_name }}</a>
+                                <span class="separator">/</span> <span><i class="fa fa-calendar"></i> Posted On: <a href="#">{{ instance.publish }} ago</a></span></p>
+                        </div>
+
+                        <!--=======  End of Post meta  =======-->
+
+                        <!--=======  Post media  =======-->
+
+                        <div class="single-blog-post-media mb-xs-20">
+                            <div class="image">
+                                {% if instance.image %}
+                                    {% thumbnail instance.image "770x500" crop="center"  as im %}
+                                         <img  style="margin:{{ im|margin:"770x500" }}" src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" class="img-fluid" alt="Alt">
+                                    {% endthumbnail %}
+{#                                    <img  src="{{ instance.image.url }}" alt="" width="770px" height="500px" class="img-fluid">#}
+                                 {% endif %}
+                            </div>
+                            <div class="blog-categories">
+                                <ul>
+                                    <li><a href="#">{{ instance.category }}</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!--=======  End of Post media  =======-->
+
+                        <!--=======  Post content  =======-->
+
+                        <div class="post-content mb-40">
+                            <p>{{ instance.content|safe }}</p>
+                        </div>
+
+                        <!--=======  End of Post content  =======-->
+
+                        <!--=======  Tags area  =======-->
+
+                        <!--=======  End of Tags area  =======-->
+
+
+                        <!--=======  Share post area  =======-->
+
+                        <div class="social-share-buttons mb-40">
+                                <h3>share this product</h3>
+                                <ul>
+                                    <li><a class="twitter" href="#"><i class="fa fa-twitter"></i></a></li>
+                                    <li><a class="facebook" href="#"><i class="fa fa-facebook"></i></a></li>
+                                    <li><a class="google-plus" href="#"><i class="fa fa-google-plus"></i></a></li>
+                                    <li><a class="pinterest" href="#"><i class="fa fa-pinterest"></i></a></li>
+                                    <li><a class="linkedin" href="#"><i class="fa fa-linkedin"></i></a></li>
+                                </ul>
+                            </div>
+
+                        <!--=====  End of Share post area  ======-->
+
+                    </div>
+
+                    <!--=======  End of blog post container  =======-->
+
+                    <!--=============================================
+                    =            Comment section         =
+                    =============================================-->
+                    {% include 'blog/comments.html' %}
+
+                    <!--=====  End of Comment section  ======-->
+
+
+                </div>
+            </div>
+            {% include 'home/affiliate.html' %}
+        </div>
+    </div>
+
+{% endblock %}

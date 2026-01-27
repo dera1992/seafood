@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+{% load humanize %}
+
+{% block title %}Bookmarked property{% endblock %}
+
+{% block content %}
+     <div class="breadcrumb-area mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="breadcrumb-container">
+                        <ul>
+                            <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                            <li class="active">Cart</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-section section mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <form action="#">
+                        <!--=======  cart table  =======-->
+
+                        <div class="cart-table table-responsive mb-40">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+{#                                        <th class="pro-thumbnail">#</th>#}
+                                        <th class="pro-thumbnail">Image</th>
+                                        <th class="pro-title">Product</th>
+                                        <th class="pro-price">Price</th>
+                                        <th class="pro-quantity">Quantity</th>
+                                        <th class="pro-subtotal">Total</th>
+                                        <th class="pro-remove">Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for cart_item in cart.items.all %}
+{#                                    <td class="pro-title">{{ forloop.counter }}</td>#}
+                                    <tr>
+                                        <td class="pro-thumbnail">
+                                            {% for images in cart_item.item.get_second_image %}
+                                                {% thumbnail images.product_image "120x120" crop="10px 10px"  as im %}
+                                                <a href="{{ cart_item.item.get_absolute_url }}">
+                                                    <img   src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" class=""  />
+                                                </a>
+                                                {% endthumbnail %}
+                                            {% endfor %}
+                                        </td>
+                                        <td class="pro-title"><a href="{{ cart_item.get_absolute_url }}">{{cart_item.item.title}}</a></td>
+                                        <td class="pro-price"><span>₦{{ cart_item.item.price|intcomma}}</span></td>
+                                        <td class="pro-quantity">
+                                            <a href="{% url 'cart:remove_single_item_from_cart'  cart_item.item.slug %}"><i class="fa fa-minus"></i></a>
+                                                 {{ cart_item.quantity }}
+                                            <a href="{% url 'cart:add_to_cart'  cart_item.item.slug %}"><i class="fa fa-plus ml-2"></i></a>
+                                        </td>
+                                        <td class="pro-subtotal">
+                                            {% if cart_item.item.discount_price %}
+                                                <span>₦{{ cart_item.get_total_discount_item_price|intcomma }}</span>
+                                                <span class="badge badge-primary">Saving ${{ cart_item.get_amount_saved }}</span>
+                                            {% else %}
+                                               <span> ₦{{ cart_item.get_total_item_price |intcomma}}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="pro-remove"><a href="{% url 'cart:remove_from_cart' cart_item.item.slug %}"><i class="fa fa-trash-o"></i></a></td>
+                                    </tr>
+                                {% empty %}
+                                     <tr>
+                                        <td class="container-fluid " >
+                                            <h5 class="justify-content-center" style="text-align:center;"> You have no food in your cart <a class="btn btn-secondary " href="/">Shop Now</a></h5>
+                                        </td>
+                                     </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </form>
+
+                    <div class="row">
+
+                        <div class="col-lg-6 col-12">
+                            <div class="discount-coupon">
+                                <h4>Discount Coupon Code</h4>
+                                <form class="card p-2" action="{% url 'order:add-coupon' %}" method="POST">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col-md-6 col-12 mb-25">
+                                            {{ couponform.code }}
+                                        </div>
+                                        <div class="col-md-6 col-12 mb-25">
+                                         <button class="btn btn-secondary btn-md waves-effect m-0" type="submit">Apply Coupon</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+
+                        <div class="col-lg-6 col-12 d-flex">
+                            <!--=======  Cart summery  =======-->
+
+                            <div class="cart-summary">
+                                <div class="cart-summary-wrap">
+                                    <h4>Cart Summary</h4>
+                                    {% for cart_item in cart.items.all %}
+                                    <p>Sub Total <span>₦{{ cart_item.get_final_price|intcomma }}</span></p>
+                                    {% endfor %}
+                                    <p>Shipping Cost <span>₦00</span></p>
+                                    {% if cart.coupon %}
+                                        <p>Coupon <span>-₦{{ cart.coupon.amount }}</span></p>
+                                    {% endif %}
+                                    <h2>Grand Total <span>₦{{ cart.get_total|intcomma }}</span></h2>
+                                </div>
+                                <div class="cart-summary-button">
+                                    <button class="checkout-btn"><a href="{% url 'order:checkout' %}">Checkout</a></button>
+                                    <button class="update-btn"><a href="/">Shop Now</a></button>
+                                </div>
+                            </div>
+
+                            <!--=======  End of Cart summery  =======-->
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% load static %}
+{% load cart_template_tags %}
+
+<header>
+    <!--=======  header top  =======-->
+
+    <div class="header-top pt-10 pb-10 pt-lg-10 pb-lg-10 pt-md-10 pb-md-10">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center text-sm-left">
+                    <!-- currncy language dropdown -->
+                    <div class="lang-currency-dropdown">
+                        <ul>
+                            <li> Phone: <span class="number">+234 806 362 7547</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- end of currncy language dropdown -->
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12  text-center text-sm-right">
+                    <!-- header top menu -->
+                    <div class="lang-currency-dropdown">
+                        {% if user.is_authenticated %}
+                        <ul>
+                            <li class="dropdown">
+                                {% if request.user.profile.photo %}
+                                     <img src="{{ request.user.profile.photo.url }}" alt="user" class="" style="border-radius:50%;" width="30px" height="30px" />
+                                    {% else %}
+                                     <img src="{% static 'images/users/1.jpg' %}" alt="user" class="" style="border-radius:50%;" width="30px" height="30px" />
+                                 {% endif %}
+                                <a> {{ request.user.get_full_name }} <i class="fa fa-chevron-down"></i></a>
+                                <ul>
+                                    {% if user.is_superuser %}
+                                    <li class="dropdown-item"><a href="{% url "home:dashboard" %}">Dashboard</a></li>
+                                    {% endif %}
+                                    <li class="dropdown-item"><a href="{% url "profile_display" %}">Profile</a></li>
+                                    <li class="dropdown-item"><a href="{% url "password_change" %}">Change Password</a></li>
+                                    <li class="dropdown-item"><a href="{% url "logout" %}">Log Out</a></li>
+                                </ul>
+                            </li>
+{#                            <li><a href="{% url "home:favourites" %}">Wishlist : {{ request.user|wish_item_count }} item{{ request.user|wish_item_count|pluralize }}</a></li>#}
+                        </ul>
+                        {% else %}
+                         <ul>
+                              <li class="nav-item"> <a href="{% url "login" %}"> LOGIN </a></li>
+                              <li class="nav-item"> <a href="{% url "register" %}"> REGISTER </a></li>
+{#                              <li><a href="{% url "home:favourites" %}">Wishlist : {{ request.user|wish_item_count }} item{{ request.user|wish_item_count|pluralize }}</a></li>#}
+
+                          </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--=======  End of header top  =======-->
+
+    <!--=======  header bottom  =======-->
+
+    <div class="header-bottom header-bottom-one">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-sm-12 col-xs-12 text-lg-left text-md-center text-sm-center">
+                    <!-- logo -->
+                    <div class="logo mt-15 mb-15">
+                        <a href="{% url "home:home" %}">
+                            <img src="{% static 'assets/images/logo.png' %}" class="img-fluid" alt="">
+                        </a>
+                    </div>
+                    <!-- end of logo -->
+                </div>
+                <div class="col-md-9 col-sm-12 col-xs-12">
+                    <div class="menubar-top d-flex justify-content-between align-items-center flex-sm-wrap flex-md-wrap flex-lg-nowrap mt-sm-15">
+                        <!-- search bar -->
+                        {% include 'search/other_search.html' %}
+                        <!-- end of search bar -->
+                        <!-- shopping cart -->
+                        {% if user.is_authenticated %}
+                        <div class="shopping-cart" id="shopping-cart">
+                             <a href="{% url "home:favourites" %}">
+                                <div class="cart-icon d-inline-block">
+                                    <span class="icon_heart_alt"></span>
+                                </div>
+                                <div class="cart-info d-inline-block" id="carts">
+                                    <span>
+                                        {{ request.user|wish_item_count }} item{{ request.user|wish_item_count|pluralize }}
+                                    </span>
+                                </div>
+                            </a>
+                            <a href="{% url 'cart:order-summary' %}">
+                                <div class="cart-icon d-inline-block">
+                                    <span class="icon_cart_alt"></span>
+                                </div>
+                                <div class="cart-info d-inline-block" id="carts">
+{#                                    <p>Shopping Cart#}
+                                        <span>
+                                            {{ request.user|cart_item_count }} item{{ request.user|cart_item_count|pluralize }}
+                                        </span>
+{#                                    </p>#}
+                                </div>
+                            </a>
+                        <!-- end of shopping cart -->
+                        </div>
+                        {% else %}
+                            <div class="shopping-cart" id="shopping-cart">
+                                <a href="{% url "home:favourites" %}">
+                                    <div class="cart-icon d-inline-block">
+                                        <span class="icon_heart_alt"></span>
+                                    </div>
+                                    <div class="cart-info d-inline-block" id="carts">
+                                        <span>
+                                            {{ request.user|wish_item_count }} item{{ request.user|wish_item_count|pluralize }}
+                                        </span>
+                                    </div>
+                                </a>
+                                <a href="{% url 'cart:order-summary' %}">
+                                    <div class="cart-icon d-inline-block">
+                                        <span class="icon_cart_alt"></span>
+                                    </div>
+                                    <div class="cart-info d-inline-block" id="carts">
+{#                                        <p>Shopping Cart#}
+                                            <span>
+                                                {{ request.user|cart_item_count }} item{{ request.user|cart_item_count|pluralize }}
+                                            </span>
+{#                                        </p>#}
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+                <div class="col-12">
+                    <!-- Mobile Menu -->
+                    <div class="mobile-menu d-block d-lg-none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--=======  End of header bottom  =======-->
+</header>

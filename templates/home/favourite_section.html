@@ -1,0 +1,18 @@
+{% if request.user.is_authenticated %}
+
+    {% if request.user in ad.favourite.all %}
+        {% csrf_token %}
+         <a href="#" id="favourite" data-id="{{ ad.id }}" >
+            <i class="lni-heart-filled"></i>
+        </a>
+
+    {% else %}
+         <a href="#" id="favourite" data-id="{{ ad.id }}" >
+            <i class="ti-heart"></i>
+        </a>
+    {% endif %}
+{% else %}
+    <a href="{% url 'home:favourite_ad' id=ad.id %}" >
+        <i class="ti-heart"></i>
+    </a>
+{% endif %}

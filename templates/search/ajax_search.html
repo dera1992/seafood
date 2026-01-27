@@ -1,0 +1,73 @@
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% load thumbnail %}
+{% load humanize %}
+{% load hitcount_tags %}
+
+
+{% for ad in queryset %}
+<div class="property-listing property-1">
+
+    <div class="listing-img-wrapper">
+        {% for images in ad.get_first_image %}
+            {% thumbnail images.ad_image "800x530" crop="10px 10px"  as im %}
+                <a href="{{ ad.get_absolute_url }}">
+                    <img  style="margin:{{ im|margin:"800x530" }}" src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" class="img-fluid mx-auto" alt="" />
+                </a>
+            {% endthumbnail %}
+        {% endfor %}
+        <div class="listing-like-top" id = "part{{ ad.id }}">
+            {% include 'home/favourite_section.html' %}
+        </div>
+
+        <div class="listing-rating">
+            <i class="ti-star filled"></i>
+            <i class="ti-star filled"></i>
+            <i class="ti-star filled"></i>
+            <i class="ti-star filled"></i>
+            <i class="ti-star"></i>
+        </div>
+        <span class="property-type">{{ ad.property_offer }}</span>
+    </div>
+
+    <div class="listing-content">
+
+        <div class="listing-detail-wrapper">
+
+{#                                        <h6 class="">{{ ad.category }}</h6>#}
+            <div class="listing-short-detail">
+                <span class="listing-location" style="color: #00A877">{{ ad.category }}</span>
+                <h4 class="listing-name"><a href="{{ ad.get_absolute_url }}">{{ ad.property_title }}</a></h4>
+                <span class="listing-location"><i class="ti-location-pin"></i>{{ ad.address|truncatechars_html:50 }}</span>
+            </div>
+            <div class="list-author">
+                <a href="#"><img src="{{ ad.profile.photo.url }}" class="img-circle avater-30" alt=""></a>
+            </div>
+        </div>
+
+        <div class="listing-features-info">
+            <ul>
+                <li><strong>Bed:</strong>{{ ad.bedroom }}</li>
+                <li><strong>Bath:</strong>{{ ad.bathroom }}</li>
+                <li><strong>Sqft:</strong>{{ ad.property_area }}</li>
+            </ul>
+        </div>
+
+        <div class="listing-footer-wrapper">
+            <div class="listing-price">
+                <h4 class="list-pr">₦{{ ad.property_price|intcomma}}</h4>
+            </div>
+            <div class="listing-detail-btn">
+                <a href="{{ ad.get_absolute_url }}" class="more-btn">More Info</a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% empty %}
+    <div class="container-fluid">
+        <h3 style="text-align:center;">No Property found </h3>
+    </div>
+{% endfor %}

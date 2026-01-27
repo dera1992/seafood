@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Error in validating{% endblock %}
+
+{% block content %}
+     <div class="breadcrumb-area mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="breadcrumb-container">
+                        <ul>
+                            <li><a href="{% url 'home:home' %}"><i class="fa fa-home"></i> Home</a></li>
+                            <li class="active">Validating Error</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-content mb-50">
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-sm-12 col-md-12 col-xs-12 col-lg-6 mb-30">
+
+                    <div class="login-form">
+                            <h2 class="login-title" style="text-align:center;">Validating Error</h2>
+                        <p>The confirmation link was invalid, possibly because it has already been used.</p>
+                    </div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

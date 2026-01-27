@@ -1,0 +1,29 @@
+{% load static %}
+
+<div class="col-lg-4 col-md-12">
+    <div class="dashboard-navbar">
+
+        <div class="d-user-avater">
+            <img src="{{ user.profile.photo.url }}" width="180px" height="180px" class="img-fluid avater" alt="">
+            <h4>{{ user.profile.fullname }}</h4>
+            <span>{{ user.profile.address }}</span>
+        </div>
+
+        <div class="d-navigation">
+            <ul>
+                {% with request.resolver_match.url_name as url_name %}
+                    {% if user.is_admin %}
+                    <li class="{% if url_name == 'dashboard' %}active{% endif %}"><a href="{% url "home:dashboard" %}"><i class="ti-home"></i>Dashboard</a></li>
+                    {% endif %}
+                    <li class="{% if url_name == 'profile_display' %}active{% endif %}"><a href="{% url "profile_display" %}"><i class="ti-user"></i>My Profile</a></li>
+                    <li class="{% if url_name == 'favourites' %}active{% endif %}"><a href="{% url "home:favourites" %}"><i class="ti-bookmark"></i>Bookmarked Listings</a></li>
+                    <li class="{% if url_name == 'my_property' %}active{% endif %}"><a href="{% url "owner:my_property" %}"><i class="ti-layers"></i>My Properties</a></li>
+                    <li class="{% if url_name == 'post' %}active{% endif %}"><a href="{% url "advert:post" %}"><i class="ti-pencil-alt"></i>Submit New Property</a></li>
+                    <li class="{% if url_name == 'password_change' %}active{% endif %}"><a href="{% url "password_change" %}"><i class="ti-unlock"></i>Change Password</a></li>
+                    <li class="{% if url_name == 'logout' %}active{% endif %}"><a href="{% url "logout" %}"><i class="ti-power-off"></i>Log Out</a></li>
+                {% endwith %}
+            </ul>
+        </div>
+
+    </div>
+</div>
