@@ -9,41 +9,11 @@
 {% block title %}{% endblock %}
 
 {% block content %}
+    <div class="modern-home">
     <div class="hero-slider-with-category-container mt-35 mb-35">
 		<div class="container">
 			<div class="row">
-				<div class="col-lg-3 col-md-12">
-					<!--=======  slider left category  =======-->
-
-					<div class="hero-side-category">
-						<!-- Category Toggle Wrap -->
-						<div class="category-toggle-wrap">
-							<!-- Category Toggle -->
-							<button class="category-toggle"> <span class="arrow_carrot-right_alt2 mr-2"></span> All Categories</button>
-						</div>
-
-						<!-- Category Menu -->
-						<nav class="category-menu">
-							<ul>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Vegetables">Vegetables</a></li>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Fruits">Fruits</a></li>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Grains">Grains</a></li>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Seafood">Seafood</a></li>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Spices">Spices</a></li>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Meats">Meats</a></li>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Oil">Cooking Oil</a></li>
-								<li><a href="{% url 'product_search:product_filter' %}?category=Honey">Honey</a></li>
-								<li class="hidden"><a href="{% url 'product_search:product_filter' %}?category=Eggs">Eggs</a></li>
-								<li class="hidden"><a href="{% url 'product_search:product_filter' %}?category=Others">Others</a></li>
-								<li><a href="#" id="more-btn"><span class="icon_plus_alt2"></span> More Categories</a></li>
-							</ul>
-						</nav>
-					</div>
-
-					<!--=======  End of slider left category  =======-->
-				</div>
-
-				<div class="col-lg-9 col-md-12">
+				<div class="col-lg-12 col-md-12">
 					<!--=======  slider container  =======-->
 
 					<div class="slider-container">
@@ -91,6 +61,23 @@
 		</div>
 	</div>
 
+    <section class="category-pill-section">
+        <div class="container">
+            <div class="category-pill-list">
+                <a href="{% url 'product_search:product_filter' %}?category=Vegetables">Vegetables</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Fruits">Fruits</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Grains">Grains</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Seafood">Seafood</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Spices">Spices</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Meats">Meats</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Oil">Cooking Oil</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Honey">Honey</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Eggs">Eggs</a>
+                <a href="{% url 'product_search:product_filter' %}?category=Others">Others</a>
+            </div>
+        </div>
+    </section>
+
     <section class="modern-feature-section mb-35">
         <div class="container">
             <div class="row">
@@ -125,8 +112,9 @@
 				<div class="col-lg-12">
 					<!--=======  multisale  slider section title  =======-->
 
-					<div class="section-title">
-						<h3>deal of the day</h3>
+					<div class="section-title modern-section-title">
+						<span class="section-pill">Deal of the day</span>
+                        <span class="pulse-dot" aria-hidden="true"></span>
 					</div>
 
 					<!--=======  End of multisale slider section title  =======-->
@@ -229,8 +217,8 @@
 				<div class="col-lg-12">
 					<!--=======  multisale  slider section title  =======-->
 
-					<div class="section-title">
-						<h3>Tubers,Meats,Cooking Oils and Others</h3>
+					<div class="section-title modern-section-title">
+						<span class="section-pill">Tubers, Meats, Cooking Oils and Others</span>
 					</div>
 
 					<!--=======  End of multisale slider section title  =======-->
@@ -302,8 +290,8 @@
 				<div class="col-lg-12">
 					<!--=======  multisale  slider section title  =======-->
 
-					<div class="section-title">
-						<h3>Vegetables</h3>
+					<div class="section-title modern-section-title">
+						<span class="section-pill">Vegetables</span>
 					</div>
 
 					<!--=======  End of multisale slider section title  =======-->
@@ -364,8 +352,8 @@
 				<div class="col-lg-12">
 					<!--=======  multisale  slider section title  =======-->
 
-					<div class="section-title">
-						<h3>Fruits</h3>
+					<div class="section-title modern-section-title">
+						<span class="section-pill">Fruits</span>
 					</div>
 
 					<!--=======  End of multisale slider section title  =======-->
@@ -427,8 +415,8 @@
 				<div class="col-lg-12">
 					<!--=======  multisale  slider section title  =======-->
 
-					<div class="section-title">
-						<h3>Grains</h3>
+					<div class="section-title modern-section-title">
+						<span class="section-pill">Grains</span>
 					</div>
 
 					<!--=======  End of multisale slider section title  =======-->
@@ -489,8 +477,8 @@
 				<div class="col-lg-12">
 					<!--=======  multisale  slider section title  =======-->
 
-					<div class="section-title">
-						<h3>Seafoods</h3>
+					<div class="section-title modern-section-title">
+						<span class="section-pill">Seafoods</span>
 					</div>
 
 					<!--=======  End of multisale slider section title  =======-->
@@ -551,8 +539,8 @@
 				<div class="col-lg-12">
 					<!--=======  multisale  slider section title  =======-->
 
-					<div class="section-title">
-						<h3>Spices</h3>
+					<div class="section-title modern-section-title">
+						<span class="section-pill">Spices</span>
 					</div>
 
 					<!--=======  End of multisale slider section title  =======-->
@@ -615,5 +603,5 @@
 
     <br>
 
-
+    </div>
 {% endblock %}
