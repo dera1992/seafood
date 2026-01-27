@@ -53,16 +53,28 @@
 
                             <!--=======  Hero slider item  =======-->
 
-                            <div class="hero-slider-item slider-bg-4">
-                                <div class="slider-content">
-                                    <h1>Fresh<span> & Cheap</span></h1>
-                                    <h1 class="change-text">Now in <span> Season</span></h1>
+                            <div class="hero-slider-item slider-bg-4 modern-hero">
+                                <div class="slider-content modern-hero__content">
+                                    <div class="hero-badges">
+                                        <span class="hero-badge">Cut food waste</span>
+                                        <span class="hero-badge">Local shops</span>
+                                        <span class="hero-badge">Fresh deals</span>
+                                    </div>
+                                    <h1>Save more on<span> fresh food</span></h1>
+                                    <h1 class="change-text">Shop near-expiry<span> deals</span></h1>
 
-                                    <p><img src="{% static 'assets/images/icon-slider.png' %}" alt=""> <span>save up to 10%</span></p>
-                                    <p><img src="{% static 'assets/images/icon-slider.png' %}" alt=""> <span>Buy nice food</span></p>
-                                    <p><img src="{% static 'assets/images/icon-slider.png' %}" alt=""> <span>From trusted farmers</span></p>
+                                    <p class="hero-subtitle">Discover trusted neighborhood shops, buy surplus items, and keep good food out of the bin.</p>
 
-                                    <a href="{% url 'home:ads_list' %}" class="slider-two-btn mt-20">start buying</a>
+                                    <div class="hero-highlights">
+                                        <span><img src="{% static 'assets/images/icon-slider.png' %}" alt=""> Save up to 10%</span>
+                                        <span><img src="{% static 'assets/images/icon-slider.png' %}" alt=""> Pick up fast</span>
+                                        <span><img src="{% static 'assets/images/icon-slider.png' %}" alt=""> Verified sellers</span>
+                                    </div>
+
+                                    <div class="hero-actions">
+                                        <a href="{% url 'home:ads_list' %}" class="slider-two-btn">Start buying</a>
+                                        <a href="{% url 'product_search:product_filter' %}" class="slider-two-btn hero-secondary">Browse offers</a>
+                                    </div>
                                 </div>
                             </div>
 
@@ -78,6 +90,34 @@
 			</div>
 		</div>
 	</div>
+
+    <section class="modern-feature-section mb-35">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-20">
+                    <div class="modern-feature-card">
+                        <div class="feature-icon"><span class="icon_cart_alt"></span></div>
+                        <h4>Shop surplus, save money</h4>
+                        <p>Find quality items at reduced prices as they get closer to expiry.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-20">
+                    <div class="modern-feature-card">
+                        <div class="feature-icon"><span class="icon_pin_alt"></span></div>
+                        <h4>Buy from nearby stores</h4>
+                        <p>Support small shops and get deliveries or pickups faster.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-20">
+                    <div class="modern-feature-card">
+                        <div class="feature-icon"><span class="icon_like_alt"></span></div>
+                        <h4>Help reduce waste</h4>
+                        <p>Every purchase prevents good food from being thrown away.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
 	<div class="slider multisale-slider mb-35">
 		<div class="container">
@@ -135,6 +175,17 @@
 									<a>{{ latest.category}}</a>
 								</div>
 								<h3 class="product-title"><a href="{{ latest.get_absolute_url }}">{{ latest.title }}</a></h3>
+                                {% if latest.expires_on %}
+                                    <div class="product-expiry">
+                                        {% if latest.is_expired %}
+                                            <span class="expiry-badge expired">Expired</span>
+                                        {% elif latest.is_expiring_soon %}
+                                            <span class="expiry-badge expiring">Expires in {{ latest.days_to_expire }} days</span>
+                                        {% else %}
+                                            <span class="expiry-badge fresh">Good for {{ latest.days_to_expire }} days</span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
 								<div class="price-box">
                                      {% if latest.discount_price %}
                                       <span class="discounted-price">₦{{ latest.discount_price|intcomma}}</span>
@@ -155,7 +206,7 @@
 		</div>
 	</div>
 
-	<div class="featured-product-image-gallery mb-80 pt-120 section-bg">
+	<div class="featured-product-image-gallery mb-80 pt-120 section-bg modern-promo-strip">
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-12">
@@ -214,8 +265,19 @@
 									<a>{{ ad.category}}</a>
 								</div>
 								<h3 class="product-title"><a href="{{ ad.get_absolute_url }}">{{ ad.title }}</a></h3>
+                                {% if ad.expires_on %}
+                                    <div class="product-expiry">
+                                        {% if ad.is_expired %}
+                                            <span class="expiry-badge expired">Expired</span>
+                                        {% elif ad.is_expiring_soon %}
+                                            <span class="expiry-badge expiring">Expires in {{ ad.days_to_expire }} days</span>
+                                        {% else %}
+                                            <span class="expiry-badge fresh">Good for {{ ad.days_to_expire }} days</span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
 								<div class="price-box">
-                                    {% if ad.discount_price %}
+                                     {% if ad.discount_price %}
                                       <span class="discounted-price">₦{{ ad.discount_price|intcomma}}</span>
                                       <span class="main-price">₦{{ ad.discount_price|intcomma}}</span>
                                      {% else %}
