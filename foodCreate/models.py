@@ -2,11 +2,13 @@
 from __future__ import unicode_literals
 # from django.contrib.auth.models import User
 from django.db import models
+from django.core.exceptions import ValidationError
 from account.models import Profile, Shop, User
 from django.http import  HttpResponse
 from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.db.models import Avg, Count
+from django.utils import timezone
 from hitcount.models import HitCountMixin, HitCount
 from django.contrib.contenttypes.fields import GenericRelation
 from PIL import Image
@@ -67,6 +69,7 @@ class Products(models.Model):
     slug = models.SlugField(max_length=200,blank=True)
     ai_recommended_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     stock = models.PositiveIntegerField(default=0)
+    expires_on = models.DateField(null=True, blank=True, db_index=True)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
     created_date = models.DateField(auto_now_add=True, null=True, blank=True)
@@ -79,8 +82,10 @@ class Products(models.Model):
 
     class Meta:
         ordering = ('title',)
-
-    index_together = (('id', 'slug'),)
+        index_together = (('id', 'slug'),)
+        constraints = [
+            models.UniqueConstraint(fields=['shop', 'slug'], name='unique_shop_slug'),
+        ]
 
     def __str__(self):
         return self.title
@@ -123,6 +128,27 @@ class Products(models.Model):
         if reviews["count"] is not None:
             count = int(reviews["count"])
         return count
+
+    def days_to_expire(self):
+        if not self.expires_on:
+            return None
+        return (self.expires_on - timezone.localdate()).days
+
+    def is_expiring_soon(self, threshold_days=3):
+        days_left = self.days_to_expire()
+        return days_left is not None and days_left <= threshold_days
+
+    def is_expired(self):
+        days_left = self.days_to_expire()
+        return days_left is not None and days_left < 0
+
+    def clean(self):
+        errors = {}
+        if self.discount_price is not None and self.price is not None:
+            if self.discount_price > self.price:
+                errors["discount_price"] = "Discount price cannot exceed the base price."
+        if errors:
+            raise ValidationError(errors)
 
     def save(self, *args, **kwargs):
         if not self.slug:

@@ -39,7 +39,9 @@ class OrderItem(models.Model):
         return self.quantity * self.item.price
 
     def get_total_discount_item_price(self):
-        return self.quantity * self.item.discount_price
+        if self.item.discount_price:
+            return self.quantity * self.item.discount_price
+        return self.get_total_item_price()
 
     def get_amount_saved(self):
         return self.get_total_item_price() - self.get_total_discount_item_price()
@@ -72,7 +74,7 @@ class Order(models.Model):
         ordering = ('-created',)
 
     def __str__(self):
-        return '{0} - {1}'.format(self.user.username, self.ref)
+        return '{0} - {1}'.format(self.user.email, self.ref)
 
     def get_total(self):
         total = 0
@@ -115,7 +117,7 @@ class Address(models.Model):
                               on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.user.username
+        return self.user.email
 
 
 class Coupon(models.Model):
