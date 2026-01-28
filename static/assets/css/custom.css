@@ -87,6 +87,7 @@ ul.thumb li img{
 .modern-hero h1,
 .modern-hero h1 span {
   color: #1f4d2f;
+  line-height: 1.25;
 }
 
 .hero-badges {
@@ -108,7 +109,8 @@ ul.thumb li img{
 .hero-subtitle {
   font-size: 1.05rem;
   color: #2f4633;
-  max-width: 560px;
+  max-width: 520px;
+  line-height: 1.7;
 }
 
 .hero-highlights {
@@ -117,6 +119,7 @@ ul.thumb li img{
   gap: 16px;
   color: #2f4633;
   font-weight: 500;
+  line-height: 1.6;
 }
 
 .hero-highlights span {
@@ -167,6 +170,11 @@ ul.thumb li img{
 .modern-feature-card h4 {
   margin-top: 12px;
   margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.modern-feature-card p {
+  line-height: 1.6;
 }
 
 .feature-icon {
