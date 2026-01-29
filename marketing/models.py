@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 
 class Signup(models.Model):
-    email = models.EmailField(max_length=255, null=True, blank=True)
+    email = models.EmailField(max_length=255, unique=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

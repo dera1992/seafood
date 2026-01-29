@@ -56,7 +56,7 @@ class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     items = models.ManyToManyField(OrderItem)
-    ref = models.CharField(max_length=255, null=True, blank=True)
+    ref = models.CharField(max_length=255, null=True, blank=True, unique=True)
     is_ordered = models.BooleanField(default=False)
     date_ordered = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -94,9 +94,10 @@ class Order(models.Model):
 
     def verify_payment(self):
         paystack = PayStack()
-        status, result = paystack.verify_payment(self.ref, self.get_total)
+        total = self.get_total()
+        status, result = paystack.verify_payment(self.ref, total)
         if status:
-            if result['amount'] / 100 == self.get_total():
+            if result['amount'] / 100 == total:
                 self.verified = True
                 self.is_ordered = True
                 self.paid = True

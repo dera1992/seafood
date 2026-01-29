@@ -61,9 +61,9 @@ class Products(models.Model):
     subcategory = models.ForeignKey(SubCategory,
                              on_delete=models.CASCADE, null=True, blank=True)
     status = models.CharField(max_length=25, choices=STATUS_CHOICES, blank=True, null=True)
-    price = models.DecimalField(decimal_places=0,
+    price = models.DecimalField(decimal_places=2,
                                    max_digits=10)
-    discount_price = models.DecimalField(decimal_places=0,max_digits=10,blank=True, null=True)
+    discount_price = models.DecimalField(decimal_places=2, max_digits=10, blank=True, null=True)
     label = models.CharField(choices=LABEL_CHOICES, max_length=1, null=True, blank=True)
     delivery = models.CharField(choices=DAYS, max_length=15, null=True, blank=True)
     slug = models.SlugField(max_length=200,blank=True)
@@ -152,8 +152,15 @@ class Products(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
-        super(Products, self).save(*args, **kwargs)
+            base_slug = slugify(self.title) or "product"
+            slug = base_slug
+            counter = 1
+            while Products.objects.filter(shop=self.shop, slug=slug).exclude(pk=self.pk).exists():
+                counter += 1
+                slug = f"{base_slug}-{counter}"
+            self.slug = slug
+        self.full_clean()
+        super().save(*args, **kwargs)
 
 class ProductsImages(models.Model):
     products = models.ForeignKey(Products,related_name="images", on_delete=models.CASCADE)
