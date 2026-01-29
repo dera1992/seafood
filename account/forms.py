@@ -1,14 +1,8 @@
-from django.contrib.auth.forms import UserChangeForm, AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserChangeForm, UserCreationForm
 from django.contrib.auth import get_user_model
 from  bootstrap_datepicker_plus.widgets import DatePickerInput
 from django import forms
 from .models import Profile, Shop, DispatcherProfile, SubscriptionPlan
-
-User = get_user_model()
-
-
-
-from .models import Profile
 
 User = get_user_model()
 
@@ -93,6 +87,29 @@ class UserEditForm(UserChangeForm):
         help_texts = {
             'username': None,
         }
+
+
+class AdminUserCreationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ('email', 'first_name', 'last_name', 'phone_number', 'role', 'is_staff', 'is_active')
+
+
+class AdminUserChangeForm(UserChangeForm):
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'first_name',
+            'last_name',
+            'phone_number',
+            'role',
+            'is_staff',
+            'is_active',
+            'is_superuser',
+            'groups',
+            'user_permissions',
+        )
 
 # class UserEditForm(forms.ModelForm):
 #     class Meta:
@@ -183,4 +200,3 @@ class DispatcherVehicleForm(forms.ModelForm):
     class Meta:
         model = DispatcherProfile
         fields = ['vehicle_type', 'plate_number']
-
