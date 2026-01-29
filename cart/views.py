@@ -1,19 +1,16 @@
-from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
-from django.views.generic import ListView, DetailView, View
+from django.views.generic import View
 from foodCreate.models import Products
 from order.forms import CouponForm
 from order.models import Order,OrderItem
 from .cart import Cart
 from .forms import CartAddProductForm
 from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from django.http import HttpResponseRedirect, Http404,HttpResponse, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 
 
 

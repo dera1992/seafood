@@ -17,5 +17,7 @@ def email_list_signup(request):
             else:
                 # subscribe(form.instance.email)
                 form.save()
-            messages.info(request,'You have successfully subscribed')
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                messages.info(request, 'You have successfully subscribed')
+        else:
+            messages.error(request, "Please provide a valid email address.")
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

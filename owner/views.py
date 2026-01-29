@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.shortcuts import render,redirect, get_object_or_404
-from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from account.models import Profile
 from foodCreate.models import Products, ProductsImages, Category, SubCategory
@@ -21,9 +20,9 @@ import random
 
 @login_required
 def my_cart(request):
-    myab_list = Products.objects.filter(profile__user=request.user)
-    profile = Profile.objects.get(user=request.user)
-    ads = Products.objects.filter(active=True)
+    myab_list = Products.objects.filter(shop__owner=request.user)
+    profile = Profile.objects.filter(user=request.user).first()
+    ads = Products.objects.filter(is_active=True)
     lates = Products.objects.all().order_by('-created_date')[:3]
     counts = Products.objects.all().values('category__name').annotate(total=Count('category'))
 
@@ -49,9 +48,10 @@ def bookmarked(request):
 @login_required
 def delete_post(request,pk=None):
     ad = Products.objects.get(id=pk)
-    if request.user != ad.profile.user:
+    if request.user != ad.shop.owner:
         raise Http404()
     ad.is_active = False
+    ad.save()
     messages.success(request, "You property has been successfuly deleted")
     return redirect('home:allads_list')
 
@@ -59,9 +59,10 @@ def delete_post(request,pk=None):
 @login_required
 def hide_post(request,pk=None):
     ad = Products.objects.get(id=pk)
-    if request.user != ad.profile.user:
+    if request.user != ad.shop.owner:
         raise Http404()
     ad.is_active = False
+    ad.save()
     messages.success(request, "You property has been successfuly deleted")
     return redirect('home:allads_list')
 
@@ -77,7 +78,7 @@ def create_contact(request):
             to_email = ['ezechdr16@gmail.com']
             from_email = post['email']
             email = EmailMessage(
-                subject, message, from_email=[from_email], to=[to_email]
+                subject, message, from_email=from_email, to=to_email
             )
             email.send()
             post_info.save()

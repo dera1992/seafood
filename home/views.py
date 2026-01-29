@@ -122,11 +122,9 @@ def allads_list(request, category_slug=None):
     query = request.GET.get('q')
     if query:
         ad_list = ad_list.filter(
-            Q(first_name__icontains=query) |
-            Q(last_name__icontains=query) |
-            Q(phone=query) |
+            Q(title__icontains=query) |
             Q(description__icontains=query) |
-            Q(address__icontains=query)
+            Q(shop__name__icontains=query)
         )
 
     if category_slug:
@@ -154,7 +152,7 @@ def ad_detail(request, id, slug):
     adsimage = ProductsImages.objects.filter(products=ad)
     ad_similar = Products.objects.filter(category=ad.category).exclude(id=ad.id).order_by('?')[:7]
     latests = Products.objects.filter(available=True).order_by('-created_at', '?')[:6]
-    profile = Profile.objects.get(user=ad.profile.user)
+    profile = Profile.objects.filter(user=ad.shop.owner).first()
     categories = Category.objects.all()
     reviews = ReviewRating.objects.filter(post_id=ad.id, status=True)
     affiliates = Affiliate.objects.all()[:10]
@@ -165,7 +163,7 @@ def ad_detail(request, id, slug):
     user_rating = UserRating.objects.filter(rating__object_id=ad.id)
     is_favourite = False
 
-    if ad.favourite.filter(id=request.user.id).exists():
+    if request.user.is_authenticated and ad.favourite.filter(id=request.user.id).exists():
         is_favourite = True
     cart_product_form = CartAddProductForm()
     return render(request, 'home/detail.html', {'ad':ad,'adsimage':adsimage, 'ad_similar':ad_similar,
@@ -227,7 +225,7 @@ def favourite_ads(request):
 @login_required
 def delete_post(request,pk=None):
     ad = Products.objects.get(id=pk)
-    if request.user != ad.profile.user:
+    if request.user != ad.shop.owner:
         raise Http404()
     ad.delete()
     messages.success(request, "You property has been successfuly deleted")
@@ -284,5 +282,3 @@ def category_count(request):
     counts = Products.objects.all().values('category__name').annotate(total=Count('category'))
     lates = Products.objects.order_by('-created_date')[:3]
     return render(request, 'home/footer.html', {'counts': counts, 'lates':lates})
-
-

@@ -33,10 +33,16 @@ def filter(request):
                        ).distinct()
 
     if is_valid_queryparam(price_min):
-        qs = qs.filter(price__gte=price_min)
+        try:
+            qs = qs.filter(price__gte=float(price_min))
+        except ValueError:
+            pass
 
     if is_valid_queryparam(price_max):
-        qs = qs.filter(price__lt=price_max)
+        try:
+            qs = qs.filter(price__lt=float(price_max))
+        except ValueError:
+            pass
 
 
     if is_valid_queryparam(date_min):
@@ -49,11 +55,8 @@ def filter(request):
         qs = qs.filter(category__name=category)
 
 
-    if order == "price":
-        qs = qs.order_by(order)
-    elif order == "-price":
-        qs = qs.order_by(order)
-    elif order == "-created_date":
+    allowed_orders = {"price", "-price", "-created_date"}
+    if order in allowed_orders:
         qs = qs.order_by(order)
 
     paginator = Paginator(qs, 2)  # Show 25 contacts per page

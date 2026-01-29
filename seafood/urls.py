@@ -20,5 +20,6 @@ urlpatterns = [
     path('ratings/', include('star_ratings.urls', namespace='ratings')),
     path("paystack/", include(('django_paystack.urls','paystack'),namespace='paystack')),
     path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('chat/', include('chat.urls', namespace='chat')),
 ]
 if settings.DEBUG:urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
