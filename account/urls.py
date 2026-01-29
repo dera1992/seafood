@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from django.contrib.auth import views as auth_views
 from . import views
 from account.forms import EmailAuthenticationForm
@@ -45,9 +45,12 @@ urlpatterns = [
     path('edit/', views.edit, name='edit'),
     path('profile_display/', views.profile_display, name='profile_display'),
 
-    path('activate/(<uidb64>[0-9A-Za-z_\-]+)/(<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',
-        views.activate, name='activate'),
-path('choose-role/', views.choose_role, name='choose_role'),
+    re_path(
+        r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+        views.activate,
+        name='activate',
+    ),
+    path('choose-role/', views.choose_role, name='choose_role'),
     path('customer/setup/', views.customer_setup, name='customer_setup'),
 
     # Shop onboarding multi-step
