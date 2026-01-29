@@ -45,7 +45,8 @@ def post_create(request):
     form = PostForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         instance = form.save(commit=False)
-        instance.user = request.user
+        profile, _ = Profile.objects.get_or_create(user=request.user)
+        instance.profile = profile
         instance.save()
         # message success
         messages.success(request, "Successfully Created")
@@ -63,10 +64,12 @@ def post_detail(request, id, slug):
     lates = Products.objects.order_by('-created_date')[:5]
     affiliates = Affiliate.objects.all()[:10]
     is_liked = False
-    if post.likes.filter(id=request.user.id).exists():
+    if request.user.is_authenticated and post.likes.filter(id=request.user.id).exists():
         is_liked = True
 
     if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return redirect('login')
         comment_form = CommentForm(request.POST or None)
         if comment_form.is_valid():
             content = request.POST.get('content')
@@ -91,7 +94,7 @@ def post_detail(request, id, slug):
         'lates':lates,
         'affiliates': affiliates
     }
-    if request.is_ajax():
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         html = render_to_string('blog/comments.html', context, request=request)
         return JsonResponse({'form': html})
 
@@ -166,6 +169,5 @@ def post_delete(request, slug=None):
     return redirect("posts:list")
 
 # for contact
-
 
 
