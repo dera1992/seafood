@@ -52,6 +52,8 @@ docker compose up --build
 
 The app will be available at `http://localhost:8000` and will auto-run migrations on startup.
 
+If port `5432` is already in use on your machine, set `POSTGRES_PORT` in your `.env` file (for example `POSTGRES_PORT=5433`) before starting Docker.
+
 ### Notes on PostGIS
 
 The container uses the `postgis/postgis` image and the Django config defaults to:
