@@ -10,7 +10,7 @@ class AdsForm(forms.ModelForm):
         )
     )
     description = forms.CharField(widget=forms.Textarea(attrs={"rows":5, "cols":20}))
-    available = forms.BooleanField()
+    available = forms.BooleanField(required=False)
 
     class Meta:
         model = Products
@@ -27,7 +27,7 @@ class AdsForm(forms.ModelForm):
             except (ValueError, TypeError):
                 pass  # invalid input from the client; ignore and fallback to empty City queryset
         elif self.instance.pk:
-            self.fields['subcategory'].queryset = self.instance.category.subcategory.order_by('name')
+            self.fields['subcategory'].queryset = self.instance.category.subcategory_set.order_by('name')
 
 
 class AdsImageForm(forms.ModelForm):
@@ -46,7 +46,7 @@ class AdsEditForm(forms.ModelForm):
         )
     )
     description = forms.CharField(widget=forms.Textarea(attrs={"rows":5, "cols":20}))
-    available = forms.BooleanField()
+    available = forms.BooleanField(required=False)
 
     class Meta:
         model = Products
@@ -76,5 +76,4 @@ class ReviewForm(forms.ModelForm):
     class Meta:
         model = ReviewRating
         fields = ["subject", "review", "rating"]
-
 
