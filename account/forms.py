@@ -177,7 +177,7 @@ class ShopInfoForm(forms.ModelForm):
 class ShopAddressForm(forms.ModelForm):
     class Meta:
         model = Shop
-        fields = ['address', 'city', 'state', 'country', 'postal_code', 'latitude', 'longitude']
+        fields = ['address', 'city', 'state', 'country', 'postal_code', 'location']
 
 
 class ShopDocumentForm(forms.ModelForm):
