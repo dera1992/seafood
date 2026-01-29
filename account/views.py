@@ -1,6 +1,6 @@
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth import login
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils.http import urlsafe_base64_encode
@@ -21,6 +21,8 @@ from .models import Profile, Shop, DispatcherProfile
 
 from django.contrib import messages
 
+User = get_user_model()
+
 # Create your views here.
 def register(request):
     if request.method == 'POST':
@@ -35,7 +37,7 @@ def register(request):
             message = get_template('registration/account_activation_email.html').render({
                 'user': user,
                 'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
             })
             to_email = user_form.cleaned_data.get('email')
@@ -55,23 +57,29 @@ def register(request):
 def select_role(request):
     if request.method == "POST":
         role = request.POST.get("role")
+        if role == "shop_owner":
+            role = "shop"
         user = request.user
         user.role = role
         user.save()
         if role == "customer":
-            return redirect("customer_dashboard")
-        elif role == "shop_owner":
-            return redirect("shop_owner_dashboard")
+            Profile.objects.get_or_create(user=user)
+            return redirect("account:customer_setup")
+        elif role == "shop":
+            Shop.objects.get_or_create(owner=user)
+            return redirect("account:shop_info")
         elif role == "dispatcher":
-            return redirect("dispatcher_dashboard")
+            DispatcherProfile.objects.get_or_create(user=user)
+            return redirect("account:dispatcher_personal")
     return render(request, "account/select_role.html")
 @login_required
 def edit(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
         user_form = UserEditForm(instance=request.user,
                                  data=request.POST)
         profile_form = ProfileEditForm(
-            instance=request.user.profile,
+            instance=profile,
             data=request.POST,
             files=request.FILES)
         if user_form.is_valid() and profile_form.is_valid():
@@ -83,7 +91,7 @@ def edit(request):
             messages.error(request, 'Error updating your profile')
     else:
         user_form = UserEditForm(instance=request.user)
-        profile_form = ProfileEditForm(instance=request.user.profile)
+        profile_form = ProfileEditForm(instance=profile)
     return render(request,
                         'account/edit.html',
                         {'user_form': user_form,
@@ -91,11 +99,12 @@ def edit(request):
 
 @login_required
 def profile_display(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
         user_form = UserEditForm(instance=request.user,
                                  data=request.POST)
         profile_form = ProfileEditForm(
-            instance=request.user.profile,
+            instance=profile,
             data=request.POST,
             files=request.FILES)
         if user_form.is_valid() and profile_form.is_valid():
@@ -107,7 +116,7 @@ def profile_display(request):
         return redirect('profile_display')
     else:
         user_form = UserEditForm(instance=request.user)
-        profile_form = ProfileEditForm(instance=request.user.profile)
+        profile_form = ProfileEditForm(instance=profile)
     return render(request,
                         'account/edit_display.html',
                         {'user_form': user_form,
@@ -156,7 +165,7 @@ def choose_role(request):
             Profile.objects.get_or_create(user=user)
             return redirect('account:customer_setup')
         elif role == 'shop':
-            Shop.objects.get_or_create(user=user)
+            Shop.objects.get_or_create(owner=user)
             # initialize shop onboarding in session
             request.session['shop_onboarding'] = {}
             return redirect('account:shop_info')
@@ -175,8 +184,9 @@ def customer_setup(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
+    profile, _ = Profile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
-        form = ProfileForm(request.POST, instance=request.user.profile)
+        form = ProfileForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
             request.user.role = 'customer'
@@ -184,7 +194,7 @@ def customer_setup(request):
             messages.success(request, "Customer profile completed.")
             return redirect('customer:dashboard')
     else:
-        form = ProfileForm(instance=request.user.profile)
+        form = ProfileForm(instance=profile)
     return render(request, 'account/customer_profile_setup.html', {'form': form})
 
 
@@ -196,14 +206,15 @@ def shop_info(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    form = ShopInfoForm(request.POST or None, request.FILES or None, instance=request.user.shop)
+    shop, _ = Shop.objects.get_or_create(owner=request.user)
+    form = ShopInfoForm(request.POST or None, request.FILES or None, instance=shop)
     if request.method == 'POST' and form.is_valid():
         # save into session (we don't commit to DB until final step)
         data = request.session.get('shop_onboarding', {})
         # store file uploads temporarily by saving to model - simplest approach: save partial
         shop = form.save(commit=False)
         # save partial to DB so file fields persist (logo/documents)
-        shop.user = request.user
+        shop.owner = request.user
         shop.save()
         request.session['shop_onboarding'] = {'step': 'info'}
         messages.success(request, "Shop basic info saved. Continue to address.")
@@ -216,7 +227,8 @@ def shop_address(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    form = ShopAddressForm(request.POST or None, instance=request.user.shop_profile)
+    shop, _ = Shop.objects.get_or_create(owner=request.user)
+    form = ShopAddressForm(request.POST or None, instance=shop)
     if request.method == 'POST' and form.is_valid():
         form.save()
         request.session['shop_onboarding']['step'] = 'address'
@@ -230,7 +242,8 @@ def shop_docs(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    form = ShopDocumentForm(request.POST or None, request.FILES or None, instance=request.user.shop)
+    shop, _ = Shop.objects.get_or_create(owner=request.user)
+    form = ShopDocumentForm(request.POST or None, request.FILES or None, instance=shop)
     if request.method == 'POST' and form.is_valid():
         form.save()
         request.session['shop_onboarding']['step'] = 'docs'
@@ -247,16 +260,15 @@ def shop_plan(request):
     form = PlanSelectionForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         plan = form.cleaned_data.get('plan', None)
+        shop, _ = Shop.objects.get_or_create(owner=request.user)
         if plan:
-            profile = request.user.shop_profile
-            profile.subscription = plan
-            profile.is_active = True  # assuming selecting a plan activates the shop
-            profile.save()
+            shop.subscription = plan
+            shop.is_active = True
+            shop.save()
         else:
             # default free plan: mark shop active but no plan
-            profile = request.user.shop_profile
-            profile.is_active = True
-            profile.save()
+            shop.is_active = True
+            shop.save()
 
         request.user.role = 'shop'
         request.user.save()

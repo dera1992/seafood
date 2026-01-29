@@ -105,6 +105,7 @@ class Shop(models.Model):
     open_time = models.TimeField(default="08:00")
     close_time = models.TimeField(default="20:00")
     is_open = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
 
     # business proof documents
     business_document = models.FileField(upload_to='shops/documents/', blank=True, null=True)
