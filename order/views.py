@@ -203,7 +203,7 @@ def verify_payment(request:HttpRequest, ref:str) -> HttpResponse:
         })
         to_email = [payment.user.email]
         email = EmailMessage(
-            subject, message, from_email='Bunchfood <bunchfood@gmail.com>', to=[to_email]
+            subject, message, from_email='Bunchfood <bunchfood@gmail.com>', to=to_email
         )
         email.content_subtype = 'html'
         email.send()
@@ -216,7 +216,7 @@ def verify_payment(request:HttpRequest, ref:str) -> HttpResponse:
         })
         to_email = [payment.user.email]
         email = EmailMessage(
-            subject, message, from_email='Bunchfood <bunchfood@gmail.com>', to=[to_email]
+            subject, message, from_email='Bunchfood <bunchfood@gmail.com>', to=to_email
         )
         email.content_subtype = 'html'
         email.send()

@@ -1,10 +1,6 @@
-import json, decimal
 from decimal import Decimal
 from django.conf import settings
 from foodCreate.models import Products
-from django.core.serializers.json import DjangoJSONEncoder
-from django.core import serializers
-from django.forms.models import model_to_dict
 
 
 class Cart(object):
@@ -43,14 +39,16 @@ class Cart(object):
 
     def __iter__(self):
 
-        product_ids = self.cart.keys()
-        # products = serializers.serialize('json', Products.objects.filter(id__in=product_ids))
+        product_ids = [int(product_id) for product_id in self.cart.keys()]
         products = Products.objects.filter(id__in=product_ids)
-        # for product in products:
-        #     self.cart[str(product.id)]['product'] = product
-        for item in self.cart.values():
-            item['price'] = int(Decimal(item['price']))
-            item['total_price'] = item['price'] * item['quantity']
+        products_map = {product.id: product for product in products}
+        for product_id, item in self.cart.items():
+            product = products_map.get(int(product_id))
+            if product:
+                item['product'] = product
+            item_price = Decimal(item['price'])
+            item['price'] = item_price
+            item['total_price'] = item_price * item['quantity']
             yield item
 
     def __len__(self):
@@ -61,4 +59,4 @@ class Cart(object):
         self.session.modified = True
 
     def get_total_price(self):
-        return sum(int(Decimal(item['price'])) * item['quantity'] for item in self.cart.values())
+        return sum(Decimal(item['price']) * item['quantity'] for item in self.cart.values())
