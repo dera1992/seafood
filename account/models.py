@@ -123,11 +123,15 @@ class Shop(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.latitude or not self.longitude:
-            geolocator = Nominatim(user_agent="ecommerce_app")
-            location = geolocator.geocode(f"{self.address}, {self.city}, {self.country}")
-            if location:
-                self.latitude = location.latitude
-                self.longitude = location.longitude
+            if self.address and self.city and self.country:
+                try:
+                    geolocator = Nominatim(user_agent="ecommerce_app")
+                    location = geolocator.geocode(f"{self.address}, {self.city}, {self.country}")
+                except Exception:
+                    location = None
+                if location:
+                    self.latitude = location.latitude
+                    self.longitude = location.longitude
         super().save(*args, **kwargs)
 
 

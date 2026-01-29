@@ -54,6 +54,7 @@ def register(request):
                   'account/register.html',
                   {'user_form': user_form})
 
+@login_required
 def select_role(request):
     if request.method == "POST":
         role = request.POST.get("role")
@@ -210,7 +211,6 @@ def shop_info(request):
     form = ShopInfoForm(request.POST or None, request.FILES or None, instance=shop)
     if request.method == 'POST' and form.is_valid():
         # save into session (we don't commit to DB until final step)
-        data = request.session.get('shop_onboarding', {})
         # store file uploads temporarily by saving to model - simplest approach: save partial
         shop = form.save(commit=False)
         # save partial to DB so file fields persist (logo/documents)
@@ -231,7 +231,9 @@ def shop_address(request):
     form = ShopAddressForm(request.POST or None, instance=shop)
     if request.method == 'POST' and form.is_valid():
         form.save()
-        request.session['shop_onboarding']['step'] = 'address'
+        onboarding = request.session.setdefault('shop_onboarding', {})
+        onboarding['step'] = 'address'
+        request.session['shop_onboarding'] = onboarding
         messages.success(request, "Shop address saved. Continue to upload business documents (optional).")
         return redirect('account:shop_docs')
 
@@ -246,7 +248,9 @@ def shop_docs(request):
     form = ShopDocumentForm(request.POST or None, request.FILES or None, instance=shop)
     if request.method == 'POST' and form.is_valid():
         form.save()
-        request.session['shop_onboarding']['step'] = 'docs'
+        onboarding = request.session.setdefault('shop_onboarding', {})
+        onboarding['step'] = 'docs'
+        request.session['shop_onboarding'] = onboarding
         messages.success(request, "Document uploaded (or skipped). Continue to choose a plan.")
         return redirect('account:shop_plan')
 
@@ -287,7 +291,12 @@ def dispatcher_personal(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    form = DispatcherPersonalForm(request.POST or None, request.FILES or None, instance=request.user.dispatcher_profile)
+    dispatcher_profile, _ = DispatcherProfile.objects.get_or_create(user=request.user)
+    form = DispatcherPersonalForm(
+        request.POST or None,
+        request.FILES or None,
+        instance=dispatcher_profile,
+    )
     if request.method == 'POST' and form.is_valid():
         form.save()
         request.session['dispatcher_onboarding'] = {'step': 'personal'}
@@ -300,13 +309,13 @@ def dispatcher_vehicle(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    form = DispatcherVehicleForm(request.POST or None, instance=request.user.dispatcher_profile)
+    dispatcher_profile, _ = DispatcherProfile.objects.get_or_create(user=request.user)
+    form = DispatcherVehicleForm(request.POST or None, instance=dispatcher_profile)
     if request.method == 'POST' and form.is_valid():
         form.save()
         # mark as pending review
-        dp = request.user.dispatcher_profile
-        dp.status = 'pending'
-        dp.save()
+        dispatcher_profile.status = 'pending'
+        dispatcher_profile.save()
         request.user.role = 'dispatcher'
         request.user.save()
         messages.success(request, "Dispatcher application submitted and is pending admin approval.")

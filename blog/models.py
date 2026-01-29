@@ -88,10 +88,23 @@ class Post(models.Model):
         return content_type
 
 
+def _generate_unique_slug(instance):
+    base_slug = slugify(instance.title)
+    if not base_slug:
+        base_slug = "post"
+    slug = base_slug
+    counter = 1
+    while Post.objects.filter(slug=slug).exclude(pk=instance.pk).exists():
+        counter += 1
+        slug = f"{base_slug}-{counter}"
+    return slug
+
+
 @receiver(pre_save, sender=Post)
 def pre_save_slug(sender, **kwargs):
-    slug = slugify(kwargs['instance'].title)
-    kwargs['instance'].slug = slug
+    instance = kwargs["instance"]
+    if not instance.slug:
+        instance.slug = _generate_unique_slug(instance)
 
 
 # def pre_save_post_receiver(sender, instance, *args, **kwargs):
@@ -107,4 +120,3 @@ def pre_save_slug(sender, **kwargs):
 
 
 # for contact
-
