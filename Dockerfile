@@ -12,6 +12,7 @@ RUN apt-get update \
         libgdal-dev \
         libgeos-dev \
         libpq-dev \
+        postgresql-client \
         proj-bin \
     && rm -rf /var/lib/apt/lists/*
 
