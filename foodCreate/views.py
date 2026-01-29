@@ -8,7 +8,6 @@ from django.db import transaction
 
 from .models import Products, ProductsImages, Category, SubCategory
 from .forms import AdsImageForm, AdsForm, AdsEditForm
-from account.models import Shop, SubscriptionPlan
 
 @login_required
 @transaction.atomic
@@ -23,10 +22,11 @@ def postAd(request):
 
     # Check subscription plan product limit
     product_count = Products.objects.filter(shop=shop).count()
-    if not shop.is_subscribed and product_count >= 10:
+    plan_limit = shop.subscription.product_limit if shop.subscription else 10
+    if product_count >= plan_limit:
         messages.warning(
             request,
-            "Your current plan allows only 10 products. Please upgrade your subscription."
+            f"Your current plan allows only {plan_limit} products. Please upgrade your subscription."
         )
         return redirect("home:home")
 
@@ -38,13 +38,13 @@ def postAd(request):
 
         if post_form.is_valid() and formset.is_valid():
             product = post_form.save(commit=False)
-            product.shop = request.user.shops.first()
+            product.shop = shop
             product.save()
 
             for form in formset.cleaned_data:
                 if form:
                     image = form['product_image']
-                    photo = ProductsImages(products=post_form, product_image=image)
+                    photo = ProductsImages(products=product, product_image=image)
                     photo.save()  # compression happens here
             messages.success(request, "Your product has been created successfully.")
             return redirect('home:allads_list')
@@ -62,7 +62,7 @@ def postAd(request):
 def editAd(request, pk):
     """Edit an existing product."""
     product = get_object_or_404(Products, pk=pk)
-    shop = getattr(request.user.profile, 'shop', None)
+    shop = request.user.shops.first()
 
     if not shop or product.shop != shop:
         raise Http404("You are not authorized to edit this product.")
