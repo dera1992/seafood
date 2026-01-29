@@ -17,6 +17,7 @@ django-paystack==1.0.0
 
 # Database
 mysqlclient==2.2.4
+psycopg2-binary==2.9.9
 
 # UI
 django-bootstrap5==23.4

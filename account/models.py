@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.gis.db import models as gis_models
+from django.contrib.gis.geos import Point
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
@@ -98,8 +100,7 @@ class Shop(models.Model):
     postal_code = models.CharField(max_length=20, blank=True, null=True)
     logo = models.ImageField(upload_to="shops/logos/", blank=True)
 
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    location = gis_models.PointField(geography=True, blank=True, null=True)
 
     # Opening hours
     open_time = models.TimeField(default="08:00")
@@ -122,7 +123,7 @@ class Shop(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if not self.latitude or not self.longitude:
+        if not self.location:
             if self.address and self.city and self.country:
                 try:
                     geolocator = Nominatim(user_agent="ecommerce_app")
@@ -130,8 +131,7 @@ class Shop(models.Model):
                 except Exception:
                     location = None
                 if location:
-                    self.latitude = location.latitude
-                    self.longitude = location.longitude
+                    self.location = Point(location.longitude, location.latitude, srid=4326)
         super().save(*args, **kwargs)
 
 
