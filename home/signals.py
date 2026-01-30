@@ -76,7 +76,7 @@ def create_wishlist_alerts(sender, instance, created, **kwargs):
         and current_effective_price is not None
         and Decimal(current_effective_price) < Decimal(previous_effective_price)
     ):
-        price_display = f"₦{current_effective_price}"
+        price_display = f"£{current_effective_price}"
         for item in WishlistItem.objects.filter(
             product=instance, notify_on_price_drop=True
         ):
