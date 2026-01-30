@@ -96,6 +96,10 @@ def filter(request):
 
     }
 
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        html = render_to_string("search/results.html", context, request=request)
+        return JsonResponse({"html": html, "count": len(queryset)})
+
     return render(request, "search/main_search.html", context)
 
 

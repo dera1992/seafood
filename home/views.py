@@ -144,6 +144,7 @@ def ads_list(request, category_slug=None):
     category = None
     ad_list = Products.objects.filter(available=True)
     order = request.GET.get('order', '-created_date')
+    view_mode = request.GET.get('view', 'list')
     ad_list = ad_list.order_by(order)
     latests = Products.objects.filter(available=True).order_by('-created_at', '?')[:6]
     affiliates = Affiliate.objects.all()[:10]
@@ -165,8 +166,9 @@ def ads_list(request, category_slug=None):
         ads = paginator.page(1)
     except EmptyPage:
         ads = paginator.page(paginator.num_pages)
-    return render(request,'home/product_list.html', {'category': category,'categories': categories,'ads': ads,'latests':latests,
-                                              'queryset': qs,'is_favourite': is_favourite,'order': order,'page': page,'affiliates':affiliates})
+    return render(request,'search/main_search.html', {'category': category,'categories': categories,'queryset': ads,'latests':latests,
+                                              'is_favourite': is_favourite,'order': order,'page': page,
+                                              'affiliates':affiliates,'view_mode': view_mode})
 
 # admin ad list
 def allads_list(request, category_slug=None):
