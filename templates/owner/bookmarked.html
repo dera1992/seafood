@@ -38,12 +38,14 @@
                                         <th class="pro-thumbnail">Image</th>
                                         <th class="pro-title">Product</th>
                                         <th class="pro-price">Price</th>
+                                        <th class="pro-alerts">Alerts</th>
                                         <th class="add-to-cart-th"><p>Add to Cart</p></th>
                                         <th class="pro-remove">Remove</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                {% for p in favourite_posts %}
+                                {% for item in wishlist_items %}
+                                    {% with p=item.product %}
                                     <tr>
                                         <td class="pro-thumbnail">
                                              {% for images in p.get_second_image %}
@@ -56,6 +58,20 @@
                                         </td>
                                         <td class="pro-title"><a href="{{ p.get_absolute_url }}">{{p.title}}</a></td>
                                         <td class="pro-price"><span>₦{{ p.price|intcomma}}</span></td>
+                                        <td class="pro-alerts">
+                                            <form method="post" action="{% url 'home:wishlist_preferences' item_id=item.id %}">
+                                                {% csrf_token %}
+                                                <label>
+                                                    <input type="checkbox" name="notify_on_restock" {% if item.notify_on_restock %}checked{% endif %}>
+                                                    Restock
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" name="notify_on_price_drop" {% if item.notify_on_price_drop %}checked{% endif %}>
+                                                    Price Drop
+                                                </label>
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary">Save</button>
+                                            </form>
+                                        </td>
                                         <td class="text-center">
                                             {% if request.user.is_authenticated %}
                                                 {% csrf_token %}
@@ -66,6 +82,7 @@
                                         </td>
                                         <td class="pro-remove"><a href="{% url 'home:favourite_delete' id=p.id %}" class="delete" id="delete"><i class="fa fa-trash-o"></i></a></td>
                                     </tr>
+                                    {% endwith %}
                                 {% empty %}
                                      <tr>
                                         <td class="container-fluid" >
@@ -82,6 +99,22 @@
                     </form>
                 </div>
             </div>
+            {% if notifications %}
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h4>Wishlist Alerts</h4>
+                        <ul class="list-unstyled">
+                            {% for note in notifications %}
+                                <li class="mb-2">
+                                    <strong>{{ note.get_notification_type_display }}:</strong>
+                                    <a href="{{ note.product.get_absolute_url }}">{{ note.message }}</a>
+                                    <small class="text-muted d-block">{{ note.created_at|naturaltime }}</small>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 
