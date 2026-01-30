@@ -990,7 +990,7 @@
                 range: true,
                 min: 0,
                 max: 1000000,
-                values: [ 25, 500000 ],
+                values: [ 1, 1000 ],
 
                 slide: function( event, ui ) {
                     $('#price-amount').val( 'Price: ' + '£' + ui.values[ 0 ] + ' - £' + ui.values[ 1 ] );
