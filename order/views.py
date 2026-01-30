@@ -4,7 +4,13 @@ from django.contrib.auth.decorators import login_required
 from .models import OrderItem, Order, Lga, Address, State, Coupon
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import ListView, DetailView, View
-from .forms import OrderCreateForm, CheckoutForm, CouponForm
+from .forms import (
+    OrderCreateForm,
+    CheckoutForm,
+    CouponForm,
+    OrderTrackingForm,
+    OrderStatusForm,
+)
 from cart.cart import Cart
 from order.extras import generate_order_id
 from account.models import Profile
@@ -130,9 +136,14 @@ def order_owner(request):
         allorder = paginator.page(1)
     except EmptyPage:
         allorder = paginator.page(paginator.num_pages)
-    return render(request, 'owner/order_list.html', {'allorder': allorder,'lates': lates,
-                                                 'counts': counts, 'page_request_var': page_request_var,
-                                                 'my_order':my_order})
+    return render(request, 'owner/order_list.html', {
+        'allorder': allorder,
+        'lates': lates,
+        'counts': counts,
+        'page_request_var': page_request_var,
+        'my_order': my_order,
+        'status_form': OrderStatusForm(),
+    })
 
 @login_required
 def order_all(request):
@@ -157,10 +168,17 @@ def order_all(request):
         allorder = paginator.page(1)
     except EmptyPage:
         allorder = paginator.page(paginator.num_pages)
-    return render(request, 'owner/order_list.html', {'allorder': allorder,'lates': lates,
-                                                 'counts': counts, 'page_request_var': page_request_var,
-                                                 'today_order': today_order,'paid_order':paid_order,
-                                                  'pending_order':pending_order,'delivered_order':delivered_order})
+    return render(request, 'owner/order_list.html', {
+        'allorder': allorder,
+        'lates': lates,
+        'counts': counts,
+        'page_request_var': page_request_var,
+        'today_order': today_order,
+        'paid_order': paid_order,
+        'pending_order': pending_order,
+        'delivered_order': delivered_order,
+        'status_form': OrderStatusForm(),
+    })
 
 def load_cities(request):
     state_id = request.GET.get('state')
@@ -246,3 +264,49 @@ class AddCouponView(View):
             except ObjectDoesNotExist:
                 messages.info(self.request, "This coupon does not exist")
                 return redirect("cart:order-summary")
+
+
+def order_tracking(request, ref=None):
+    order = None
+    tracking_steps = []
+    form = OrderTrackingForm(initial={"ref": ref} if ref else None)
+    status_label = None
+    if request.method == "POST":
+        form = OrderTrackingForm(request.POST)
+        if form.is_valid():
+            ref = form.cleaned_data["ref"]
+    if ref:
+        try:
+            order = Order.objects.get(ref=ref)
+            tracking_steps = order.get_tracking_steps()
+            status_label = order.get_status_label()
+        except Order.DoesNotExist:
+            messages.error(request, "We could not find an order with that reference.")
+    return render(request, "order/tracking.html", {
+        "form": form,
+        "order": order,
+        "tracking_steps": tracking_steps,
+        "status_label": status_label,
+    })
+
+
+@login_required
+def update_order_status(request, order_id):
+    if not request.user.is_superuser and not request.user.is_staff:
+        messages.error(request, "You do not have permission to update order status.")
+        return redirect("order:order_all")
+    order = get_object_or_404(Order, id=order_id)
+    if request.method != "POST":
+        return redirect("order:order_all")
+    form = OrderStatusForm(request.POST)
+    if form.is_valid():
+        status = form.cleaned_data["status"]
+        order.is_ordered = status in {"preparing", "out_for_delivery", "delivered"}
+        order.being_delivered = status in {"out_for_delivery", "delivered"}
+        order.received = status == "delivered"
+        if status in {"payment_confirmed", "preparing", "out_for_delivery", "delivered"}:
+            order.paid = True
+            order.verified = True
+        order.save()
+        messages.success(request, "Order status updated.")
+    return redirect("order:order_all")

@@ -41,3 +41,20 @@ class CheckoutForm(forms.Form):
 
 class CouponForm(forms.Form):
     code = forms.CharField()
+
+
+class OrderTrackingForm(forms.Form):
+    ref = forms.CharField(label="Reference code")
+
+
+STATUS_CHOICES = (
+    ("placed", "Order placed"),
+    ("payment_confirmed", "Payment confirmed"),
+    ("preparing", "Preparing order"),
+    ("out_for_delivery", "Out for delivery"),
+    ("delivered", "Delivered"),
+)
+
+
+class OrderStatusForm(forms.Form):
+    status = forms.ChoiceField(choices=STATUS_CHOICES)

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Track Order{% endblock %}
+
+{% block content %}
+<div class="container pt-50 pb-50">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="section-title text-center mb-30">
+                <h2>Track your order</h2>
+                <p>Enter your order reference to see the latest delivery status.</p>
+            </div>
+            <div class="card mb-30">
+                <div class="card-body">
+                    <form method="post" class="form-inline justify-content-center">
+                        {% csrf_token %}
+                        <div class="form-group mr-10 mb-10">
+                            {{ form.ref.label_tag }}
+                            {{ form.ref }}
+                        </div>
+                        <button type="submit" class="btn btn-success mb-10">Track order</button>
+                    </form>
+                </div>
+            </div>
+            {% if order %}
+                <div class="card mb-30">
+                    <div class="card-body">
+                        <h4 class="mb-10">Order details</h4>
+                        <p class="mb-0"><strong>Reference:</strong> {{ order.ref }}</p>
+                        <p class="mb-0"><strong>Placed:</strong> {{ order.created|naturaltime }}</p>
+                        <p class="mb-0"><strong>Status:</strong> {{ status_label }}</p>
+                        <p class="mb-0"><strong>Total:</strong> ₦{{ order.get_total|floatformat:2|intcomma }}</p>
+                        <p class="mb-0"><strong>Items:</strong>
+                            {% for order_item in order.items.all %}
+                                {{ order_item.quantity }}x {{ order_item.item.title }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="mb-20">Tracking timeline</h4>
+                        <ul class="list-group">
+                            {% for step in tracking_steps %}
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="mr-10">
+                                        <div class="font-weight-bold {% if step.complete %}text-success{% else %}text-muted{% endif %}">
+                                            {{ step.label }}
+                                        </div>
+                                        <small class="text-muted">{{ step.detail }}</small>
+                                        {% if step.timestamp %}
+                                            <div class="small text-muted">Updated {{ step.timestamp|naturaltime }}</div>
+                                        {% endif %}
+                                    </div>
+                                    {% if step.complete %}
+                                        <span class="badge badge-success">Done</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary">Pending</span>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

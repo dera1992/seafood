@@ -106,6 +106,53 @@ class Order(models.Model):
             return True
         return False
 
+    def get_tracking_steps(self):
+        payment_confirmed = self.paid or self.verified
+        steps = [
+            {
+                "label": "Order placed",
+                "complete": True,
+                "timestamp": self.created,
+                "detail": "Your order has been created.",
+            },
+            {
+                "label": "Payment confirmed",
+                "complete": payment_confirmed,
+                "timestamp": self.date_ordered if payment_confirmed else None,
+                "detail": "Payment has been confirmed for this order.",
+            },
+            {
+                "label": "Preparing order",
+                "complete": self.is_ordered,
+                "timestamp": self.updated if self.is_ordered else None,
+                "detail": "We are preparing your items for delivery.",
+            },
+            {
+                "label": "Out for delivery",
+                "complete": self.being_delivered,
+                "timestamp": self.updated if self.being_delivered else None,
+                "detail": "Your order is on the way.",
+            },
+            {
+                "label": "Delivered",
+                "complete": self.received,
+                "timestamp": self.updated if self.received else None,
+                "detail": "Order delivered to the destination.",
+            },
+        ]
+        return steps
+
+    def get_status_label(self):
+        if self.received:
+            return "Delivered"
+        if self.being_delivered:
+            return "Out for delivery"
+        if self.is_ordered:
+            return "Preparing order"
+        if self.paid or self.verified:
+            return "Payment confirmed"
+        return "Order placed"
+
 
 class Address(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
