@@ -168,3 +168,32 @@ class DispatcherProfile(models.Model):
 
     def __str__(self):
         return f"Dispatcher: {self.user.email} ({self.status})"
+
+
+class ShopFollower(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="shop_following")
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name="followers")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user", "shop"], name="unique_shop_follower"),
+        ]
+
+    def __str__(self):
+        return f"{self.user.email} follows {self.shop.name}"
+
+
+class ShopNotification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="shop_notifications")
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name="notifications")
+    product = models.ForeignKey("foodCreate.Products", on_delete=models.CASCADE, related_name="shop_notifications")
+    message = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user.email} - {self.shop.name} - {self.product.title}"

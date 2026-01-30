@@ -12,7 +12,7 @@ from django.db.models import Q
 from django.contrib import messages
 from django.http import HttpResponseRedirect, Http404,HttpResponse, JsonResponse
 
-from account.models import Profile, User, Shop
+from account.models import Profile, User, Shop, ShopFollower, ShopNotification
 from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from blog.models import Post
@@ -219,14 +219,20 @@ def ad_detail(request, id, slug):
         rating = None
     user_rating = UserRating.objects.filter(rating__object_id=ad.id)
     is_favourite = False
+    is_shop_subscribed = False
 
     if request.user.is_authenticated and ad.favourite.filter(id=request.user.id).exists():
         is_favourite = True
+    if request.user.is_authenticated:
+        is_shop_subscribed = ShopFollower.objects.filter(
+            user=request.user, shop=ad.shop
+        ).exists()
     cart_product_form = CartAddProductForm()
     return render(request, 'home/detail.html', {'ad':ad,'adsimage':adsimage, 'ad_similar':ad_similar,
                                                'profile':profile,'latests':latests,'is_favourite': is_favourite,
                                                 'categories': categories,'cart_product_form': cart_product_form,
-                                                'rating':rating, 'user_rating':user_rating,'reviews':reviews,'affiliates':affiliates})
+                                                'rating':rating, 'user_rating':user_rating,'reviews':reviews,
+                                                'affiliates':affiliates, 'is_shop_subscribed': is_shop_subscribed})
 @login_required
 def ads_favourite_list(request):
     user = request.user
@@ -303,6 +309,37 @@ def update_wishlist_preferences(request, item_id):
     item.save(update_fields=["notify_on_restock", "notify_on_price_drop"])
     messages.success(request, "Wishlist alert preferences updated.")
     return redirect("home:favourites")
+
+
+@login_required
+@require_POST
+def toggle_shop_subscription(request, shop_id):
+    shop = get_object_or_404(Shop, id=shop_id)
+    if request.user.role != "customer":
+        messages.error(request, "Only customers can subscribe to shops.")
+        return redirect(request.META.get("HTTP_REFERER", "home:home"))
+    if shop.owner_id == request.user.id:
+        messages.error(request, "You cannot subscribe to your own shop.")
+        return redirect(request.META.get("HTTP_REFERER", "home:home"))
+
+    subscription, created = ShopFollower.objects.get_or_create(user=request.user, shop=shop)
+    if created:
+        messages.success(request, f"Subscribed to {shop.name}.")
+    else:
+        subscription.delete()
+        messages.info(request, f"Unsubscribed from {shop.name}.")
+    return redirect(request.META.get("HTTP_REFERER", "home:home"))
+
+
+@login_required
+def shop_notifications(request):
+    notifications = (
+        ShopNotification.objects.filter(user=request.user)
+        .select_related("shop", "product")
+        .order_by("-created_at")
+    )
+    ShopNotification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    return render(request, "home/shop_notifications.html", {"notifications": notifications})
 
 
 @login_required

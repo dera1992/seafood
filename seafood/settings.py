@@ -51,7 +51,7 @@ INSTALLED_APPS = [
 
     'account',
     'blog',
-    'foodCreate',
+    'foodCreate.apps.FoodcreateConfig',
     'home.apps.HomeConfig',
     'comments',
     'marketing',
