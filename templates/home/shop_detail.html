@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ shop.name }}{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .shop-hero {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 28px;
+        }
+
+        .shop-hero .shop-logo {
+            width: 96px;
+            height: 96px;
+            border-radius: 16px;
+            object-fit: cover;
+            border: 1px solid #e9ecef;
+            background: #fff;
+        }
+
+        .shop-products-grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .shop-product-card {
+            border: 1px solid #e5e5e5;
+            border-radius: 14px;
+            padding: 16px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .shop-product-card img {
+            border-radius: 12px;
+            object-fit: cover;
+            width: 100%;
+            height: 160px;
+            border: 1px solid #f0f0f0;
+            margin-bottom: 12px;
+        }
+
+        .shop-product-card .btn {
+            margin-top: auto;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="breadcrumb-area mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="breadcrumb-container">
+                        <ul>
+                            <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                            <li><a href="{% url "home:shop_list" %}">Shop Directory</a></li>
+                            <li class="active">{{ shop.name }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mb-50">
+        <div class="shop-hero mb-40">
+            <div class="row align-items-center">
+                <div class="col-md-2 text-center text-md-left mb-3 mb-md-0">
+                    {% if shop.logo %}
+                        <img src="{{ shop.logo.url }}" alt="{{ shop.name }} logo" class="shop-logo">
+                    {% else %}
+                        <img src="{% static 'images/profile/user-img.png' %}" alt="Default shop logo" class="shop-logo">
+                    {% endif %}
+                </div>
+                <div class="col-md-7">
+                    <h2 class="mb-2">{{ shop.name }}</h2>
+                    <p class="mb-2 text-muted">
+                        {{ shop.address }}{% if shop.city %}, {{ shop.city }}{% endif %}{% if shop.state %}, {{ shop.state }}{% endif %}
+                    </p>
+                    <p class="mb-0">{{ shop.description|default:"No description provided yet." }}</p>
+                </div>
+                <div class="col-md-3 text-md-right mt-3 mt-md-0">
+                    {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'home:toggle_shop_subscription' shop_id=shop.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-success btn-sm mb-2">
+                                {% if is_shop_subscribed %}
+                                    Unsubscribe
+                                {% else %}
+                                    Subscribe
+                                {% endif %}
+                            </button>
+                        </form>
+                        <a href="{% url 'chat:inbox' %}" class="btn btn-link btn-sm">Go to inbox</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-success btn-sm">Log in to subscribe</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-40">
+            <div class="col-lg-8">
+                <h3 class="mb-3">Products from {{ shop.name }}</h3>
+                {% if products %}
+                    <div class="shop-products-grid">
+                        {% for product in products %}
+                            <div class="shop-product-card">
+                                {% with product_image=product.images.first %}
+                                    {% if product_image %}
+                                        <img src="{{ product_image.product_image.url }}" alt="{{ product.title }}">
+                                    {% else %}
+                                        <img src="{% static 'images/bg.jpg' %}" alt="{{ product.title }}">
+                                    {% endif %}
+                                {% endwith %}
+                                <h5 class="mb-2">{{ product.title }}</h5>
+                                <p class="text-muted mb-2">{{ product.category.name }}</p>
+                                <p class="mb-3">£{{ product.price|intcomma }}</p>
+                                <a href="{{ product.get_absolute_url }}" class="btn btn-success btn-sm">View product</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">This shop has not listed any products yet.</div>
+                {% endif %}
+            </div>
+            <div class="col-lg-4 mt-4 mt-lg-0">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Chat with {{ shop.name }}</h4>
+                        {% if user.is_authenticated %}
+                            {% if user.id == shop.owner_id %}
+                                <p class="text-muted">You are the owner of this shop. Customer messages will appear in your inbox.</p>
+                            {% else %}
+                                <form method="post" action="{% url 'chat:send_message' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="receiver_id" value="{{ shop.owner_id }}">
+                                    <input type="hidden" name="shop_id" value="{{ shop.id }}">
+                                    <div class="form-group">
+                                        <label for="chat-content">Message</label>
+                                        <textarea class="form-control" id="chat-content" name="content" rows="4" placeholder="Ask about products, availability, or pickup options." required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-block">Send message</button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-muted">Log in to send a message to this shop.</p>
+                            <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm">Log in to chat</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
