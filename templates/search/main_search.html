@@ -51,24 +51,24 @@
                                     Sort By
                                   </button>
                                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href={{ request.build_absolute_uri }}{% relative_url 'latest' 'order' params %}>Latest Items</a>
-                                    <a class="dropdown-item" href={{ request.build_absolute_uri }}{% relative_url 'discount_close' 'order' params %}>Discount Ending Soon</a>
-                                    <a class="dropdown-item" href={{ request.build_absolute_uri }}{% relative_url 'rating' 'order' params %}>Top Rated</a>
-                                    <a class="dropdown-item" href={{ request.build_absolute_uri }}{% relative_url 'best_selling' 'order' params %}>Best Selling</a>
-                                    <a class="dropdown-item" href={{ request.build_absolute_uri }}{% relative_url 'created_date' 'order' params %}>Oldest First</a>
-                                    <a class="dropdown-item" href={{ request.build_absolute_uri }}{% relative_url '-price' 'order' params %}>High - Low Price</a>
-                                    <a class="dropdown-item" href={{ request.build_absolute_uri }}{% relative_url 'price' 'order' params %}>Low - High Price</a>
+                                    <a class="dropdown-item js-filter-link {% if order == 'latest' or order == '-created_date' %}active text-success{% endif %}" href={{ request.build_absolute_uri }}{% relative_url 'latest' 'order' params %}>Latest Items</a>
+                                    <a class="dropdown-item js-filter-link {% if order == 'discount_close' %}active text-success{% endif %}" href={{ request.build_absolute_uri }}{% relative_url 'discount_close' 'order' params %}>Discount Ending Soon</a>
+                                    <a class="dropdown-item js-filter-link {% if order == 'rating' %}active text-success{% endif %}" href={{ request.build_absolute_uri }}{% relative_url 'rating' 'order' params %}>Top Rated</a>
+                                    <a class="dropdown-item js-filter-link {% if order == 'best_selling' %}active text-success{% endif %}" href={{ request.build_absolute_uri }}{% relative_url 'best_selling' 'order' params %}>Best Selling</a>
+                                    <a class="dropdown-item js-filter-link {% if order == 'created_date' %}active text-success{% endif %}" href={{ request.build_absolute_uri }}{% relative_url 'created_date' 'order' params %}>Oldest First</a>
+                                    <a class="dropdown-item js-filter-link {% if order == '-price' %}active text-success{% endif %}" href={{ request.build_absolute_uri }}{% relative_url '-price' 'order' params %}>High - Low Price</a>
+                                    <a class="dropdown-item js-filter-link {% if order == 'price' %}active text-success{% endif %}" href={{ request.build_absolute_uri }}{% relative_url 'price' 'order' params %}>Low - High Price</a>
                                   </div>
                                 </div>
 								<!--=======  End of Sort by dropdown  =======-->
                                 <div class="d-flex align-items-center mt-3 mt-sm-0">
-                                    <a class="btn btn-outline-success mr-2 {% if view_mode == 'grid' %}active{% endif %}"
+                                    <a class="btn btn-outline-success mr-2 js-filter-link {% if view_mode == 'grid' %}active{% endif %}"
                                        href={{ request.build_absolute_uri }}{% relative_url 'grid' 'view' params %}>Grid</a>
-                                    <a class="btn btn-outline-success {% if view_mode != 'grid' %}active{% endif %}"
+                                    <a class="btn btn-outline-success js-filter-link {% if view_mode != 'grid' %}active{% endif %}"
                                        href={{ request.build_absolute_uri }}{% relative_url 'list' 'view' params %}>List</a>
                                 </div>
                                 {% with total_property=queryset|length %}
-								<p class="result-show-message">Showing {{ total_property }} result{{ total_property|pluralize }}</p>
+								<p class="result-show-message">Showing <span id="search-result-count">{{ total_property }}</span> result{{ total_property|pluralize }}</p>
                                 {% endwith %}
 							</div>
 						</div>
@@ -78,6 +78,9 @@
 
 					<!--=======  Grid list view  =======-->
 
+					<div id="search-results">
+                        {% include 'search/results.html' %}
+                    </div>
 					<div class="shop-product-wrap {% if view_mode == 'grid' %}grid{% else %}list{% endif %} row no-gutters mb-35">
 
 						<div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
@@ -188,4 +191,5 @@
 {% endblock %}
 {% block script %}
     <script src="{% static 'assets/js/ads.js' %}" type="text/javascript"></script>
+    <script src="{% static 'assets/js/search_filters.js' %}" type="text/javascript"></script>
 {% endblock %}
