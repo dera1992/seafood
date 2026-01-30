@@ -140,6 +140,55 @@ def home_list(request, category_slug=None):
                                               'affiliates':affiliates,'recommended_products': recommended_products,
                                               'recommended_location': user_location})
 
+
+def shop_list(request):
+    view_mode = request.GET.get("view", "list")
+    query = (request.GET.get("q") or "").strip()
+    shops = (
+        Shop.objects.filter(is_active=True)
+        .select_related("owner")
+        .annotate(product_count=Count("products"))
+    )
+    if query:
+        shops = shops.filter(
+            Q(name__icontains=query)
+            | Q(address__icontains=query)
+            | Q(city__icontains=query)
+            | Q(state__icontains=query)
+        )
+    return render(
+        request,
+        "home/shop_list.html",
+        {
+            "shops": shops,
+            "query": query,
+            "view_mode": view_mode,
+        },
+    )
+
+
+def shop_detail(request, shop_id):
+    shop = get_object_or_404(Shop, id=shop_id, is_active=True)
+    products = (
+        Products.objects.filter(shop=shop, available=True)
+        .select_related("category")
+        .order_by("-created_at")
+    )
+    is_shop_subscribed = False
+    if request.user.is_authenticated:
+        is_shop_subscribed = ShopFollower.objects.filter(
+            user=request.user, shop=shop
+        ).exists()
+    return render(
+        request,
+        "home/shop_detail.html",
+        {
+            "shop": shop,
+            "products": products,
+            "is_shop_subscribed": is_shop_subscribed,
+        },
+    )
+
 def ads_list(request, category_slug=None):
     category = None
     ad_list = Products.objects.filter(available=True)
