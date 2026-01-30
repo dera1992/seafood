@@ -990,10 +990,10 @@
                 range: true,
                 min: 0,
                 max: 1000000,
-                values: [ 25, 500000 ],
+                values: [ 1, 1000 ],
 
                 slide: function( event, ui ) {
-                    $('#price-amount').val( 'Price: ' + '₦' + ui.values[ 0 ] + ' - ₦' + ui.values[ 1 ] );
+                    $('#price-amount').val( 'Price: ' + '£' + ui.values[ 0 ] + ' - £' + ui.values[ 1 ] );
                 },
                 stop: function( event, ui ) {
                     $('#txtMin').val(ui.values[ 0 ]);
@@ -1008,7 +1008,7 @@
                 values: [ min_price, max_price ],
 
                 slide: function( event, ui ) {
-                    $('#price-amount').val( 'Price: ' + '₦' + ui.values[ 0 ] + ' - ₦' + ui.values[ 1 ] );
+                    $('#price-amount').val( 'Price: ' + '£' + ui.values[ 0 ] + ' - £' + ui.values[ 1 ] );
                 },
                 stop: function( event, ui ) {
                     $('#txtMin').val(ui.values[ 0 ]);
@@ -1017,8 +1017,8 @@
 		    });
         }
 
-		$('#price-amount').val( 'Price: ' + '₦' + $('#price-range').slider( 'values', 0 ) +
-			' - ₦' + $('#price-range').slider('values', 1 ) );
+		$('#price-amount').val( 'Price: ' + '£' + $('#price-range').slider( 'values', 0 ) +
+			' - £' + $('#price-range').slider('values', 1 ) );
 		$('#txtMin').val($('#price-range').slider( 'values', 0 ));
         $('#txtMax').val($('#price-range').slider('values', 1 ));
 

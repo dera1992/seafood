@@ -105,17 +105,17 @@
 
 											<ul>
                                                 {% for order_item in order.items.all %}
-												    <li>{{ order_item.item.title }} X {{ order_item.quantity }} <span>₦{{ order_item.get_total_item_price|intcomma }}</span></li>
+												    <li>{{ order_item.item.title }} X {{ order_item.quantity }} <span>£{{ order_item.get_total_item_price|intcomma }}</span></li>
 												{% endfor %}
 											</ul>
                                             {% for order_item in order.items.all %}
-											<p>Sub Total <span>₦{{ order_item.get_final_price |intcomma}}</span></p>
+											<p>Sub Total <span>£{{ order_item.get_final_price |intcomma}}</span></p>
                                             {% endfor %}
-                                            <p>Shipping Fee <span>₦00.00</span></p>
+                                            <p>Shipping Fee <span>£00.00</span></p>
                                             {% if order.coupon %}
-											    <p>Promo Code : {{ order.coupon.code }} <span>-₦{{ order.coupon.amount|intcomma }}</span></p>
+											    <p>Promo Code : {{ order.coupon.code }} <span>-£{{ order.coupon.amount|intcomma }}</span></p>
                                             {% endif %}
-											<h4>Grand Total <span>₦{{ order.get_total|intcomma }}</span></h4>
+											<h4>Grand Total <span>£{{ order.get_total|intcomma }}</span></h4>
 
 										</div>
 

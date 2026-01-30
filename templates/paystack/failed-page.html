@@ -20,7 +20,7 @@ Hi {{ payment.user.get_full_name }},
               {% for ord_item in payment.items.all %}
                   <p>Purchase Item : {{ ord_item.item.title }}</p>
                   <p>Quantity : {{ ord_item.quantity }}</p>
-                  <p>Amount : ₦{{ ord_item.get_total|intcomma }}</p>
+                  <p>Amount : £{{ ord_item.get_total|intcomma }}</p>
               {% endfor %}
           </td>
           <td>{{ payment.ref }}</td>
