@@ -8,6 +8,7 @@ from account.models import Shop
 from foodCreate.models import Category, Products
 
 from .models import Budget, BudgetTemplate, BudgetTemplateItem, ShoppingListItem
+from .utils import build_price_predictions, build_savings_suggestions
 
 
 class BudgetPlannerTests(TestCase):
@@ -62,3 +63,25 @@ class BudgetPlannerTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('templates', response.context)
         self.assertEqual(response.context['templates'].count(), 1)
+
+    def test_ai_suggestions_include_predictions(self):
+        budget = Budget.objects.create(user=self.user, total_budget=Decimal('9000.00'))
+        item = ShoppingListItem.objects.create(budget=budget, product=self.product, quantity=1)
+        predictions = build_price_predictions([item])
+        self.assertEqual(len(predictions), 1)
+        self.assertEqual(predictions[0]['product'], self.product)
+
+    def test_savings_suggestions_returns_alternatives(self):
+        cheaper_product = Products.objects.create(
+            shop=self.shop,
+            title='Tuna',
+            category=self.category,
+            price=Decimal('3000.00'),
+        )
+        budget = Budget.objects.create(user=self.user, total_budget=Decimal('6000.00'))
+        item = ShoppingListItem.objects.create(budget=budget, product=self.product, quantity=1)
+
+        suggestions = build_savings_suggestions([item], budget.remaining_budget)
+
+        self.assertIn(item.product, suggestions)
+        self.assertIn(cheaper_product, suggestions[item.product])
