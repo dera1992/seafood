@@ -122,6 +122,110 @@ h5 {
 /*=============================================
 =            Nearby shop section              =
 =============================================*/
+.modern-home {
+  background: #f6f9f5; }
+
+.modern-home .section-title.modern-section-title {
+  margin-bottom: 22px; }
+
+.modern-home .section-title.modern-section-title .section-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 6px 16px;
+  background: rgba(30, 89, 58, 0.1);
+  color: #1e4d32;
+  font-weight: 600; }
+
+.modern-home .section-title.modern-section-title .section-subtitle {
+  font-size: 16px;
+  color: #51695a;
+  margin-top: 8px; }
+
+.modern-home .hero-slider-with-category-container {
+  border-radius: 32px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 30px 60px rgba(18, 66, 40, 0.12); }
+
+.modern-home .modern-hero {
+  position: relative;
+  border-radius: 32px;
+  overflow: hidden;
+  padding: 60px 50px;
+  background: linear-gradient(135deg, rgba(28, 107, 66, 0.08), rgba(255, 255, 255, 0.95)); }
+
+.modern-home .modern-hero__content h1 {
+  font-weight: 800;
+  color: #1e4d32;
+  letter-spacing: -0.5px; }
+
+.modern-home .hero-badges .hero-badge {
+  background: #e7f3ec;
+  color: #1e4d32;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600; }
+
+.modern-home .hero-actions .slider-two-btn {
+  border-radius: 999px;
+  padding: 12px 28px;
+  font-weight: 600;
+  box-shadow: 0 16px 30px rgba(16, 71, 44, 0.18); }
+
+.modern-home .hero-actions .hero-secondary {
+  background: #fff;
+  border: 1px solid rgba(31, 75, 52, 0.3);
+  color: #1e4d32; }
+
+.modern-home .hero-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px; }
+
+.modern-home .hero-stat {
+  background: #fff;
+  border-radius: 16px;
+  padding: 12px 16px;
+  box-shadow: 0 10px 20px rgba(16, 65, 38, 0.12); }
+
+.modern-home .category-pill-section {
+  background: #fff;
+  border-radius: 28px;
+  padding: 40px 0;
+  box-shadow: 0 22px 44px rgba(16, 65, 38, 0.12); }
+
+.modern-home .category-pill-list a {
+  border-radius: 999px;
+  padding: 10px 18px;
+  background: #f0f6f2;
+  color: #1e4d32;
+  font-weight: 600;
+  border: 1px solid rgba(31, 75, 52, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease; }
+
+.modern-home .category-pill-list a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px rgba(16, 65, 38, 0.12); }
+
+.modern-home .modern-feature-card {
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 18px 34px rgba(16, 65, 38, 0.12);
+  border: 1px solid rgba(31, 75, 52, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease; }
+
+.modern-home .modern-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 40px rgba(16, 65, 38, 0.16); }
+
+.modern-home .multisale-slider {
+  background: #fff;
+  border-radius: 28px;
+  padding: 30px 0 10px;
+  box-shadow: 0 20px 44px rgba(16, 65, 38, 0.12); }
 .nearby-shop-section {
   position: relative;
   padding: 48px 40px;
