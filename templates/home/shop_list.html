@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Shop Directory{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .shop-directory-header {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .shop-results {
+            display: grid;
+            gap: 20px;
+        }
+
+        .shop-results[data-view="list"] {
+            grid-template-columns: 1fr;
+        }
+
+        .shop-results[data-view="grid"] {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+
+        .shop-card {
+            border: 1px solid #e5e5e5;
+            border-radius: 14px;
+            padding: 18px;
+            background: #fff;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .shop-results[data-view="grid"] .shop-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .shop-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid #f0f0f0;
+            background: #fff;
+        }
+
+        .shop-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .shop-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .shop-status::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+            display: inline-block;
+        }
+
+        .shop-status.is-closed::before {
+            background: #dc3545;
+        }
+
+        .shop-card .btn {
+            white-space: nowrap;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="breadcrumb-area mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="breadcrumb-container">
+                        <ul>
+                            <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                            <li class="active">Shop Directory</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="shop-page-container mb-50">
+        <div class="container">
+            <div class="shop-directory-header mb-40">
+                <div class="row align-items-center">
+                    <div class="col-lg-7">
+                        <h2 class="mb-10">Browse local shops</h2>
+                        <p class="mb-0">Search by shop name or location, then switch between list and grid views.</p>
+                    </div>
+                    <div class="col-lg-5 mt-3 mt-lg-0">
+                        <label class="form-label" for="shop-search">Search shops</label>
+                        <div class="input-group">
+                            <input
+                                class="form-control"
+                                id="shop-search"
+                                list="shop-suggestions"
+                                type="text"
+                                placeholder="Start typing a shop name or city"
+                                value="{{ query }}"
+                                autocomplete="off"
+                            >
+                            <button class="btn btn-outline-secondary" type="button" id="shop-search-clear">Clear</button>
+                        </div>
+                        <datalist id="shop-suggestions">
+                            {% for shop in shops %}
+                                <option value="{{ shop.name }}"></option>
+                            {% endfor %}
+                        </datalist>
+                    </div>
+                </div>
+                <div class="row align-items-center mt-4">
+                    <div class="col-md-6">
+                        <p class="mb-0">Showing <strong id="shop-result-count">{{ shops|length }}</strong> shop{{ shops|pluralize }}</p>
+                    </div>
+                    <div class="col-md-6 text-md-right mt-3 mt-md-0">
+                        <div class="btn-group" role="group" aria-label="Shop view toggle">
+                            <button class="btn btn-outline-success" type="button" data-view-toggle="list">List</button>
+                            <button class="btn btn-outline-success" type="button" data-view-toggle="grid">Grid</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="shop-results" class="shop-results" data-view="{{ view_mode }}">
+                {% for shop in shops %}
+                    <article
+                        class="shop-card"
+                        data-search="{{ shop.name }} {{ shop.city }} {{ shop.state }} {{ shop.address }}"
+                    >
+                        {% if shop.logo %}
+                            <img src="{{ shop.logo.url }}" alt="{{ shop.name }} logo" class="shop-logo">
+                        {% else %}
+                            <img src="{% static 'images/profile/user-img.png' %}" alt="Default shop logo" class="shop-logo">
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <h4 class="mb-2">{{ shop.name }}</h4>
+                            <p class="mb-2 text-muted">
+                                {{ shop.address }}{% if shop.city %}, {{ shop.city }}{% endif %}{% if shop.state %}, {{ shop.state }}{% endif %}
+                            </p>
+                            <div class="shop-meta">
+                                <span>{{ shop.product_count }} product{{ shop.product_count|pluralize }}</span>
+                                {% if shop.avg_rating %}
+                                    <span>⭐ {{ shop.avg_rating|floatformat:1 }} ({{ shop.rating_count }})</span>
+                                {% else %}
+                                    <span>No ratings yet</span>
+                                {% endif %}
+                                {% if shop.is_shop_open %}
+                                    <span class="shop-status">Open now</span>
+                                {% else %}
+                                    <span class="shop-status is-closed">Closed</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="text-lg-right mt-3 mt-lg-0">
+                            <a href="{% url 'home:shop_detail' shop_id=shop.id %}" class="btn btn-success">View shop</a>
+                            <a href="{% url 'home:shop_detail' shop_id=shop.id %}#shop-chat" class="btn btn-outline-primary ml-2">Chat</a>
+                        </div>
+                    </article>
+                {% empty %}
+                    <div class="alert alert-info">No shops are available right now.</div>
+                {% endfor %}
+            </div>
+
+            <div id="shop-empty-state" class="alert alert-warning mt-4" style="display: none;">
+                No shops match that search. Try another name or location.
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        const resultsContainer = document.getElementById("shop-results");
+        const searchInput = document.getElementById("shop-search");
+        const clearButton = document.getElementById("shop-search-clear");
+        const countLabel = document.getElementById("shop-result-count");
+        const emptyState = document.getElementById("shop-empty-state");
+        const viewButtons = document.querySelectorAll("[data-view-toggle]");
+
+        const params = new URLSearchParams(window.location.search);
+
+        const updateUrlParam = (key, value) => {
+            if (value) {
+                params.set(key, value);
+            } else {
+                params.delete(key);
+            }
+            const nextUrl = `${window.location.pathname}?${params.toString()}`;
+            window.history.replaceState({}, "", nextUrl);
+        };
+
+        const setView = (view) => {
+            resultsContainer.dataset.view = view;
+            updateUrlParam("view", view);
+            viewButtons.forEach((button) => {
+                button.classList.toggle("active", button.dataset.viewToggle === view);
+            });
+        };
+
+        const filterShops = () => {
+            const query = searchInput.value.trim().toLowerCase();
+            updateUrlParam("q", query);
+            let visibleCount = 0;
+            document.querySelectorAll(".shop-card").forEach((card) => {
+                const searchable = card.dataset.search.toLowerCase();
+                const matches = searchable.includes(query);
+                card.style.display = matches ? "flex" : "none";
+                if (matches) {
+                    visibleCount += 1;
+                }
+            });
+            countLabel.textContent = visibleCount;
+            emptyState.style.display = visibleCount === 0 ? "block" : "none";
+        };
+
+        viewButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                setView(button.dataset.viewToggle);
+            });
+        });
+
+        const initialView = params.get("view") || resultsContainer.dataset.view || "list";
+        const initialQuery = params.get("q");
+
+        if (initialQuery && !searchInput.value) {
+            searchInput.value = initialQuery;
+        }
+
+        setView(initialView);
+        filterShops();
+
+        searchInput.addEventListener("input", filterShops);
+        clearButton.addEventListener("click", () => {
+            searchInput.value = "";
+            filterShops();
+            searchInput.focus();
+        });
+    </script>
+{% endblock %}

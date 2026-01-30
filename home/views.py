@@ -7,7 +7,7 @@ from foodCreate.forms import ReviewForm
 from foodCreate.models import Products, ProductsImages, Category, SubCategory, ReviewRating
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Count
+from django.db.models import Avg, Count
 from django.db.models import Q
 from django.contrib import messages
 from django.http import HttpResponseRedirect, Http404,HttpResponse, JsonResponse
@@ -139,6 +139,64 @@ def home_list(request, category_slug=None):
                                               'queryset': qs,'subcategories':subcategories,'queryset_list':queryset_list,
                                               'affiliates':affiliates,'recommended_products': recommended_products,
                                               'recommended_location': user_location})
+
+
+def shop_list(request):
+    view_mode = request.GET.get("view", "list")
+    query = (request.GET.get("q") or "").strip()
+    shops = (
+        Shop.objects.filter(is_active=True)
+        .select_related("owner")
+        .annotate(
+            product_count=Count("products", distinct=True),
+            avg_rating=Avg("products__reviewrating__rating"),
+            rating_count=Count("products__reviewrating", distinct=True),
+        )
+    )
+    if query:
+        shops = shops.filter(
+            Q(name__icontains=query)
+            | Q(address__icontains=query)
+            | Q(city__icontains=query)
+            | Q(state__icontains=query)
+        )
+    return render(
+        request,
+        "home/shop_list.html",
+        {
+            "shops": shops,
+            "query": query,
+            "view_mode": view_mode,
+        },
+    )
+
+
+def shop_detail(request, shop_id):
+    shop = get_object_or_404(Shop, id=shop_id, is_active=True)
+    products = (
+        Products.objects.filter(shop=shop, available=True)
+        .select_related("category")
+        .order_by("-created_at")
+    )
+    rating_summary = products.aggregate(
+        avg_rating=Avg("reviewrating__rating"),
+        rating_count=Count("reviewrating", distinct=True),
+    )
+    is_shop_subscribed = False
+    if request.user.is_authenticated:
+        is_shop_subscribed = ShopFollower.objects.filter(
+            user=request.user, shop=shop
+        ).exists()
+    return render(
+        request,
+        "home/shop_detail.html",
+        {
+            "shop": shop,
+            "products": products,
+            "rating_summary": rating_summary,
+            "is_shop_subscribed": is_shop_subscribed,
+        },
+    )
 
 def ads_list(request, category_slug=None):
     category = None
