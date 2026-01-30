@@ -126,8 +126,8 @@ h5 {
   position: relative;
   padding: 48px 40px;
   border-radius: 28px;
-  background: #f7faf6;
-  box-shadow: 0 24px 50px rgba(20, 57, 36, 0.15);
+  background: #f7faf5;
+  box-shadow: 0 26px 60px rgba(20, 57, 36, 0.18);
   overflow: hidden; }
 
 .nearby-shop-section::before,
@@ -137,7 +137,7 @@ h5 {
   width: 260px;
   height: 260px;
   border-radius: 50%;
-  filter: blur(8px);
+  filter: blur(10px);
   opacity: 0.4;
   z-index: 0; }
 
@@ -159,30 +159,31 @@ h5 {
   z-index: 1; }
 
 .nearby-shop-section .section-heading {
-  font-size: 36px;
-  font-weight: 700;
+  font-size: 38px;
+  font-weight: 800;
   color: #1e4d32;
   margin-bottom: 8px; }
 
 .nearby-shop-section .section-subtitle {
   font-size: 16px;
-  color: #496453; }
+  color: #496453;
+  margin-bottom: 0; }
 
 .nearby-controls {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 18px;
   align-items: center;
-  margin-top: 18px; }
+  margin-top: 24px; }
 
 .nearby-pill {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   border-radius: 999px;
-  padding: 14px 28px;
-  min-height: 54px;
-  font-size: 16px;
+  padding: 16px 30px;
+  min-height: 60px;
+  font-size: 17px;
   font-weight: 600;
   box-shadow: 0 18px 30px rgba(16, 71, 44, 0.18);
   border: 1px solid rgba(20, 115, 78, 0.2);
@@ -193,10 +194,12 @@ h5 {
 
 .nearby-action {
   border: none;
-  background: linear-gradient(135deg, #2bb26b, #166a41);
+  background: linear-gradient(135deg, #2cab66, #0f5b35);
   color: #fff;
   position: relative;
-  overflow: hidden; }
+  overflow: hidden;
+  justify-content: center;
+  text-align: center; }
 
 .nearby-shop-section .nearby-action::after {
   content: "";
@@ -212,7 +215,7 @@ h5 {
 .nearby-shop-section .nearby-action:hover,
 .nearby-shop-section .nearby-action:focus {
   transform: translateY(-2px);
-  box-shadow: 0 20px 40px rgba(20, 115, 78, 0.35);
+  box-shadow: 0 24px 42px rgba(20, 115, 78, 0.35);
   color: #fff; }
 
 .nearby-shop-section .nearby-action:hover::after,
@@ -220,9 +223,10 @@ h5 {
   opacity: 1; }
 
 .nearby-radius {
-  background: linear-gradient(135deg, rgba(45, 175, 110, 0.18), rgba(155, 224, 195, 0.75));
+  background: linear-gradient(135deg, rgba(45, 175, 110, 0.2), rgba(155, 224, 195, 0.85));
   border: none;
-  padding-right: 18px; }
+  padding-right: 18px;
+  justify-content: center; }
 
 .nearby-radius .icon_pin_alt {
   color: #1e5a3a; }
@@ -233,7 +237,9 @@ h5 {
   font-weight: 600;
   color: #1e4d32;
   padding: 0 6px;
-  min-width: 120px; }
+  min-width: 130px;
+  text-align: center;
+  appearance: none; }
 
 .nearby-shop-section .nearby-select:focus {
   box-shadow: none; }
@@ -245,39 +251,39 @@ h5 {
   box-shadow: none; }
 
 .nearby-status {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   color: #1f4b34; }
 
 .nearby-shop-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  border-radius: 22px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  border-radius: 24px;
   background: #fff;
-  border: 1px solid rgba(31, 75, 52, 0.12);
-  box-shadow: 0 18px 34px rgba(16, 65, 38, 0.15);
+  border: 1px solid rgba(31, 75, 52, 0.1);
+  box-shadow: 0 22px 38px rgba(16, 65, 38, 0.16);
   overflow: hidden;
-  min-height: 240px;
+  min-height: 230px;
   transition: transform 0.2s ease, box-shadow 0.2s ease; }
 
 .nearby-shop-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 22px 38px rgba(12, 74, 45, 0.18); }
+  box-shadow: 0 28px 48px rgba(12, 74, 45, 0.2); }
 
 .nearby-card-media {
-  background: linear-gradient(135deg, rgba(30, 89, 58, 0.85), rgba(88, 156, 120, 0.9)),
+  background: linear-gradient(135deg, rgba(30, 89, 58, 0.2), rgba(88, 156, 120, 0.2)),
     url("../images/banner/banner-1.jpg") center/cover no-repeat;
-  min-height: 220px; }
+  min-height: 230px; }
 
 .nearby-card-body {
-  padding: 24px;
+  padding: 26px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   justify-content: center; }
 
 .nearby-card-body h4 {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: #1e4d32;
   margin-bottom: 4px; }
@@ -288,7 +294,8 @@ h5 {
 
 .nearby-card-btn {
   margin-top: 18px;
-  align-self: flex-start;
+  align-self: stretch;
+  text-align: center;
   border-radius: 999px;
   border: none;
   padding: 12px 28px;
@@ -304,7 +311,7 @@ h5 {
   font-size: 16px;
   font-weight: 600;
   color: #1e4d32;
-  border: 1px solid rgba(31, 75, 52, 0.5);
+  border: 1px solid rgba(31, 75, 52, 0.6);
   background: #fdfdfc;
   box-shadow: 0 14px 24px rgba(15, 75, 47, 0.1); }
 
