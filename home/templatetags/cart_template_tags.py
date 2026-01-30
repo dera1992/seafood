@@ -1,6 +1,6 @@
 from django import template
 from order.models import Order
-from foodCreate.models import Products
+from home.models import WishlistItem
 
 register = template.Library()
 
@@ -16,7 +16,7 @@ def cart_item_count(user):
 @register.filter
 def wish_item_count(user):
     if user.is_authenticated:
-        qs = Products.objects.filter(favourite=user)
+        qs = WishlistItem.objects.filter(user=user)
         if qs.exists():
             return qs.count()
     return 0

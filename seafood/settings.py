@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'account',
     'blog',
     'foodCreate',
-    'home',
+    'home.apps.HomeConfig',
     'comments',
     'marketing',
     'search',

@@ -26,6 +26,7 @@ from owner.models import Affiliate
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
+from home.models import WishlistItem, WishlistNotification
 
 
 @login_required
@@ -211,9 +212,18 @@ def ad_detail(request, id, slug):
 @login_required
 def ads_favourite_list(request):
     user = request.user
-    favourite_posts = user.favourite.all()
+    favourites = user.favourite.all()
+    for product in favourites:
+        WishlistItem.objects.get_or_create(user=user, product=product)
+    wishlist_items = WishlistItem.objects.filter(user=user).select_related("product")
+    notifications = (
+        WishlistNotification.objects.filter(user=user)
+        .select_related("product")
+        .order_by("-created_at")[:10]
+    )
     context = {
-        'favourite_posts': favourite_posts,
+        'wishlist_items': wishlist_items,
+        'notifications': notifications,
     }
     return render(request, 'owner/bookmarked.html', context)
 
@@ -223,8 +233,10 @@ def favourite_ad(request, id):
     print(ad)
     if ad.favourite.filter(id=request.user.id).exists():
         ad.favourite.remove(request.user)
+        WishlistItem.objects.filter(user=request.user, product=ad).delete()
     else:
         ad.favourite.add(request.user)
+        WishlistItem.objects.get_or_create(user=request.user, product=ad)
 
     return HttpResponseRedirect(ad.get_absolute_url())
 
@@ -234,8 +246,10 @@ def favourite_delete(request, id):
     print(ad)
     if ad.favourite.filter(id=request.user.id).exists():
         ad.favourite.remove(request.user)
+        WishlistItem.objects.filter(user=request.user, product=ad).delete()
     else:
         ad.favourite.add(request.user)
+        WishlistItem.objects.get_or_create(user=request.user, product=ad)
 
     return redirect('home:favourites')
 
@@ -247,9 +261,11 @@ def favourite_ads(request):
     is_favourite = False
     if ad.favourite.filter(id=request.user.id).exists():
         ad.favourite.remove(request.user)
+        WishlistItem.objects.filter(user=request.user, product=ad).delete()
         is_favourite = False
     else:
         ad.favourite.add(request.user)
+        WishlistItem.objects.get_or_create(user=request.user, product=ad)
         is_favourite = True
     context = {
         'ad': ad,
@@ -258,6 +274,17 @@ def favourite_ads(request):
     if request.is_ajax():
         html = render_to_string('home/special_section.html',context, request=request)
         return JsonResponse({'form': html})
+
+
+@login_required
+@require_POST
+def update_wishlist_preferences(request, item_id):
+    item = get_object_or_404(WishlistItem, id=item_id, user=request.user)
+    item.notify_on_restock = bool(request.POST.get("notify_on_restock"))
+    item.notify_on_price_drop = bool(request.POST.get("notify_on_price_drop"))
+    item.save(update_fields=["notify_on_restock", "notify_on_price_drop"])
+    messages.success(request, "Wishlist alert preferences updated.")
+    return redirect("home:favourites")
 
 
 @login_required

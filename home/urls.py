@@ -14,6 +14,11 @@ urlpatterns = [
     path('nearby_shops/', views.nearby_shops, name='nearby_shops'),
     path('favourites/', views.ads_favourite_list, name="favourites"),
     path('favourite_ads/', views.favourite_ads, name="favourite_ads"),
+    path(
+        "wishlist/<int:item_id>/preferences/",
+        views.update_wishlist_preferences,
+        name="wishlist_preferences",
+    ),
     path('<slug:category_slug>/', views.ads_list, name='ads_list_by_category'),
     path('delete_post/(<pk>\d+)/', views.delete_post, name='delete_post'),
     path('<int:id>/favourite_ad/',views.favourite_ad, name='favourite_ad'),
