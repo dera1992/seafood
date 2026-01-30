@@ -105,7 +105,6 @@
                             </div>
                         </div>
 
-
                         <div class="col-lg-6 col-12 d-flex">
                             <!--=======  Cart summery  =======-->
 
@@ -133,6 +132,32 @@
 
                     </div>
 
+                    <div class="row mt-30">
+                        <div class="col-12">
+                            <div class="cart-summary">
+                                <div class="cart-summary-wrap">
+                                    <h4>Shopping Budget Planner</h4>
+                                    {% if active_budget %}
+                                        <p>Total budget <span>₦{{ active_budget.total_budget|intcomma }}</span></p>
+                                        <p>Planned spend <span>₦{{ active_budget.current_spent|intcomma }}</span></p>
+                                        <p>Remaining <span>₦{{ active_budget.remaining_budget|intcomma }}</span></p>
+                                        {% if active_budget.remaining_budget < 0 %}
+                                            <p class="text-danger">You are over budget. Review your list for adjustments.</p>
+                                        {% else %}
+                                            <p class="text-success">You are within budget. Keep planning your list.</p>
+                                        {% endif %}
+                                        <div class="cart-summary-button">
+                                            <a class="btn btn-secondary" href="{% url 'budget:view-budget' active_budget.id %}">View Budget Plan</a>
+                                            <a class="btn btn-secondary" href="{% url 'budget:add-from-cart' active_budget.id %}">Add Cart Items</a>
+                                        </div>
+                                    {% else %}
+                                        <p>Set a budget, build a shopping list, and get alerts before checkout.</p>
+                                        <a class="btn btn-secondary" href="{% url 'budget:set-budget' %}">Create Budget Plan</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
             </div>
