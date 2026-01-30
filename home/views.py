@@ -12,7 +12,7 @@ from django.db.models import Q
 from django.contrib import messages
 from django.http import HttpResponseRedirect, Http404,HttpResponse, JsonResponse
 
-from account.models import Profile, User
+from account.models import Profile, User, Shop
 from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from blog.models import Post
@@ -23,6 +23,9 @@ from star_ratings.models import Rating
 from star_ratings.models import UserRating
 
 from owner.models import Affiliate
+from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
 
 
 @login_required
@@ -56,6 +59,41 @@ def category_chart(request):
         'labels': labels,
         'data': data,
     })
+
+
+def nearby_shops(request):
+    lat = request.GET.get("lat")
+    lng = request.GET.get("lng")
+    radius_km = request.GET.get("radius", 5)
+
+    if not lat or not lng:
+        return JsonResponse({"error": "Missing latitude or longitude."}, status=400)
+
+    try:
+        latitude = float(lat)
+        longitude = float(lng)
+        radius = float(radius_km)
+    except (TypeError, ValueError):
+        return JsonResponse({"error": "Invalid coordinate or radius values."}, status=400)
+
+    user_location = Point(longitude, latitude, srid=4326)
+    nearby = (
+        Shop.objects.filter(location__isnull=False)
+        .filter(location__distance_lte=(user_location, D(km=radius)))
+        .annotate(distance=Distance("location", user_location))
+        .order_by("distance")
+    )
+
+    shops = [
+        {
+            "name": shop.name,
+            "address": shop.address,
+            "city": shop.city,
+            "distance_km": round(shop.distance.km, 2) if shop.distance else None,
+        }
+        for shop in nearby
+    ]
+    return JsonResponse({"shops": shops})
 
 def home_list(request, category_slug=None):
     category = None

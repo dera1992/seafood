@@ -11,6 +11,7 @@ urlpatterns = [
     path('allads_list', views.allads_list, name='allads_list'),
     path('customer_list', views.customer_list, name='customer_list'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('nearby_shops/', views.nearby_shops, name='nearby_shops'),
     path('favourites/', views.ads_favourite_list, name="favourites"),
     path('favourite_ads/', views.favourite_ads, name="favourite_ads"),
     path('<slug:category_slug>/', views.ads_list, name='ads_list_by_category'),
