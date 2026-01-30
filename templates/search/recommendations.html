@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% load thumbnail %}
+
+{% block title %}Recommended for you{% endblock %}
+
+{% block content %}
+    <div class="breadcrumb-area mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="breadcrumb-container">
+                        <ul>
+                            <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                            <li class="active">Recommendations</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="shop-page-container mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="shop-header mb-35">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 d-flex flex-column flex-sm-row justify-content-between align-items-left align-items-sm-center">
+                                <h3 class="mb-0">Recommended for you</h3>
+                                {% if user_location.city or user_location.state %}
+                                    <p class="result-show-message mb-0">
+                                        Based on your location:
+                                        {% if user_location.city %}{{ user_location.city }}{% endif %}
+                                        {% if user_location.state %}{% if user_location.city %}, {% endif %}{{ user_location.state }}{% endif %}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="shop-product-wrap list row no-gutters mb-35">
+                        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
+                            {% for ad in recommended_products %}
+                                <div class="gf-product shop-list-view-product">
+                                    <div class="image">
+                                        <a href="{{ ad.get_absolute_url }}">
+                                            <span class="{{ ad.get_label_display }}">{{ ad.status }}</span>
+                                            {% if ad.delivery %}
+                                                <span class="days">Del:{{ ad.delivery }}</span>
+                                            {% endif %}
+                                            {% for images in ad.get_second_image %}
+                                                {% thumbnail images.product_image "306x280" crop="10px 10px" as im %}
+                                                    <a href="{{ ad.get_absolute_url }}">
+                                                        <img style="margin:{{ im|margin:"306x280" }}" src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" alt="" />
+                                                    </a>
+                                                {% endthumbnail %}
+                                            {% endfor %}
+                                        </a>
+                                    </div>
+                                    <div class="product-content">
+                                        <div class="product-categories">
+                                            <a>{{ ad.category }}</a>
+                                        </div>
+                                        <h3 class="product-title"><a href="{{ ad.get_absolute_url }}">{{ ad.title }}</a></h3>
+                                        <div class="price-box mb-20">
+                                            {% if ad.discount_price %}
+                                                <span class="discounted-price">₦{{ ad.discount_price|intcomma }}</span>
+                                                <span class="main-price">₦{{ ad.price|intcomma }}</span>
+                                            {% else %}
+                                                <span class="discounted-price">₦{{ ad.price|intcomma }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <p class="product-description">{{ ad.description }}</p>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <div class="container-fluid">
+                                    <h3 style="text-align:center;">No recommendations yet.</h3>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

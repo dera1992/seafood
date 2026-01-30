@@ -23,10 +23,18 @@ from star_ratings.models import Rating
 from star_ratings.models import UserRating
 
 from owner.models import Affiliate
-from django.contrib.gis.geos import Point
-from django.contrib.gis.db.models.functions import Distance
-from django.contrib.gis.measure import D
+from search.recommendations import get_recommended_products
+from django.conf import settings
 from home.models import WishlistItem, WishlistNotification
+
+if settings.GIS_ENABLED:
+    from django.contrib.gis.geos import Point
+    from django.contrib.gis.db.models.functions import Distance
+    from django.contrib.gis.measure import D
+else:
+    Point = None
+    Distance = None
+    D = None
 
 
 @login_required
@@ -63,6 +71,11 @@ def category_chart(request):
 
 
 def nearby_shops(request):
+    if not settings.GIS_ENABLED:
+        return JsonResponse(
+            {"error": "Location-based search is unavailable because GIS support is disabled."},
+            status=503,
+        )
     lat = request.GET.get("lat")
     lng = request.GET.get("lng")
     radius_km = request.GET.get("radius", 5)
@@ -115,6 +128,7 @@ def home_list(request, category_slug=None):
     qs = Products.objects.all()
     categories = Category.objects.all()
     subcategories = SubCategory.objects.all()
+    recommended_products, user_location = get_recommended_products(request.user, limit=6)
 
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
@@ -122,12 +136,15 @@ def home_list(request, category_slug=None):
     return render(request,'home/index.html', {'category': category,'categories': categories,'ads': ads,'ads_veg':ads_veg,
                                               'ads_fruits':ads_fruits,'ads_grains':ads_grains,'ads_seafood':ads_seafood,
                                               'ads_spices':ads_spices,'latests':latests,
-                                              'queryset': qs,'subcategories':subcategories,'queryset_list':queryset_list,'affiliates':affiliates})
+                                              'queryset': qs,'subcategories':subcategories,'queryset_list':queryset_list,
+                                              'affiliates':affiliates,'recommended_products': recommended_products,
+                                              'recommended_location': user_location})
 
 def ads_list(request, category_slug=None):
     category = None
     ad_list = Products.objects.filter(available=True)
     order = request.GET.get('order', '-created_date')
+    view_mode = request.GET.get('view', 'list')
     ad_list = ad_list.order_by(order)
     latests = Products.objects.filter(available=True).order_by('-created_at', '?')[:6]
     affiliates = Affiliate.objects.all()[:10]
@@ -149,8 +166,9 @@ def ads_list(request, category_slug=None):
         ads = paginator.page(1)
     except EmptyPage:
         ads = paginator.page(paginator.num_pages)
-    return render(request,'home/product_list.html', {'category': category,'categories': categories,'ads': ads,'latests':latests,
-                                              'queryset': qs,'is_favourite': is_favourite,'order': order,'page': page,'affiliates':affiliates})
+    return render(request,'search/main_search.html', {'category': category,'categories': categories,'queryset': ads,'latests':latests,
+                                              'is_favourite': is_favourite,'order': order,'page': page,
+                                              'affiliates':affiliates,'view_mode': view_mode})
 
 # admin ad list
 def allads_list(request, category_slug=None):
