@@ -887,39 +887,43 @@
                 resultsContainer.innerHTML = "";
             };
 
-            if (findButton) {
-                findButton.addEventListener("click", () => {
-                    if (!navigator.geolocation) {
-                        handleError("Geolocation is not supported by your browser.");
-                        return;
-                    }
-                    renderStatus("Fetching your location…");
-                    navigator.geolocation.getCurrentPosition(
-                        async (position) => {
-                            const radius = radiusSelect ? radiusSelect.value : 5;
-                            const params = new URLSearchParams({
-                                lat: position.coords.latitude,
-                                lng: position.coords.longitude,
-                                radius: radius,
-                            });
-                            try {
-                                const response = await fetch(`${endpoint}?${params.toString()}`);
-                                if (!response.ok) {
-                                    throw new Error("Unable to fetch nearby shops.");
-                                }
-                                const data = await response.json();
-                                renderShops(data.shops || []);
-                            } catch (error) {
-                                handleError("We couldn't load nearby shops. Please try again.");
+            const fetchNearbyShops = () => {
+                if (!navigator.geolocation) {
+                    handleError("Geolocation is not supported by your browser.");
+                    return;
+                }
+                renderStatus("Fetching your location…");
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const radius = radiusSelect ? radiusSelect.value : 5;
+                        const params = new URLSearchParams({
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                            radius: radius,
+                        });
+                        try {
+                            const response = await fetch(`${endpoint}?${params.toString()}`);
+                            if (!response.ok) {
+                                throw new Error("Unable to fetch nearby shops.");
                             }
-                        },
-                        () => {
-                            handleError("Location access denied. Enable location permissions to continue.");
-                        },
-                        { timeout: 10000 }
-                    );
-                });
+                            const data = await response.json();
+                            renderShops(data.shops || []);
+                        } catch (error) {
+                            handleError("We couldn't load nearby shops. Please try again.");
+                        }
+                    },
+                    () => {
+                        handleError("Location access denied. Enable location permissions to continue.");
+                    },
+                    { timeout: 10000 }
+                );
+            };
+
+            if (findButton) {
+                findButton.addEventListener("click", fetchNearbyShops);
             }
+
+            fetchNearbyShops();
         })();
     </script>
 {% endblock %}
