@@ -1,9 +1,17 @@
 # chat/models.py
 from django.db import models
 from account.models import User, Shop
+from foodCreate.models import Products
 
 class Message(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Products,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="chat_messages",
+    )
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
     content = models.TextField()
