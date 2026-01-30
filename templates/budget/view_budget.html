@@ -26,11 +26,11 @@
                 <div class="cart-summary mb-40">
                     <div class="cart-summary-wrap">
                         <h4>Budget overview</h4>
-                        <p>Total budget <span>₦{{ budget.total_budget|intcomma }}</span></p>
-                        <p>Planned spend <span>₦{{ budget.current_spent|intcomma }}</span></p>
-                        <p>Remaining <span>₦{{ budget.remaining_budget|intcomma }}</span></p>
+                        <p>Total budget <span>£{{ budget.total_budget|intcomma }}</span></p>
+                        <p>Planned spend <span>£{{ budget.current_spent|intcomma }}</span></p>
+                        <p>Remaining <span>£{{ budget.remaining_budget|intcomma }}</span></p>
                         {% if budget.remaining_budget < 0 %}
-                            <p class="text-danger">Warning: You have exceeded your budget by ₦{{ budget.remaining_budget|intcomma|slice:"1:" }}.</p>
+                            <p class="text-danger">Warning: You have exceeded your budget by £{{ budget.remaining_budget|intcomma|slice:"1:" }}.</p>
                         {% endif %}
                     </div>
                     <div class="cart-summary-button">
@@ -84,9 +84,9 @@
                                 {% for item in items %}
                                     <tr>
                                         <td>{{ item.product.title }}</td>
-                                        <td>₦{{ item.unit_price|intcomma }}</td>
+                                        <td>£{{ item.unit_price|intcomma }}</td>
                                         <td>{{ item.quantity }}</td>
-                                        <td>₦{{ item.total_cost|intcomma }}</td>
+                                        <td>£{{ item.total_cost|intcomma }}</td>
                                         <td>
                                             <a href="{% url 'budget:remove-item' budget.id item.id %}"><i class="fa fa-trash-o"></i></a>
                                         </td>
@@ -109,7 +109,7 @@
                         <h4>Budget breakdown</h4>
                         {% if category_totals %}
                             {% for category, total in category_totals.items %}
-                                <p>{{ category }} <span>₦{{ total|intcomma }}</span></p>
+                                <p>{{ category }} <span>£{{ total|intcomma }}</span></p>
                             {% endfor %}
                         {% else %}
                             <p class="text-muted">Add items to see category totals.</p>
@@ -124,7 +124,7 @@
                             {% if affordable_discounts %}
                                 <ul class="list-unstyled">
                                     {% for item in affordable_discounts %}
-                                        <li class="mb-10">{{ item.product.title }} • ₦{{ item.total_cost|intcomma }}</li>
+                                        <li class="mb-10">{{ item.product.title }} • £{{ item.total_cost|intcomma }}</li>
                                     {% endfor %}
                                 </ul>
                             {% else %}
@@ -144,12 +144,12 @@
                                 {% for product in suggested_discounts %}
                                     <li class="mb-10">
                                         <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
-                                        <span>₦{{ product.discount_price|intcomma }}</span>
+                                        <span>£{{ product.discount_price|intcomma }}</span>
                                     </li>
                                 {% endfor %}
                             </ul>
                         {% else %}
-                            <p class="text-muted">We will suggest discounted items once your remaining budget is above ₦0.</p>
+                            <p class="text-muted">We will suggest discounted items once your remaining budget is above £0.</p>
                         {% endif %}
                     </div>
                 </div>
@@ -208,7 +208,7 @@
                                                 {% for alternative in alternatives %}
                                                     <li>
                                                         <a href="{{ alternative.get_absolute_url }}">{{ alternative.title }}</a>
-                                                        <span>₦{{ alternative.discount_price|default:alternative.price|intcomma }}</span>
+                                                        <span>£{{ alternative.discount_price|default:alternative.price|intcomma }}</span>
                                                     </li>
                                                 {% endfor %}
                                             </ul>
@@ -229,10 +229,10 @@
                             {% for saved_budget in budgets %}
                                 <li class="mb-10">
                                     <a href="{% url 'budget:view-budget' saved_budget.id %}">
-                                        Budget ₦{{ saved_budget.total_budget|intcomma }}
+                                        Budget £{{ saved_budget.total_budget|intcomma }}
                                     </a>
                                     <small class="text-muted">
-                                        (Spent ₦{{ saved_budget.current_spent|intcomma }}, Remaining ₦{{ saved_budget.remaining_budget|intcomma }})
+                                        (Spent £{{ saved_budget.current_spent|intcomma }}, Remaining £{{ saved_budget.remaining_budget|intcomma }})
                                     </small>
                                     <small class="text-muted d-block">{{ saved_budget.created_at|date:"M d, Y" }}</small>
                                 </li>

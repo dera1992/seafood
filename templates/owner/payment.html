@@ -29,7 +29,7 @@
 {#			<div class="row">#}
 				<div class="card">
                     <div class="card-header" style="text-align: center">
-                        <h5 class="card-title">Make Payment for: ₦{{ amt|intcomma }}</h5>
+                        <h5 class="card-title">Make Payment for: £{{ amt|intcomma }}</h5>
                     </div>
                     <div class="card-body" style="text-align: center">
                         <script src ="https://js.paystack.co/v1/inline.js"></script>
@@ -46,22 +46,22 @@
                             {% for order_item in order.items.all %}
                                 <li>{{ order_item.item.title }}  X {{ order_item.quantity }}
                                     {% if order_item.item.discount_price %}
-                                        <span>₦{{ order_item.get_total_discount_item_price|intcomma }}</span>
+                                        <span>£{{ order_item.get_total_discount_item_price|intcomma }}</span>
                                     {% else %}
-                                        <span>₦{{ order_item.get_total_item_price |intcomma}}</span>
+                                        <span>£{{ order_item.get_total_item_price |intcomma}}</span>
                                     {% endif %}
                                 </li>
                             {% endfor %}
                         </ul>
 
                         {% for order_item in order.items.all %}
-                            <p>Sub Total <span>₦{{ order_item.get_final_price|intcomma }}</span></p>
+                            <p>Sub Total <span>£{{ order_item.get_final_price|intcomma }}</span></p>
                         {% endfor %}
-                        <p>Shipping Fee <span>₦00.00</span></p>
+                        <p>Shipping Fee <span>£00.00</span></p>
                         {% if order.coupon %}
-                            <p>Promo Code : {{ order.coupon.code }} <span>-₦{{ order.coupon.amount|intcomma }}</span></p>
+                            <p>Promo Code : {{ order.coupon.code }} <span>-£{{ order.coupon.amount|intcomma }}</span></p>
                         {% endif %}
-                        <h4>Grand Total <span>₦{{ order.get_total|intcomma }}</span></h4>
+                        <h4>Grand Total <span>£{{ order.get_total|intcomma }}</span></h4>
 
                     </div>
 				</div>
