@@ -1,5 +1,13 @@
 from django.contrib import admin
-from .models import DispatcherProfile, Profile, Shop, ShopSubscription, SubscriptionPlan
+from .models import (
+    DispatcherProfile,
+    Profile,
+    Shop,
+    ShopSubscription,
+    SubscriptionPlan,
+    ShopFollower,
+    ShopNotification,
+)
 
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .forms import AdminUserChangeForm, AdminUserCreationForm
@@ -60,3 +68,17 @@ class ShopSubscriptionAdmin(admin.ModelAdmin):
 class SubscriptionPlanAdmin(admin.ModelAdmin):
     list_display = ['name', 'price', 'product_limit', 'duration_days']
     search_fields = ['name']
+
+
+@admin.register(ShopFollower)
+class ShopFollowerAdmin(admin.ModelAdmin):
+    list_display = ["user", "shop", "created_at"]
+    search_fields = ["user__email", "shop__name"]
+    list_filter = ["created_at"]
+
+
+@admin.register(ShopNotification)
+class ShopNotificationAdmin(admin.ModelAdmin):
+    list_display = ["user", "shop", "product", "created_at", "is_read"]
+    search_fields = ["user__email", "shop__name", "product__title"]
+    list_filter = ["created_at", "is_read"]
