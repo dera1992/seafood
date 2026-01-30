@@ -184,6 +184,44 @@
                     </div>
                 </div>
 
+                <div class="cart-summary mb-40">
+                    <div class="cart-summary-wrap">
+                        <h4>AI-driven budget insights</h4>
+                        {% if price_predictions %}
+                            <p class="mb-10">Price predictions</p>
+                            <ul class="list-unstyled">
+                                {% for prediction in price_predictions %}
+                                    <li class="mb-10">
+                                        {{ prediction.product.title }} — {{ prediction.message }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {% if savings_suggestions %}
+                            <p class="mb-10">Savings suggestions</p>
+                            <ul class="list-unstyled">
+                                {% for product, alternatives in savings_suggestions.items %}
+                                    {% if alternatives %}
+                                        <li class="mb-10">
+                                            Alternatives for {{ product.title }}:
+                                            <ul class="list-unstyled ml-3">
+                                                {% for alternative in alternatives %}
+                                                    <li>
+                                                        <a href="{{ alternative.get_absolute_url }}">{{ alternative.title }}</a>
+                                                        <span>₦{{ alternative.discount_price|default:alternative.price|intcomma }}</span>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">Add items to your budget to see AI-powered insights.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
                 <div class="cart-summary">
                     <div class="cart-summary-wrap">
                         <h4>Saved budgets</h4>
