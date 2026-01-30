@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 
 from account.models import Shop
 from foodCreate.models import Category, Products
@@ -45,4 +46,43 @@ class OrderModelTests(TestCase):
         self.order.refresh_from_db()
         self.assertTrue(self.order.paid)
 
-# Create your tests here.
+    def test_get_status_label_defaults_to_placed(self):
+        self.assertEqual(self.order.get_status_label(), "Order placed")
+
+    def test_order_tracking_view_shows_status(self):
+        self.order.paid = True
+        self.order.save()
+        response = self.client.get(
+            reverse("order:tracking_detail", args=[self.order.ref])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["status_label"], "Payment confirmed")
+        self.assertTrue(response.context["tracking_steps"])
+
+    def test_staff_can_update_order_status(self):
+        staff_user = get_user_model().objects.create_user(
+            email="staff@example.com",
+            password="password123",
+            is_staff=True,
+        )
+        self.client.force_login(staff_user)
+        response = self.client.post(
+            reverse("order:update_status", args=[self.order.id]),
+            {"status": "delivered"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.order.refresh_from_db()
+        self.assertTrue(self.order.is_ordered)
+        self.assertTrue(self.order.being_delivered)
+        self.assertTrue(self.order.received)
+        self.assertTrue(self.order.paid)
+
+    def test_non_staff_cannot_update_order_status(self):
+        self.client.force_login(self.user)
+        response = self.client.post(
+            reverse("order:update_status", args=[self.order.id]),
+            {"status": "delivered"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.order.refresh_from_db()
+        self.assertFalse(self.order.received)
