@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Shopping Budget{% endblock %}
+
+{% block content %}
+<div class="breadcrumb-area mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="breadcrumb-container">
+                    <ul>
+                        <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                        <li class="active">Shopping Budget Planner</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-section section mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-12">
+                <div class="cart-summary mb-40">
+                    <div class="cart-summary-wrap">
+                        <h4>Budget overview</h4>
+                        <p>Total budget <span>₦{{ budget.total_budget|intcomma }}</span></p>
+                        <p>Planned spend <span>₦{{ budget.current_spent|intcomma }}</span></p>
+                        <p>Remaining <span>₦{{ budget.remaining_budget|intcomma }}</span></p>
+                        {% if budget.remaining_budget < 0 %}
+                            <p class="text-danger">Warning: You have exceeded your budget by ₦{{ budget.remaining_budget|intcomma|slice:"1:" }}.</p>
+                        {% endif %}
+                    </div>
+                    <div class="cart-summary-button">
+                        <a class="btn btn-secondary" href="{% url 'budget:duplicate-budget' budget.id %}">Duplicate Budget</a>
+                        <a class="btn btn-secondary" href="{% url 'budget:add-from-cart' budget.id %}">Add Items From Cart</a>
+                        {% if active_order %}
+                            <a class="btn btn-secondary" href="{% url 'order:checkout' %}">Proceed to Checkout</a>
+                        {% else %}
+                            <a class="btn btn-secondary" href="{% url 'cart:order-summary' %}">Review Cart</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="cart-summary mb-40">
+                    <div class="cart-summary-wrap">
+                        <h4>Add products to your shopping list</h4>
+                        <form method="post" action="{% url 'budget:add-item' budget.id %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-7 col-12 mb-25">
+                                    {{ add_form.product.label_tag }}
+                                    {{ add_form.product }}
+                                </div>
+                                <div class="col-md-3 col-12 mb-25">
+                                    {{ add_form.quantity.label_tag }}
+                                    {{ add_form.quantity }}
+                                </div>
+                                <div class="col-md-2 col-12 mb-25 d-flex align-items-end">
+                                    <button class="btn btn-secondary" type="submit">Add</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="cart-summary">
+                    <div class="cart-summary-wrap">
+                        <h4>Your shopping list</h4>
+                        <div class="cart-table table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Unit Price</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for item in items %}
+                                    <tr>
+                                        <td>{{ item.product.title }}</td>
+                                        <td>₦{{ item.unit_price|intcomma }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>₦{{ item.total_cost|intcomma }}</td>
+                                        <td>
+                                            <a href="{% url 'budget:remove-item' budget.id item.id %}"><i class="fa fa-trash-o"></i></a>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No items yet. Add products to start planning.</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-12">
+                <div class="cart-summary mb-40">
+                    <div class="cart-summary-wrap">
+                        <h4>Budget breakdown</h4>
+                        {% if category_totals %}
+                            {% for category, total in category_totals.items %}
+                                <p>{{ category }} <span>₦{{ total|intcomma }}</span></p>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">Add items to see category totals.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="cart-summary mb-40">
+                    <div class="cart-summary-wrap">
+                        <h4>Budget-friendly offers</h4>
+                        {% if discounted_items %}
+                            {% if affordable_discounts %}
+                                <ul class="list-unstyled">
+                                    {% for item in affordable_discounts %}
+                                        <li class="mb-10">{{ item.product.title }} • ₦{{ item.total_cost|intcomma }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted">Discounted items are selected, but they exceed your remaining budget.</p>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-muted">No discounted items yet. Add promotions to save more.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="cart-summary mb-40">
+                    <div class="cart-summary-wrap">
+                        <h4>Discount suggestions within your budget</h4>
+                        {% if suggested_discounts %}
+                            <ul class="list-unstyled">
+                                {% for product in suggested_discounts %}
+                                    <li class="mb-10">
+                                        <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
+                                        <span>₦{{ product.discount_price|intcomma }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">We will suggest discounted items once your remaining budget is above ₦0.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="cart-summary mb-40">
+                    <div class="cart-summary-wrap">
+                        <h4>Reusable templates</h4>
+                        <form method="post" action="{% url 'budget:create-template' budget.id %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-8 col-12 mb-25">
+                                    {{ template_form.name.label_tag }}
+                                    {{ template_form.name }}
+                                </div>
+                                <div class="col-md-4 col-12 mb-25 d-flex align-items-end">
+                                    <button class="btn btn-secondary" type="submit">Save Template</button>
+                                </div>
+                            </div>
+                        </form>
+                        {% if templates %}
+                            <ul class="list-unstyled">
+                                {% for saved_template in templates %}
+                                    <li class="mb-10">
+                                        <a href="{% url 'budget:view-template' saved_template.id %}">{{ saved_template.name }}</a>
+                                        <a class="ml-2" href="{% url 'budget:apply-template' budget.id saved_template.id %}">Apply</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">Save a template to reuse this plan in the future.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="cart-summary mb-40">
+                    <div class="cart-summary-wrap">
+                        <h4>AI-driven budget insights</h4>
+                        {% if price_predictions %}
+                            <p class="mb-10">Price predictions</p>
+                            <ul class="list-unstyled">
+                                {% for prediction in price_predictions %}
+                                    <li class="mb-10">
+                                        {{ prediction.product.title }} — {{ prediction.message }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {% if savings_suggestions %}
+                            <p class="mb-10">Savings suggestions</p>
+                            <ul class="list-unstyled">
+                                {% for product, alternatives in savings_suggestions.items %}
+                                    {% if alternatives %}
+                                        <li class="mb-10">
+                                            Alternatives for {{ product.title }}:
+                                            <ul class="list-unstyled ml-3">
+                                                {% for alternative in alternatives %}
+                                                    <li>
+                                                        <a href="{{ alternative.get_absolute_url }}">{{ alternative.title }}</a>
+                                                        <span>₦{{ alternative.discount_price|default:alternative.price|intcomma }}</span>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">Add items to your budget to see AI-powered insights.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="cart-summary">
+                    <div class="cart-summary-wrap">
+                        <h4>Saved budgets</h4>
+                        <ul class="list-unstyled">
+                            {% for saved_budget in budgets %}
+                                <li class="mb-10">
+                                    <a href="{% url 'budget:view-budget' saved_budget.id %}">
+                                        Budget ₦{{ saved_budget.total_budget|intcomma }}
+                                    </a>
+                                    <small class="text-muted">
+                                        (Spent ₦{{ saved_budget.current_spent|intcomma }}, Remaining ₦{{ saved_budget.remaining_budget|intcomma }})
+                                    </small>
+                                    <small class="text-muted d-block">{{ saved_budget.created_at|date:"M d, Y" }}</small>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <a class="btn btn-secondary" href="{% url 'budget:set-budget' %}">Create a new budget</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

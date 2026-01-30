@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Set Budget{% endblock %}
+
+{% block content %}
+<div class="breadcrumb-area mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="breadcrumb-container">
+                    <ul>
+                        <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                        <li class="active">Shopping Budget Planner</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-section section mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-12">
+                <div class="cart-summary">
+                    <div class="cart-summary-wrap">
+                        <h4>Set your shopping budget</h4>
+                        <p>Tell us how much you want to spend and we will help you stay on track.</p>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-25">
+                                {{ form.total_budget.label_tag }}
+                                {{ form.total_budget }}
+                            </div>
+                            <button class="btn btn-secondary" type="submit">Save Budget</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-12">
+                <div class="cart-summary">
+                    <div class="cart-summary-wrap">
+                        <h4>Why set a budget?</h4>
+                        <ul class="list-unstyled">
+                            <li class="mb-10">Track total costs of selected products.</li>
+                            <li class="mb-10">Receive alerts when you exceed your limit.</li>
+                            <li class="mb-10">Highlight discounted items that fit within budget.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
