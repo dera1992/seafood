@@ -6,6 +6,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect, Http404,HttpResponse, JsonResponse
 
 from owner.models import Affiliate
+from search.recommendations import get_recommended_products
 
 
 def is_valid_queryparam(param):
@@ -76,3 +77,15 @@ def filter(request):
     }
 
     return render(request, "search/main_search.html", context)
+
+
+def product_recommendations(request):
+    recommended_products, user_location = get_recommended_products(request.user)
+    return render(
+        request,
+        "search/recommendations.html",
+        {
+            "recommended_products": recommended_products,
+            "user_location": user_location,
+        },
+    )
