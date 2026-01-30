@@ -1,11 +1,15 @@
-from django.db import models
-from django.contrib.gis.db import models as gis_models
-from django.contrib.gis.geos import Point
 from django.conf import settings
+from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from geopy.geocoders import Nominatim
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+
+if settings.GIS_ENABLED:
+    from django.contrib.gis.db import models as gis_models
+    from django.contrib.gis.geos import Point
+else:
+    gis_models = None
 
 
 class CustomUserManager(BaseUserManager):
@@ -100,7 +104,10 @@ class Shop(models.Model):
     postal_code = models.CharField(max_length=20, blank=True, null=True)
     logo = models.ImageField(upload_to="shops/logos/", blank=True)
 
-    location = gis_models.PointField(geography=True, blank=True, null=True)
+    if settings.GIS_ENABLED:
+        location = gis_models.PointField(geography=True, blank=True, null=True)
+    else:
+        location = models.CharField(max_length=255, blank=True, null=True)
 
     # Opening hours
     open_time = models.TimeField(default="08:00")
@@ -123,13 +130,10 @@ class Shop(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if not self.location:
+        if settings.GIS_ENABLED and not self.location:
             if self.address and self.city and self.country:
-                try:
-                    geolocator = Nominatim(user_agent="ecommerce_app")
-                    location = geolocator.geocode(f"{self.address}, {self.city}, {self.country}")
-                except Exception:
-                    location = None
+                geolocator = Nominatim(user_agent="ecommerce_app")
+                location = geolocator.geocode(f"{self.address}, {self.city}, {self.country}")
                 if location:
                     self.location = Point(location.longitude, location.latitude, srid=4326)
         super().save(*args, **kwargs)
