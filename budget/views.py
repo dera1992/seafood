@@ -14,6 +14,7 @@ from .forms import (
     ShoppingListItemForm,
 )
 from .models import Budget, BudgetTemplate, BudgetTemplateItem, ShoppingListItem
+from .utils import build_price_predictions, build_savings_suggestions
 
 
 @login_required
@@ -72,6 +73,8 @@ def view_budget(request, budget_id):
     budgets = Budget.objects.filter(user=request.user).order_by('-created_at')
     templates = BudgetTemplate.objects.filter(user=request.user).order_by('-updated_at')
     active_order = Order.objects.filter(user=request.user, is_ordered=False).first()
+    price_predictions = build_price_predictions(items)
+    savings_suggestions = build_savings_suggestions(items, remaining_budget)
 
     context = {
         'budget': budget,
@@ -85,6 +88,8 @@ def view_budget(request, budget_id):
         'templates': templates,
         'template_form': template_form,
         'active_order': active_order,
+        'price_predictions': price_predictions,
+        'savings_suggestions': savings_suggestions,
     }
     return render(request, 'budget/view_budget.html', context)
 
