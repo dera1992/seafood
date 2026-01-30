@@ -98,7 +98,7 @@
                                 {% endif %}
                             </button>
                         </form>
-                        <a href="{% url 'chat:inbox' %}" class="btn btn-link btn-sm">Go to inbox</a>
+                        <a href="{% url 'chat:inbox' %}" class="btn btn-link btn-sm">Open chat inbox</a>
                     {% else %}
                         <a href="{% url 'login' %}" class="btn btn-outline-success btn-sm">Log in to subscribe</a>
                     {% endif %}
@@ -132,7 +132,7 @@
                 {% endif %}
             </div>
             <div class="col-lg-4 mt-4 mt-lg-0">
-                <div class="card">
+                <div class="card" id="shop-chat">
                     <div class="card-body">
                         <h4 class="card-title">Chat with {{ shop.name }}</h4>
                         {% if user.is_authenticated %}

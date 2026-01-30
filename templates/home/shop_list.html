@@ -168,6 +168,7 @@
                         </div>
                         <div class="text-lg-right mt-3 mt-lg-0">
                             <a href="{% url 'home:shop_detail' shop_id=shop.id %}" class="btn btn-success">View shop</a>
+                            <a href="{% url 'home:shop_detail' shop_id=shop.id %}#shop-chat" class="btn btn-outline-primary ml-2">Chat</a>
                         </div>
                     </article>
                 {% empty %}
@@ -191,8 +192,21 @@
         const emptyState = document.getElementById("shop-empty-state");
         const viewButtons = document.querySelectorAll("[data-view-toggle]");
 
+        const params = new URLSearchParams(window.location.search);
+
+        const updateUrlParam = (key, value) => {
+            if (value) {
+                params.set(key, value);
+            } else {
+                params.delete(key);
+            }
+            const nextUrl = `${window.location.pathname}?${params.toString()}`;
+            window.history.replaceState({}, "", nextUrl);
+        };
+
         const setView = (view) => {
             resultsContainer.dataset.view = view;
+            updateUrlParam("view", view);
             viewButtons.forEach((button) => {
                 button.classList.toggle("active", button.dataset.viewToggle === view);
             });
@@ -200,6 +214,7 @@
 
         const filterShops = () => {
             const query = searchInput.value.trim().toLowerCase();
+            updateUrlParam("q", query);
             let visibleCount = 0;
             document.querySelectorAll(".shop-card").forEach((card) => {
                 const searchable = card.dataset.search.toLowerCase();
@@ -219,14 +234,21 @@
             });
         });
 
+        const initialView = params.get("view") || resultsContainer.dataset.view || "list";
+        const initialQuery = params.get("q");
+
+        if (initialQuery && !searchInput.value) {
+            searchInput.value = initialQuery;
+        }
+
+        setView(initialView);
+        filterShops();
+
         searchInput.addEventListener("input", filterShops);
         clearButton.addEventListener("click", () => {
             searchInput.value = "";
             filterShops();
             searchInput.focus();
         });
-
-        setView(resultsContainer.dataset.view || "list");
-        filterShops();
     </script>
 {% endblock %}
