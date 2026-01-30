@@ -54,6 +54,29 @@ The app will be available at `http://localhost:8000` and will auto-run migration
 
 If port `5432` is already in use on your machine, set `POSTGRES_PORT` in your `.env` file (for example `POSTGRES_PORT=5433`) before starting Docker.
 
+### Troubleshooting Docker startup
+
+If `docker compose ps -a` shows containers in **Created** state and there are no logs, the containers were created but never started. From the project root, run:
+
+```bash
+docker compose up --build
+```
+
+If they still remain in **Created**, try restarting them explicitly:
+
+```bash
+docker compose start
+```
+
+You can also remove the stopped containers and recreate them:
+
+```bash
+docker compose rm -f
+docker compose up --build
+```
+
+If none of the above starts the containers, check Docker Desktop/daemon status and ensure you are running the commands from the folder that contains `docker-compose.yml`.
+
 ### Notes on PostGIS
 
 The container uses the `postgis/postgis` image and the Django config defaults to:
