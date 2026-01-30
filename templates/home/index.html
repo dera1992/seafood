@@ -80,7 +80,7 @@
 		</div>
 	</div>
 
-    <section class="modern-feature-section mb-35">
+    <section class="modern-feature-section mb-35 nearby-shop-section">
         <div class="container">
             <div class="section-title modern-section-title">
                 <span class="section-pill">Shop near you</span>
@@ -97,7 +97,7 @@
                     </select>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-20">
-                    <button class="slider-two-btn hero-secondary" id="find-shops-btn" type="button">
+                    <button class="slider-two-btn hero-secondary nearby-action" id="find-shops-btn" type="button">
                         Use my location
                     </button>
                 </div>
@@ -763,39 +763,43 @@
                 resultsContainer.innerHTML = "";
             };
 
-            if (findButton) {
-                findButton.addEventListener("click", () => {
-                    if (!navigator.geolocation) {
-                        handleError("Geolocation is not supported by your browser.");
-                        return;
-                    }
-                    renderStatus("Fetching your location…");
-                    navigator.geolocation.getCurrentPosition(
-                        async (position) => {
-                            const radius = radiusSelect ? radiusSelect.value : 5;
-                            const params = new URLSearchParams({
-                                lat: position.coords.latitude,
-                                lng: position.coords.longitude,
-                                radius: radius,
-                            });
-                            try {
-                                const response = await fetch(`${endpoint}?${params.toString()}`);
-                                if (!response.ok) {
-                                    throw new Error("Unable to fetch nearby shops.");
-                                }
-                                const data = await response.json();
-                                renderShops(data.shops || []);
-                            } catch (error) {
-                                handleError("We couldn't load nearby shops. Please try again.");
+            const fetchNearbyShops = () => {
+                if (!navigator.geolocation) {
+                    handleError("Geolocation is not supported by your browser.");
+                    return;
+                }
+                renderStatus("Fetching your location…");
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const radius = radiusSelect ? radiusSelect.value : 5;
+                        const params = new URLSearchParams({
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                            radius: radius,
+                        });
+                        try {
+                            const response = await fetch(`${endpoint}?${params.toString()}`);
+                            if (!response.ok) {
+                                throw new Error("Unable to fetch nearby shops.");
                             }
-                        },
-                        () => {
-                            handleError("Location access denied. Enable location permissions to continue.");
-                        },
-                        { timeout: 10000 }
-                    );
-                });
+                            const data = await response.json();
+                            renderShops(data.shops || []);
+                        } catch (error) {
+                            handleError("We couldn't load nearby shops. Please try again.");
+                        }
+                    },
+                    () => {
+                        handleError("Location access denied. Enable location permissions to continue.");
+                    },
+                    { timeout: 10000 }
+                );
+            };
+
+            if (findButton) {
+                findButton.addEventListener("click", fetchNearbyShops);
             }
+
+            fetchNearbyShops();
         })();
     </script>
 {% endblock %}
