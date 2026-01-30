@@ -71,13 +71,13 @@
                     {% if queryset.has_other_pages %}
                       <ul class="">
                         {% if queryset.has_previous %}
-                          <li><a class="js-filter-link" href="?page={{ queryset.previous_page_number }}"><i class="fa fa-angle-left"></i></a></li>
+                          <li><a class="js-filter-link" href={% relative_url queryset.previous_page_number 'page' request.GET.urlencode %}><i class="fa fa-angle-left"></i></a></li>
                         {% else %}
                           <li class="disabled"><span>&laquo;</span></li>
                         {% endif %}
 
                         {% if queryset.number|add:'-4' > 1 %}
-                            <li><a class="js-filter-link" href="?page={{ queryset.number|add:'-5' }}">&hellip;</a></li>
+                            <li><a class="js-filter-link" href={% relative_url queryset.number|add:'-5' 'page' request.GET.urlencode %}>&hellip;</a></li>
                         {% endif %}
 
                         {% for i in queryset.paginator.page_range %}
@@ -89,11 +89,11 @@
                         {% endfor %}
 
                         {% if queryset.paginator.num_pages > queryset.number|add:'4' %}
-                            <li><a class="js-filter-link" href="?page={{ queryset.number|add:'5' }}">&hellip;</a></li>
+                            <li><a class="js-filter-link" href={% relative_url queryset.number|add:'5' 'page' request.GET.urlencode %}>&hellip;</a></li>
                         {% endif %}
 
                         {% if queryset.has_next %}
-                          <li><a class="js-filter-link" href="?page={{ queryset.next_page_number }}"><i class="fa fa-angle-right"></i></a></li>
+                          <li><a class="js-filter-link" href={% relative_url queryset.next_page_number 'page' request.GET.urlencode %}><i class="fa fa-angle-right"></i></a></li>
                         {% else %}
                           <li class="disabled"><span>&raquo;</span></li>
                         {% endif %}
