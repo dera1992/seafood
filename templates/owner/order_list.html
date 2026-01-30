@@ -135,8 +135,12 @@
                       <th>Product</th>
                       <th>Phone</th>
                       <th>Paid</th>
+                      <th>Status</th>
                       <th>Ref Code</th>
                       <th>Date</th>
+                      {% if user.is_superuser or user.is_staff %}
+                        <th>Manage</th>
+                      {% endif %}
                     </tr>
                   </thead>
                   <tbody>
@@ -156,8 +160,18 @@
                       </td>
                       <td>{{ ord.user.profile.phone}}</td>
                       <td><a href="#" class="btn waves-effect waves-light btn-rounded close-bt">{{ ord.paid }} </a></td>
+                      <td>{{ ord.get_status_label }}</td>
                       <td>{{ ord.ref }}</td>
                       <td>{{ ord.date_ordered }}</td>
+                      {% if user.is_superuser or user.is_staff %}
+                        <td>
+                          <form method="post" action="{% url 'order:update_status' ord.id %}">
+                            {% csrf_token %}
+                            {{ status_form.status }}
+                            <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                          </form>
+                        </td>
+                      {% endif %}
                     </tr>
                   {% endfor %}
                   </tbody>

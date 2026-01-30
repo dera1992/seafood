@@ -9,10 +9,12 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ['user',
                     'is_ordered',
                     'paid',
+                    'being_delivered',
+                    'received',
                     'created',
                     'updated',
                    ]
-    list_filter = ['paid', 'created', 'updated']
+    list_filter = ['paid', 'being_delivered', 'received', 'created', 'updated']
 
 class AddressAdmin(admin.ModelAdmin):
     list_display = [

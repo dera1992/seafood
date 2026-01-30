@@ -19,6 +19,9 @@ urlpatterns = [
     path('payment/<payment_option>/', PaymentView.as_view(), name='payment'),
     path('add-coupon/', AddCouponView.as_view(), name='add-coupon'),
     path('transfer/', views.transfer, name='transfer'),
+    path('tracking/', views.order_tracking, name='tracking'),
+    path('tracking/<str:ref>/', views.order_tracking, name='tracking_detail'),
+    path('status/<int:order_id>/', views.update_order_status, name='update_status'),
     path('<str:ref>/', views.verify_payment, name='verify_payment'),
 
 ]
