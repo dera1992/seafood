@@ -84,6 +84,13 @@
                     <p class="mb-2 text-muted">
                         {{ shop.address }}{% if shop.city %}, {{ shop.city }}{% endif %}{% if shop.state %}, {{ shop.state }}{% endif %}
                     </p>
+                    <p class="mb-2">
+                        {% if rating_summary.avg_rating %}
+                            ⭐ {{ rating_summary.avg_rating|floatformat:1 }} ({{ rating_summary.rating_count }} rating{{ rating_summary.rating_count|pluralize }})
+                        {% else %}
+                            No ratings yet
+                        {% endif %}
+                    </p>
                     <p class="mb-0">{{ shop.description|default:"No description provided yet." }}</p>
                 </div>
                 <div class="col-md-3 text-md-right mt-3 mt-md-0">

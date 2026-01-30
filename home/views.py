@@ -7,7 +7,7 @@ from foodCreate.forms import ReviewForm
 from foodCreate.models import Products, ProductsImages, Category, SubCategory, ReviewRating
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Count
+from django.db.models import Avg, Count
 from django.db.models import Q
 from django.contrib import messages
 from django.http import HttpResponseRedirect, Http404,HttpResponse, JsonResponse
@@ -147,7 +147,11 @@ def shop_list(request):
     shops = (
         Shop.objects.filter(is_active=True)
         .select_related("owner")
-        .annotate(product_count=Count("products"))
+        .annotate(
+            product_count=Count("products", distinct=True),
+            avg_rating=Avg("products__reviewrating__rating"),
+            rating_count=Count("products__reviewrating", distinct=True),
+        )
     )
     if query:
         shops = shops.filter(
@@ -174,6 +178,10 @@ def shop_detail(request, shop_id):
         .select_related("category")
         .order_by("-created_at")
     )
+    rating_summary = products.aggregate(
+        avg_rating=Avg("reviewrating__rating"),
+        rating_count=Count("reviewrating", distinct=True),
+    )
     is_shop_subscribed = False
     if request.user.is_authenticated:
         is_shop_subscribed = ShopFollower.objects.filter(
@@ -185,6 +193,7 @@ def shop_detail(request, shop_id):
         {
             "shop": shop,
             "products": products,
+            "rating_summary": rating_summary,
             "is_shop_subscribed": is_shop_subscribed,
         },
     )

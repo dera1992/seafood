@@ -159,6 +159,11 @@
                             </p>
                             <div class="shop-meta">
                                 <span>{{ shop.product_count }} product{{ shop.product_count|pluralize }}</span>
+                                {% if shop.avg_rating %}
+                                    <span>⭐ {{ shop.avg_rating|floatformat:1 }} ({{ shop.rating_count }})</span>
+                                {% else %}
+                                    <span>No ratings yet</span>
+                                {% endif %}
                                 {% if shop.is_shop_open %}
                                     <span class="shop-status">Open now</span>
                                 {% else %}
