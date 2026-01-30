@@ -57,7 +57,7 @@
                                             {% endfor %}
                                         </td>
                                         <td class="pro-title"><a href="{{ cart_item.get_absolute_url }}">{{cart_item.item.title}}</a></td>
-                                        <td class="pro-price"><span>₦{{ cart_item.item.price|intcomma}}</span></td>
+                                        <td class="pro-price"><span>£{{ cart_item.item.price|intcomma}}</span></td>
                                         <td class="pro-quantity">
                                             <a href="{% url 'cart:remove_single_item_from_cart'  cart_item.item.slug %}"><i class="fa fa-minus"></i></a>
                                                  {{ cart_item.quantity }}
@@ -65,10 +65,10 @@
                                         </td>
                                         <td class="pro-subtotal">
                                             {% if cart_item.item.discount_price %}
-                                                <span>₦{{ cart_item.get_total_discount_item_price|intcomma }}</span>
+                                                <span>£{{ cart_item.get_total_discount_item_price|intcomma }}</span>
                                                 <span class="badge badge-primary">Saving ${{ cart_item.get_amount_saved }}</span>
                                             {% else %}
-                                               <span> ₦{{ cart_item.get_total_item_price |intcomma}}</span>
+                                               <span> £{{ cart_item.get_total_item_price |intcomma}}</span>
                                             {% endif %}
                                         </td>
                                         <td class="pro-remove"><a href="{% url 'cart:remove_from_cart' cart_item.item.slug %}"><i class="fa fa-trash-o"></i></a></td>
@@ -112,13 +112,13 @@
                                 <div class="cart-summary-wrap">
                                     <h4>Cart Summary</h4>
                                     {% for cart_item in cart.items.all %}
-                                    <p>Sub Total <span>₦{{ cart_item.get_final_price|intcomma }}</span></p>
+                                    <p>Sub Total <span>£{{ cart_item.get_final_price|intcomma }}</span></p>
                                     {% endfor %}
-                                    <p>Shipping Cost <span>₦00</span></p>
+                                    <p>Shipping Cost <span>£00</span></p>
                                     {% if cart.coupon %}
-                                        <p>Coupon <span>-₦{{ cart.coupon.amount }}</span></p>
+                                        <p>Coupon <span>-£{{ cart.coupon.amount }}</span></p>
                                     {% endif %}
-                                    <h2>Grand Total <span>₦{{ cart.get_total|intcomma }}</span></h2>
+                                    <h2>Grand Total <span>£{{ cart.get_total|intcomma }}</span></h2>
                                 </div>
                                 <div class="cart-summary-button">
                                     <button class="checkout-btn"><a href="{% url 'order:checkout' %}">Checkout</a></button>
@@ -138,9 +138,9 @@
                                 <div class="cart-summary-wrap">
                                     <h4>Shopping Budget Planner</h4>
                                     {% if active_budget %}
-                                        <p>Total budget <span>₦{{ active_budget.total_budget|intcomma }}</span></p>
-                                        <p>Planned spend <span>₦{{ active_budget.current_spent|intcomma }}</span></p>
-                                        <p>Remaining <span>₦{{ active_budget.remaining_budget|intcomma }}</span></p>
+                                        <p>Total budget <span>£{{ active_budget.total_budget|intcomma }}</span></p>
+                                        <p>Planned spend <span>£{{ active_budget.current_spent|intcomma }}</span></p>
+                                        <p>Remaining <span>£{{ active_budget.remaining_budget|intcomma }}</span></p>
                                         {% if active_budget.remaining_budget < 0 %}
                                             <p class="text-danger">You are over budget. Review your list for adjustments.</p>
                                         {% else %}

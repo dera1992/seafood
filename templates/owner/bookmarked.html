@@ -57,7 +57,7 @@
                                               {% endfor %}
                                         </td>
                                         <td class="pro-title"><a href="{{ p.get_absolute_url }}">{{p.title}}</a></td>
-                                        <td class="pro-price"><span>₦{{ p.price|intcomma}}</span></td>
+                                        <td class="pro-price"><span>£{{ p.price|intcomma}}</span></td>
                                         <td class="pro-alerts">
                                             <form method="post" action="{% url 'home:wishlist_preferences' item_id=item.id %}">
                                                 {% csrf_token %}
