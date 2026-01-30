@@ -8,10 +8,19 @@
 					<!--=======  sidebar area  =======-->
 
 					<div class="sidebar-area">
-                        <form method="GET" action="{% url 'product_search:product_filter' %}">
+                        <form method="GET" action="{% url 'product_search:product_filter' %}" id="search-filter-form">
                             <input type="hidden" name="order" value="{{ request.GET.order.strip }}"/>
-                            <input type="hidden" name="title_contains_query" value="{{ request.GET.title_contains_query.strip }}"/>
+                            <input type="hidden" name="view" value="{{ request.GET.view.strip }}"/>
                             <!--=======  single sidebar  =======-->
+
+                            <div class="sidebar mb-35">
+                                <h3 class="sidebar-title">Search Products</h3>
+                                <div class="sidebar-search">
+                                    <input class="form-control {% if request.GET.title_contains_query.strip %}border border-success{% endif %}" type="text" name="title_contains_query"
+                                           placeholder="Search by name or description"
+                                           value="{{ request.GET.title_contains_query.strip }}">
+                                </div>
+                            </div>
 
                             <div class="sidebar mb-35">
                                 <h3 class="sidebar-title">PRODUCT CATEGORIES</h3>
@@ -20,7 +29,7 @@
                                     <div class="col-lg-8 col-md-8 col-sm-8">
 
                                             <input type="radio" id="{{ category.name }}" {% if category.name == request.GET.category.strip %}checked{% endif %} name="category" value="{{ category.name }}">
-                                            <label for="{{ category.name }}">{{ category.name }}</label>
+                                            <label for="{{ category.name }}" class="{% if category.name == request.GET.category.strip %}text-success font-weight-bold{% endif %}">{{ category.name }}</label>
 
                                     </div>
                                     {% endfor %}
@@ -48,6 +57,14 @@
 
                             </div>
 
+                            <div class="sidebar mb-35">
+                                <h3 class="sidebar-title">Nearby Shops</h3>
+                                <label class="{% if nearby_only %}text-success font-weight-bold{% endif %}">
+                                    <input type="checkbox" name="nearby" {% if nearby_only %}checked{% endif %}>
+                                    Show shops close to me
+                                </label>
+                            </div>
+
                             <div class="">
                                 <button class="sidebar-title btn btn-success">Search</button>
                             </div>
@@ -58,6 +75,3 @@
 
 					<!--=======  End of sidebar area  =======-->
 				</div>
-
-
-

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from ctypes.util import find_library
 
 import environ
 
@@ -38,6 +39,8 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
 # Application definition
 
+GIS_ENABLED = env.bool("GIS_ENABLED", default=bool(find_library("gdal")))
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -45,7 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.gis',
 
     'account',
     'blog',
@@ -71,6 +73,9 @@ INSTALLED_APPS = [
      'ckeditor',
     # 'ckeditor_uploader',
 ]
+
+if GIS_ENABLED:
+    INSTALLED_APPS.append('django.contrib.gis')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
