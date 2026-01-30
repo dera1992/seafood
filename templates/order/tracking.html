@@ -30,7 +30,7 @@
                         <p class="mb-0"><strong>Reference:</strong> {{ order.ref }}</p>
                         <p class="mb-0"><strong>Placed:</strong> {{ order.created|naturaltime }}</p>
                         <p class="mb-0"><strong>Status:</strong> {{ status_label }}</p>
-                        <p class="mb-0"><strong>Total:</strong> ₦{{ order.get_total|floatformat:2|intcomma }}</p>
+                        <p class="mb-0"><strong>Total:</strong> £{{ order.get_total|floatformat:2|intcomma }}</p>
                         <p class="mb-0"><strong>Items:</strong>
                             {% for order_item in order.items.all %}
                                 {{ order_item.quantity }}x {{ order_item.item.title }}{% if not forloop.last %}, {% endif %}

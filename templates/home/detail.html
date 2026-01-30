@@ -109,10 +109,10 @@
 
                             <h2 class="product-price mb-15">
                                 {% if ad.discount_price %}
-                                  <span class="discounted-price">₦{{ ad.discount_price|intcomma}}</span>
-                                  <span class="main-price">₦{{ ad.discount_price|intcomma}}</span>
+                                  <span class="discounted-price">£{{ ad.discount_price|intcomma}}</span>
+                                  <span class="main-price">£{{ ad.discount_price|intcomma}}</span>
                                  {% else %}
-                                  <span class="discounted-price">₦{{ ad.price|intcomma}}</span>
+                                  <span class="discounted-price">£{{ ad.price|intcomma}}</span>
                                 {% endif %}
                             </h2>
 
@@ -334,10 +334,10 @@
                                 <h3 class="product-title"><a href="{{ similar.get_absolute_url }}">{{ similar.title }}</a></h3>
                                 <div class="price-box">
                                     {% if similar.discount_price %}
-                                      <span class="discounted-price">₦{{ similar.discount_price|intcomma}}</span>
-                                      <span class="main-price">₦{{ similar.discount_price|intcomma}}</span>
+                                      <span class="discounted-price">£{{ similar.discount_price|intcomma}}</span>
+                                      <span class="main-price">£{{ similar.discount_price|intcomma}}</span>
                                      {% else %}
-                                      <span class="discounted-price">₦{{ similar.price|intcomma}}</span>
+                                      <span class="discounted-price">£{{ similar.price|intcomma}}</span>
                                     {% endif %}
                                 </div>
                             </div>
