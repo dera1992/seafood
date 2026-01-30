@@ -36,6 +36,11 @@
                     <div class="cart-summary-button">
                         <a class="btn btn-secondary" href="{% url 'budget:duplicate-budget' budget.id %}">Duplicate Budget</a>
                         <a class="btn btn-secondary" href="{% url 'budget:add-from-cart' budget.id %}">Add Items From Cart</a>
+                        {% if active_order %}
+                            <a class="btn btn-secondary" href="{% url 'order:checkout' %}">Proceed to Checkout</a>
+                        {% else %}
+                            <a class="btn btn-secondary" href="{% url 'cart:order-summary' %}">Review Cart</a>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -131,6 +136,54 @@
                     </div>
                 </div>
 
+                <div class="cart-summary mb-40">
+                    <div class="cart-summary-wrap">
+                        <h4>Discount suggestions within your budget</h4>
+                        {% if suggested_discounts %}
+                            <ul class="list-unstyled">
+                                {% for product in suggested_discounts %}
+                                    <li class="mb-10">
+                                        <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
+                                        <span>₦{{ product.discount_price|intcomma }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">We will suggest discounted items once your remaining budget is above ₦0.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="cart-summary mb-40">
+                    <div class="cart-summary-wrap">
+                        <h4>Reusable templates</h4>
+                        <form method="post" action="{% url 'budget:create-template' budget.id %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-8 col-12 mb-25">
+                                    {{ template_form.name.label_tag }}
+                                    {{ template_form.name }}
+                                </div>
+                                <div class="col-md-4 col-12 mb-25 d-flex align-items-end">
+                                    <button class="btn btn-secondary" type="submit">Save Template</button>
+                                </div>
+                            </div>
+                        </form>
+                        {% if templates %}
+                            <ul class="list-unstyled">
+                                {% for saved_template in templates %}
+                                    <li class="mb-10">
+                                        <a href="{% url 'budget:view-template' saved_template.id %}">{{ saved_template.name }}</a>
+                                        <a class="ml-2" href="{% url 'budget:apply-template' budget.id saved_template.id %}">Apply</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">Save a template to reuse this plan in the future.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
                 <div class="cart-summary">
                     <div class="cart-summary-wrap">
                         <h4>Saved budgets</h4>
@@ -140,7 +193,10 @@
                                     <a href="{% url 'budget:view-budget' saved_budget.id %}">
                                         Budget ₦{{ saved_budget.total_budget|intcomma }}
                                     </a>
-                                    <small class="text-muted">({{ saved_budget.created_at|date:"M d, Y" }})</small>
+                                    <small class="text-muted">
+                                        (Spent ₦{{ saved_budget.current_spent|intcomma }}, Remaining ₦{{ saved_budget.remaining_budget|intcomma }})
+                                    </small>
+                                    <small class="text-muted d-block">{{ saved_budget.created_at|date:"M d, Y" }}</small>
                                 </li>
                             {% endfor %}
                         </ul>

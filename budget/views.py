@@ -5,9 +5,15 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
 from order.models import Order
+from foodCreate.models import Products
 
-from .forms import BudgetForm, ShoppingListItemForm
-from .models import Budget, ShoppingListItem
+from .forms import (
+    BudgetForm,
+    BudgetTemplateForm,
+    BudgetTemplateItemForm,
+    ShoppingListItemForm,
+)
+from .models import Budget, BudgetTemplate, BudgetTemplateItem, ShoppingListItem
 
 
 @login_required
@@ -38,6 +44,7 @@ def view_budget(request, budget_id):
     budget = get_object_or_404(Budget, id=budget_id, user=request.user)
     items = budget.items.select_related('product', 'product__category').all()
     add_form = ShoppingListItemForm()
+    template_form = BudgetTemplateForm()
 
     category_totals = {}
     for item in items:
@@ -49,7 +56,22 @@ def view_budget(request, budget_id):
         item for item in discounted_items if item.total_cost <= max(budget.remaining_budget, Decimal('0.00'))
     ]
 
+    remaining_budget = budget.remaining_budget
+    item_product_ids = [item.product_id for item in items]
+    suggested_discounts = []
+    if remaining_budget > 0:
+        suggested_discounts = list(
+            Products.objects.filter(
+                discount_price__isnull=False,
+                discount_price__lte=remaining_budget,
+            )
+            .exclude(id__in=item_product_ids)
+            .order_by('discount_price')[:5]
+        )
+
     budgets = Budget.objects.filter(user=request.user).order_by('-created_at')
+    templates = BudgetTemplate.objects.filter(user=request.user).order_by('-updated_at')
+    active_order = Order.objects.filter(user=request.user, is_ordered=False).first()
 
     context = {
         'budget': budget,
@@ -58,7 +80,11 @@ def view_budget(request, budget_id):
         'category_totals': category_totals,
         'discounted_items': discounted_items,
         'affordable_discounts': affordable_discounts,
+        'suggested_discounts': suggested_discounts,
         'budgets': budgets,
+        'templates': templates,
+        'template_form': template_form,
+        'active_order': active_order,
     }
     return render(request, 'budget/view_budget.html', context)
 
@@ -128,4 +154,92 @@ def duplicate_budget(request, budget_id):
             quantity=item.quantity,
         )
     messages.success(request, 'Budget duplicated. You can now adjust it for a new trip.')
+    return redirect('budget:view-budget', budget_id=budget.id)
+
+
+@login_required
+def create_template(request, budget_id):
+    budget = get_object_or_404(Budget, id=budget_id, user=request.user)
+    if request.method != 'POST':
+        return redirect('budget:view-budget', budget_id=budget.id)
+
+    form = BudgetTemplateForm(request.POST)
+    if form.is_valid():
+        template = form.save(commit=False)
+        template.user = request.user
+        template.save()
+        for item in budget.items.all():
+            BudgetTemplateItem.objects.create(
+                template=template,
+                product=item.product,
+                quantity=item.quantity,
+            )
+        messages.success(request, 'Template created from your current budget.')
+    else:
+        messages.error(request, 'Please provide a template name.')
+    return redirect('budget:view-budget', budget_id=budget.id)
+
+
+@login_required
+def add_template_item(request, template_id):
+    template = get_object_or_404(BudgetTemplate, id=template_id, user=request.user)
+    if request.method != 'POST':
+        return redirect('budget:view-template', template_id=template.id)
+
+    form = BudgetTemplateItemForm(request.POST)
+    if form.is_valid():
+        product = form.cleaned_data['product']
+        quantity = form.cleaned_data['quantity']
+        item, created = BudgetTemplateItem.objects.get_or_create(template=template, product=product)
+        if created:
+            item.quantity = quantity
+        else:
+            item.quantity += quantity
+        item.save()
+        messages.success(request, 'Template item added.')
+    else:
+        messages.error(request, 'Unable to add that item.')
+    return redirect('budget:view-template', template_id=template.id)
+
+
+@login_required
+def view_template(request, template_id):
+    template = get_object_or_404(BudgetTemplate, id=template_id, user=request.user)
+    templates = BudgetTemplate.objects.filter(user=request.user).order_by('-updated_at')
+    item_form = BudgetTemplateItemForm()
+    return render(
+        request,
+        'budget/view_template.html',
+        {
+            'template': template,
+            'templates': templates,
+            'item_form': item_form,
+        },
+    )
+
+
+@login_required
+def remove_template_item(request, template_id, item_id):
+    template = get_object_or_404(BudgetTemplate, id=template_id, user=request.user)
+    item = get_object_or_404(BudgetTemplateItem, id=item_id, template=template)
+    item.delete()
+    messages.info(request, 'Template item removed.')
+    return redirect('budget:view-template', template_id=template.id)
+
+
+@login_required
+def apply_template(request, budget_id, template_id):
+    budget = get_object_or_404(Budget, id=budget_id, user=request.user)
+    template = get_object_or_404(BudgetTemplate, id=template_id, user=request.user)
+    for template_item in template.items.all():
+        item, created = ShoppingListItem.objects.get_or_create(
+            budget=budget,
+            product=template_item.product,
+        )
+        if created:
+            item.quantity = template_item.quantity
+        else:
+            item.quantity += template_item.quantity
+        item.save()
+    messages.success(request, 'Template applied to your budget.')
     return redirect('budget:view-budget', budget_id=budget.id)
