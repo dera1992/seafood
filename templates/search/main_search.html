@@ -46,19 +46,17 @@
 							<div class="col-lg-12 col-md-12 col-sm-12 d-flex flex-column flex-sm-row justify-content-between align-items-left align-items-sm-center">
 								<!--=======  Sort by dropdown  =======-->
 
-								<div class="dropdown">
-                                  <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Sort By
-                                  </button>
-                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item js-filter-link {% if order == 'latest' or order == '-created_date' %}active text-success{% endif %}" href={{ request.build_absolute_uri }}{% relative_url 'latest' 'order' params %}>Latest Items</a>
-                                    <a class="dropdown-item js-filter-link {% if order == 'discount_close' %}active text-success{% endif %}" href={{ request.build_absolute_uri }}{% relative_url 'discount_close' 'order' params %}>Discount Ending Soon</a>
-                                    <a class="dropdown-item js-filter-link {% if order == 'rating' %}active text-success{% endif %}" href={{ request.build_absolute_uri }}{% relative_url 'rating' 'order' params %}>Top Rated</a>
-                                    <a class="dropdown-item js-filter-link {% if order == 'best_selling' %}active text-success{% endif %}" href={{ request.build_absolute_uri }}{% relative_url 'best_selling' 'order' params %}>Best Selling</a>
-                                    <a class="dropdown-item js-filter-link {% if order == 'created_date' %}active text-success{% endif %}" href={{ request.build_absolute_uri }}{% relative_url 'created_date' 'order' params %}>Oldest First</a>
-                                    <a class="dropdown-item js-filter-link {% if order == '-price' %}active text-success{% endif %}" href={{ request.build_absolute_uri }}{% relative_url '-price' 'order' params %}>High - Low Price</a>
-                                    <a class="dropdown-item js-filter-link {% if order == 'price' %}active text-success{% endif %}" href={{ request.build_absolute_uri }}{% relative_url 'price' 'order' params %}>Low - High Price</a>
-                                  </div>
+								<div class="form-group mb-0">
+                                    <label class="mb-0" for="sort-select">Sort By</label>
+                                    <select class="form-control" id="sort-select" name="order">
+                                        <option value="latest" {% if order == 'latest' or order == '-created_date' %}selected{% endif %}>Latest Items</option>
+                                        <option value="discount_close" {% if order == 'discount_close' %}selected{% endif %}>Discount Ending Soon</option>
+                                        <option value="rating" {% if order == 'rating' %}selected{% endif %}>Top Rated</option>
+                                        <option value="best_selling" {% if order == 'best_selling' %}selected{% endif %}>Best Selling</option>
+                                        <option value="created_date" {% if order == 'created_date' %}selected{% endif %}>Oldest First</option>
+                                        <option value="-price" {% if order == '-price' %}selected{% endif %}>High - Low Price</option>
+                                        <option value="price" {% if order == 'price' %}selected{% endif %}>Low - High Price</option>
+                                    </select>
                                 </div>
 								<!--=======  End of Sort by dropdown  =======-->
                                 <div class="d-flex align-items-center mt-3 mt-sm-0">
@@ -81,105 +79,6 @@
 					<div id="search-results">
                         {% include 'search/results.html' %}
                     </div>
-					<div class="shop-product-wrap {% if view_mode == 'grid' %}grid{% else %}list{% endif %} row no-gutters mb-35">
-
-						<div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
-                            {% for ad in queryset %}
-								<div class="gf-product shop-list-view-product">
-									<div class="image">
-										<a href="{{ ad.get_absolute_url }}">
-											<span class="{{ ad.get_label_display }}">{{ ad.status }}</span>
-                                            {% if ad.delivery %}
-                                                <span class="days">Del:{{ ad.delivery }}</span>
-                                            {% endif %}
-                                            {% for images in ad.get_second_image %}
-                                                {% thumbnail images.product_image "306x280" crop="10px 10px"  as im %}
-                                                    <a href="{{ ad.get_absolute_url }}">
-                                                        <img  style="margin:{{ im|margin:"306x280" }}" src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" class="" alt="" />
-                                                    </a>
-                                                {% endthumbnail %}
-                                            {% endfor %}
-										</a>
-									</div>
-									<div class="product-content">
-										<div class="product-categories">
-											<a>{{ ad.category }}</a>
-										</div>
-										<h3 class="product-title"><a href="{{ ad.get_absolute_url }}">{{ ad.title }}</a></h3>
-										<div class="price-box mb-20">
-											 {% if ad.discount_price %}
-                                              <span class="discounted-price">₦{{ ad.discount_price|intcomma}}</span>
-                                              <span class="main-price">₦{{ ad.discount_price|intcomma}}</span>
-                                             {% else %}
-                                              <span class="discounted-price">₦{{ ad.price|intcomma}}</span>
-                                            {% endif %}
-										</div>
-										<p class="product-description"> {{ ad.description }}</p>
-										<div class="list-product-icons" id = "part{{ ad.id }}">
-											{% include 'home/special_section.html' %}
-										</div>
-									</div>
-
-								</div>
-                            {% empty %}
-                                <div class="container-fluid">
-                                    <h3 style="text-align:center;">No search found </h3>
-                                </div>
-                            {% endfor %}
-							<!--=======  End of Shop list view product  =======-->
-                        </div>
-					</div>
-
-					<!--=======  End of Grid list view  =======-->
-
-					<!--=======  Pagination container  =======-->
-
-					<div class="pagination-container">
-						<div class="container">
-							<div class="row">
-								<div class="col-lg-12">
-									<!--=======  pagination-content  =======-->
-
-									<div class="pagination-content text-center">
-                                        {% if queryset.has_other_pages %}
-                                          <ul class="">
-                                            {% if queryset.has_previous %}
-                                              <li><a href="?page={{ queryset.previous_page_number }}"><i class="fa fa-angle-left"></i></a></li>
-                                            {% else %}
-                                              <li class="disabled"><span>&laquo;</span></li>
-                                            {% endif %}
-
-                                            {% if queryset.number|add:'-4' > 1 %}
-                                                <li><a href="?page={{ queryset.number|add:'-5' }}">&hellip;</a></li>
-                                            {% endif %}
-
-                                            {% for i in queryset.paginator.page_range %}
-                                              {% if queryset.number == i %}
-                                                <li><a class="page-link active"><span>{{ i }}<span class="sr-only">(current)</span></span></a></li>
-                                              {% elif i > queryset.number|add:'-5' and i < queryset.number|add:'5' %}
-                    {#                                    <li><a href="?page={{ i }}">{{ i }}</a></li>#}
-                                                <li><a href={% relative_url i 'page' request.GET.urlencode %}>{{ i }}</a></li>
-                                              {% endif %}
-                                            {% endfor %}
-
-                                            {% if queryset.paginator.num_pages > queryset.number|add:'4' %}
-                                                <li><a href="?page={{ queryset.number|add:'5' }}">&hellip;</a></li>
-                                            {% endif %}
-
-                                            {% if queryset.has_next %}
-                                              <li><a href="?page={{ queryset.next_page_number }}"><i class="fa fa-angle-right"></i></a></li>
-                                            {% else %}
-                                              <li class="disabled"><span>&raquo;</span></li>
-                                            {% endif %}
-                                          </ul>
-                                        {% endif %}
-									</div>
-
-									<!--=======  End of pagination-content  =======-->
-								</div>
-							</div>
-						</div>
-					</div>
 
 					<!--=======  End of Pagination container  =======-->
 

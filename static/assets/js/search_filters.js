@@ -16,6 +16,10 @@ function setupSearchFilters() {
         if (viewInput && params.get("view")) {
             viewInput.value = params.get("view");
         }
+        const sortSelect = document.getElementById("sort-select");
+        if (sortSelect && params.get("order")) {
+            sortSelect.value = params.get("order");
+        }
         const searchInput = form.querySelector("input[name='title_contains_query']");
         if (searchInput && params.has("title_contains_query")) {
             searchInput.value = params.get("title_contains_query");
@@ -35,12 +39,10 @@ function setupSearchFilters() {
 
     const syncActiveStates = () => {
         const orderValue = form.querySelector("input[name='order']")?.value;
-        document.querySelectorAll(".dropdown-item.js-filter-link").forEach((link) => {
-            const linkUrl = new URL(link.href, window.location.origin);
-            const linkOrder = linkUrl.searchParams.get("order");
-            link.classList.toggle("active", linkOrder && linkOrder === orderValue);
-            link.classList.toggle("text-success", linkOrder && linkOrder === orderValue);
-        });
+        const sortSelect = document.getElementById("sort-select");
+        if (sortSelect && orderValue) {
+            sortSelect.value = orderValue;
+        }
 
         const viewValue = form.querySelector("input[name='view']")?.value;
         document.querySelectorAll(".js-filter-link").forEach((link) => {
@@ -130,6 +132,17 @@ function setupSearchFilters() {
         updateFormFromParams(url.searchParams);
         fetchResults(url.searchParams);
     });
+
+    const sortSelect = document.getElementById("sort-select");
+    if (sortSelect) {
+        sortSelect.addEventListener("change", (event) => {
+            const orderInput = form.querySelector("input[name='order']");
+            if (orderInput) {
+                orderInput.value = event.target.value;
+            }
+            submitFilters();
+        });
+    }
 
     syncActiveStates();
 }
