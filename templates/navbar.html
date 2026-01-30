@@ -33,6 +33,7 @@
                                     {% if user.is_superuser %}
                                     <li class="dropdown-item"><a href="{% url "home:dashboard" %}">Dashboard</a></li>
                                     {% endif %}
+                                    <li class="dropdown-item"><a href="{% url "home:shop_notifications" %}">Shop notifications</a></li>
                                     <li class="dropdown-item"><a href="{% url "profile_display" %}">Profile</a></li>
                                     <li class="dropdown-item"><a href="{% url "password_change" %}">Change Password</a></li>
                                     <li class="dropdown-item"><a href="{% url "logout" %}">Log Out</a></li>

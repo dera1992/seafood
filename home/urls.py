@@ -19,6 +19,8 @@ urlpatterns = [
         views.update_wishlist_preferences,
         name="wishlist_preferences",
     ),
+    path("shops/<int:shop_id>/subscribe/", views.toggle_shop_subscription, name="toggle_shop_subscription"),
+    path("shop-notifications/", views.shop_notifications, name="shop_notifications"),
     path('<slug:category_slug>/', views.ads_list, name='ads_list_by_category'),
     path('delete_post/(<pk>\d+)/', views.delete_post, name='delete_post'),
     path('<int:id>/favourite_ad/',views.favourite_ad, name='favourite_ad'),

@@ -134,6 +134,23 @@
                                 {% endif %}
                             </div>
 
+                            <div class="single-product-action-btn mb-20">
+                                {% if user.is_authenticated %}
+                                    <form method="post" action="{% url 'home:toggle_shop_subscription' shop_id=ad.shop.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-success btn-sm">
+                                            {% if is_shop_subscribed %}
+                                                Unsubscribe from {{ ad.shop.name }}
+                                            {% else %}
+                                                Subscribe to {{ ad.shop.name }}
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <a href="{% url 'login' %}">Log in to subscribe to {{ ad.shop.name }}</a>
+                                {% endif %}
+                            </div>
+
 
                             <div class="single-product-category mb-20">
                                 <h3>Categories: <span>{{ ad.category }}</span></h3>
