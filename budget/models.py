@@ -54,3 +54,29 @@ class ShoppingListItem(models.Model):
     @property
     def total_cost(self) -> Decimal:
         return self.unit_price * self.quantity
+
+
+class BudgetTemplate(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    name = models.CharField(max_length=120)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.user})"
+
+
+class BudgetTemplateItem(models.Model):
+    template = models.ForeignKey(BudgetTemplate, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Products, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('template', 'product')
+
+    def __str__(self) -> str:
+        return f"{self.quantity} x {self.product.title}"

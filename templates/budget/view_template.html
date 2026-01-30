@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Budget Template{% endblock %}
+
+{% block content %}
+<div class="breadcrumb-area mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="breadcrumb-container">
+                    <ul>
+                        <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                        <li class="active">Budget Templates</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-section section mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-12">
+                <div class="cart-summary mb-40">
+                    <div class="cart-summary-wrap">
+                        <h4>{{ template.name }}</h4>
+                        <p>Template items</p>
+                        <div class="cart-table table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for item in template.items.all %}
+                                    <tr>
+                                        <td>{{ item.product.title }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>
+                                            <a href="{% url 'budget:remove-template-item' template.id item.id %}"><i class="fa fa-trash-o"></i></a>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center">No items yet.</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cart-summary">
+                    <div class="cart-summary-wrap">
+                        <h4>Add items to this template</h4>
+                        <form method="post" action="{% url 'budget:add-template-item' template.id %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-7 col-12 mb-25">
+                                    {{ item_form.product.label_tag }}
+                                    {{ item_form.product }}
+                                </div>
+                                <div class="col-md-3 col-12 mb-25">
+                                    {{ item_form.quantity.label_tag }}
+                                    {{ item_form.quantity }}
+                                </div>
+                                <div class="col-md-2 col-12 mb-25 d-flex align-items-end">
+                                    <button class="btn btn-secondary" type="submit">Add</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-12">
+                <div class="cart-summary">
+                    <div class="cart-summary-wrap">
+                        <h4>Saved templates</h4>
+                        <ul class="list-unstyled">
+                            {% for saved_template in templates %}
+                                <li class="mb-10">
+                                    <a href="{% url 'budget:view-template' saved_template.id %}">{{ saved_template.name }}</a>
+                                </li>
+                            {% empty %}
+                                <li class="text-muted">No templates yet.</li>
+                            {% endfor %}
+                        </ul>
+                        <a class="btn btn-secondary" href="{% url 'budget:budget-dashboard' %}">Back to budget planner</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
