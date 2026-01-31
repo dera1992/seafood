@@ -278,7 +278,7 @@ def nearby_shops(request):
         )
     lat = request.GET.get("lat")
     lng = request.GET.get("lng")
-    radius_km = request.GET.get("radius", 5)
+    radius_km = request.GET.get("radius_km") or request.GET.get("radius") or 5
 
     if not lat or not lng:
         return JsonResponse({"error": "Missing latitude or longitude."}, status=400)
@@ -290,6 +290,13 @@ def nearby_shops(request):
     except (TypeError, ValueError):
         return JsonResponse({"error": "Invalid coordinate or radius values."}, status=400)
 
+    if not (-90 <= latitude <= 90):
+        return JsonResponse({"error": "Latitude must be between -90 and 90."}, status=400)
+    if not (-180 <= longitude <= 180):
+        return JsonResponse({"error": "Longitude must be between -180 and 180."}, status=400)
+    if radius <= 0:
+        return JsonResponse({"error": "Radius must be greater than 0."}, status=400)
+
     user_location = Point(longitude, latitude, srid=4326)
     nearby = (
         Shop.objects.filter(location__isnull=False)
@@ -300,10 +307,21 @@ def nearby_shops(request):
 
     shops = [
         {
+            "id": shop.id,
             "name": shop.name,
             "address": shop.address,
             "city": shop.city,
             "distance_km": round(shop.distance.km, 2) if shop.distance else None,
+            "latitude": (
+                float(shop.latitude)
+                if shop.latitude is not None
+                else (shop.location.y if shop.location else None)
+            ),
+            "longitude": (
+                float(shop.longitude)
+                if shop.longitude is not None
+                else (shop.location.x if shop.location else None)
+            ),
         }
         for shop in nearby
     ]

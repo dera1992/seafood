@@ -109,12 +109,14 @@ class Shop(models.Model):
     state = models.CharField(max_length=100, blank=True, null=True)
     country = models.CharField(max_length=100, blank=True, null=True)
     postal_code = models.CharField(max_length=20, blank=True, null=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     logo = models.ImageField(upload_to="shops/logos/", blank=True)
     currency = models.CharField(max_length=8, default="NGN")
     weight_unit = models.CharField(max_length=10, choices=WEIGHT_UNIT_CHOICES, default="kg")
 
     if settings.GIS_ENABLED:
-        location = gis_models.PointField(geography=True, blank=True, null=True)
+        location = gis_models.PointField(geography=True, srid=4326, blank=True, null=True)
     else:
         location = models.CharField(max_length=255, blank=True, null=True)
 
@@ -139,8 +141,10 @@ class Shop(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if settings.GIS_ENABLED and not self.location:
-            if self.address and self.city and self.country:
+        if settings.GIS_ENABLED:
+            if self.latitude is not None and self.longitude is not None:
+                self.location = Point(float(self.longitude), float(self.latitude), srid=4326)
+            elif not self.location and self.address and self.city and self.country:
                 geolocator = Nominatim(user_agent="ecommerce_app")
                 location = geolocator.geocode(f"{self.address}, {self.city}, {self.country}")
                 if location:

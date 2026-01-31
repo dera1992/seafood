@@ -164,9 +164,38 @@ class ShopInfoForm(forms.ModelForm):
 
 
 class ShopAddressForm(forms.ModelForm):
+    latitude = forms.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        required=False,
+        widget=forms.HiddenInput(attrs={"id": "latitude"}),
+    )
+    longitude = forms.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        required=False,
+        widget=forms.HiddenInput(attrs={"id": "longitude"}),
+    )
+
     class Meta:
         model = Shop
-        fields = ['address', 'city', 'state', 'country', 'postal_code', 'location']
+        fields = ['address', 'city', 'state', 'country', 'postal_code', 'latitude', 'longitude']
+
+    def clean_latitude(self):
+        latitude = self.cleaned_data.get("latitude")
+        if latitude is None:
+            return latitude
+        if latitude < -90 or latitude > 90:
+            raise forms.ValidationError("Latitude must be between -90 and 90.")
+        return latitude
+
+    def clean_longitude(self):
+        longitude = self.cleaned_data.get("longitude")
+        if longitude is None:
+            return longitude
+        if longitude < -180 or longitude > 180:
+            raise forms.ValidationError("Longitude must be between -180 and 180.")
+        return longitude
 
 
 class ShopDocumentForm(forms.ModelForm):
