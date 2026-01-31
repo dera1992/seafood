@@ -18,7 +18,7 @@ class EnsureRoleMiddleware:
                 '/account/activate',
             ]
             # if user missing role and not on onboarding routes, redirect
-            if not getattr(request.user, 'role', None):
+            if not getattr(request.user, 'role', None) or request.user.role == 'pending':
                 path = request.path
                 # allow static, admin, API and onboarding URLs through
                 if not any(path.startswith(p) for p in allowed_paths) and not path.startswith('/admin'):
