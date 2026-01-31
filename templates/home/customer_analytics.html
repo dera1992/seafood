@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}My Shopping Analytics{% endblock %}
+
+{% block content %}
+<div class="breadcrumb-area mb-50">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <div class="breadcrumb-container">
+          <ul>
+            <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+            <li class="active">My Analytics</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-section section mb-50">
+  <div class="container">
+    <div class="row mb-30">
+      <div class="col-12">
+        <h3 class="mb-2">Customer Analytics</h3>
+        <p class="text-muted">Track your spend, favorite categories, and subscriptions at a glance.</p>
+      </div>
+    </div>
+
+    <div class="row mb-30">
+      <div class="col-lg-3 col-md-6">
+        <div class="cart-summary">
+          <div class="cart-summary-wrap">
+            <h4>Total Spend</h4>
+            <p>Lifetime spend <span>£{{ total_spend|floatformat:2|intcomma }}</span></p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="cart-summary">
+          <div class="cart-summary-wrap">
+            <h4>Orders</h4>
+            <p>Total orders <span>{{ total_orders }}</span></p>
+            <p>Avg order value <span>£{{ avg_order_value|floatformat:2|intcomma }}</span></p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="cart-summary">
+          <div class="cart-summary-wrap">
+            <h4>Wishlist</h4>
+            <p>Saved items <span>{{ wishlist_count }}</span></p>
+            <p>Alerts waiting <span>{{ unread_notifications }}</span></p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="cart-summary">
+          <div class="cart-summary-wrap">
+            <h4>Items Bought</h4>
+            <p>Total items <span>{{ total_items|intcomma }}</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-30">
+      <div class="col-lg-6">
+        <div class="cart-summary">
+          <div class="cart-summary-wrap">
+            <h4>Top Categories</h4>
+            <ul class="list-unstyled mb-0">
+              {% for category in top_categories %}
+                <li class="d-flex justify-content-between">
+                  <span>{{ category.item__category__name }}</span>
+                  <span>{{ category.total_quantity }}</span>
+                </li>
+              {% empty %}
+                <li class="text-muted">No purchases yet.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="cart-summary">
+          <div class="cart-summary-wrap">
+            <h4>Favorite Shops</h4>
+            <ul class="list-unstyled mb-0">
+              {% for shop in top_shops %}
+                <li class="d-flex justify-content-between">
+                  <span>{{ shop.item__shop__name }}</span>
+                  <span>{{ shop.total_quantity }}</span>
+                </li>
+              {% empty %}
+                <li class="text-muted">No shop favorites yet.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="cart-summary">
+          <div class="cart-summary-wrap">
+            <h4>Subscribed Shops</h4>
+            <ul class="list-unstyled mb-0">
+              {% for subscription in subscribed_shops %}
+                <li>{{ subscription.shop.name }} • {{ subscription.shop.city|default:"" }}</li>
+              {% empty %}
+                <li class="text-muted">You are not following any shops yet.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="cart-summary">
+          <div class="cart-summary-wrap">
+            <h4>Recent Orders</h4>
+            <ul class="list-unstyled mb-0">
+              {% for order in completed_orders %}
+                <li class="d-flex justify-content-between">
+                  <span>{{ order.ref|default:"Order" }}</span>
+                  <span>{{ order.get_total|floatformat:2|intcomma }}</span>
+                </li>
+              {% empty %}
+                <li class="text-muted">No completed orders yet.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
