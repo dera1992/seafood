@@ -12,9 +12,7 @@
     <div class="card mb-4">
       <div class="card-body">
         {% if messages %}
-          {% with last_message=messages|last %}
-            <ul class="list-unstyled mb-0" id="chat-messages" data-last-id="{{ last_message.id }}">
-          {% endwith %}
+          <ul class="list-unstyled mb-0" id="chat-messages" data-last-id="{{ last_message_id }}">
             {% for message in messages %}
               <li class="mb-3" data-message-id="{{ message.id }}">
                 <div class="d-flex justify-content-between">

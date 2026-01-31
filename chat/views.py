@@ -53,6 +53,7 @@ def thread(request, shop_id, user_id):
         .filter(sender__in=[request.user, other_user], receiver__in=[request.user, other_user])
         .order_by("timestamp")
     )
+    last_message_id = messages.last().id if messages.exists() else ""
     Message.objects.filter(
         receiver=request.user,
         sender=other_user,
@@ -67,6 +68,7 @@ def thread(request, shop_id, user_id):
             "shop": shop,
             "other_user": other_user,
             "messages": messages,
+            "last_message_id": last_message_id,
             "products": products,
         },
     )
