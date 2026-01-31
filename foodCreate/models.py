@@ -40,9 +40,11 @@ class Products(models.Model):
     )
 
     STATUS_CHOICES = (
+        ("draft", "Draft"),
         ("available", "Available"),
         ("out_of_stock", "Out of Stock"),
-        ("unavailable", "Unavailable"),)
+        ("unavailable", "Unavailable"),
+    )
 
     DAYS = (
         ('Now', 'Now'),
@@ -66,6 +68,7 @@ class Products(models.Model):
     discount_price = models.DecimalField(decimal_places=2, max_digits=10, blank=True, null=True)
     label = models.CharField(choices=LABEL_CHOICES, max_length=1, null=True, blank=True)
     delivery = models.CharField(choices=DAYS, max_length=15, null=True, blank=True)
+    barcode = models.CharField(max_length=64, blank=True)
     slug = models.SlugField(max_length=200,blank=True)
     ai_recommended_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     stock = models.PositiveIntegerField(default=0)
