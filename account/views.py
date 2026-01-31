@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth import login
+from django.contrib.auth import views as auth_views
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -17,7 +18,7 @@ from django.template.loader import get_template
 from .forms import (
     ProfileForm, ShopInfoForm, ShopAddressForm, ShopDocumentForm, PlanSelectionForm,
     DispatcherPersonalForm, DispatcherVehicleForm, UserRegistrationForm,
-    UserEditForm, ProfileEditForm
+    UserEditForm, ProfileEditForm, EmailAuthenticationForm
 )
 from .models import Profile, Shop, DispatcherProfile
 
@@ -28,7 +29,7 @@ User = get_user_model()
 # Create your views here.
 def register(request):
     if request.method == 'POST':
-        user_form = UserRegistrationForm(request.POST)
+        user_form = UserRegistrationForm(request.POST, request=request)
         if user_form.is_valid():
             user = user_form.save(commit=False)
             user.set_password(user_form.cleaned_data['password'])
@@ -51,10 +52,30 @@ def register(request):
             messages.success(request, 'An email has been sent to you,please go and activate your account')
             return redirect('home:home')
     else:
-        user_form = UserRegistrationForm()
+        user_form = UserRegistrationForm(request=request)
     return render(request,
                   'account/register.html',
-                  {'user_form': user_form})
+                  {
+                      'user_form': user_form,
+                      'recaptcha_site_key': settings.RECAPTCHA_SITE_KEY,
+                  })
+
+
+class AccountLoginView(auth_views.LoginView):
+    template_name = 'registration/login.html'
+    redirect_authenticated_user = True
+    authentication_form = EmailAuthenticationForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['recaptcha_site_key'] = settings.RECAPTCHA_SITE_KEY
+        return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if not form.cleaned_data.get("remember_me"):
+            self.request.session.set_expiry(0)
+        return response
 
 @login_required
 def edit(request):

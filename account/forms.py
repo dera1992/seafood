@@ -1,12 +1,44 @@
 from django.contrib.auth.forms import AuthenticationForm, UserChangeForm, UserCreationForm
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from  bootstrap_datepicker_plus.widgets import DatePickerInput
 from django import forms
+from django.core.exceptions import ValidationError
+import requests
+
 from .models import Profile, Shop, DispatcherProfile, SubscriptionPlan
 
 User = get_user_model()
 
+
+def verify_recaptcha(token, remote_ip=None):
+    if not settings.RECAPTCHA_SECRET_KEY:
+        raise ValidationError("reCAPTCHA is not configured. Please contact support.")
+    if not token:
+        raise ValidationError("Please complete the reCAPTCHA.")
+    payload = {
+        "secret": settings.RECAPTCHA_SECRET_KEY,
+        "response": token,
+    }
+    if remote_ip:
+        payload["remoteip"] = remote_ip
+    try:
+        response = requests.post(
+            settings.RECAPTCHA_VERIFY_URL,
+            data=payload,
+            timeout=5,
+        )
+        result = response.json()
+    except requests.RequestException as exc:
+        raise ValidationError("Unable to verify reCAPTCHA. Please try again.") from exc
+    if not result.get("success"):
+        raise ValidationError("Invalid reCAPTCHA. Please try again.")
+
 class UserRegistrationForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request", None)
+        super().__init__(*args, **kwargs)
+
     password = forms.CharField(
         widget=forms.PasswordInput(
             attrs={'class': 'form-control', 'placeholder': 'Password'}
@@ -39,6 +71,15 @@ class UserRegistrationForm(forms.ModelForm):
         if cd['password'] != cd['password2']:
             raise forms.ValidationError('Passwords don\'t match.')
         return cd['password2']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        token = self.data.get("g-recaptcha-response")
+        remote_ip = None
+        if self.request:
+            remote_ip = self.request.META.get("REMOTE_ADDR")
+        verify_recaptcha(token, remote_ip=remote_ip)
+        return cleaned_data
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -149,6 +190,16 @@ class ProfileEditForm(forms.ModelForm):
 
 class EmailAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(label="Email", widget=forms.EmailInput(attrs={"autofocus": True}))
+    remember_me = forms.BooleanField(required=False, label="Remember me")
+
+    def clean(self):
+        cleaned_data = super().clean()
+        token = self.data.get("g-recaptcha-response")
+        remote_ip = None
+        if self.request:
+            remote_ip = self.request.META.get("REMOTE_ADDR")
+        verify_recaptcha(token, remote_ip=remote_ip)
+        return cleaned_data
 
 # account/forms.py
 
