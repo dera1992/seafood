@@ -227,8 +227,17 @@
     $(function () {
 
       var $categoryChart = $("#category-chart");
+      if (!$categoryChart.length) {
+        return;
+      }
+
+      var categoryChartUrl = $categoryChart.data("url");
+      if (!categoryChartUrl) {
+        return;
+      }
+
       $.ajax({
-        url: $categoryChart.data("url"),
+        url: categoryChartUrl,
         success: function (data) {
 
           var ctx = $categoryChart[0].getContext("2d");

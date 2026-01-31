@@ -254,15 +254,19 @@ def shop_analytics(request):
     }
     return render(request, "home/shop_analytics.html", context)
 
+@login_required
 def category_chart(request):
     labels = []
     data = []
 
-    queryset = Products.objects.values('category__name').annotate(category_total=Count('category'))
-    print(queryset)
+    queryset = (
+        Products.objects.values("category__name")
+        .annotate(category_total=Count("category"))
+        .order_by("category__name")
+    )
     for entry in queryset:
-        labels.append(entry['category__name'])
-        data.append(entry['category_total'])
+        labels.append(entry["category__name"] or "Uncategorized")
+        data.append(entry["category_total"])
 
     return JsonResponse(data={
         'labels': labels,
