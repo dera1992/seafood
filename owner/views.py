@@ -3,8 +3,7 @@ from __future__ import unicode_literals
 from django.shortcuts import render,redirect, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from account.models import Profile
-from foodCreate.models import Products, ProductsImages, Category, SubCategory
-from django.db.models import Q
+from foodCreate.models import Products
 from django.db.models import Count
 from django.http import HttpResponseRedirect, Http404,HttpResponse, JsonResponse
 from django.contrib import messages
@@ -100,6 +99,7 @@ def about_us(request):
 
 def faq(request):
     return render(request, 'owner/others/faq.html', )
+
 
 def success(request):
     return render(request, 'paystack/success-page.html',)
