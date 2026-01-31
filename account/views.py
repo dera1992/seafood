@@ -117,7 +117,7 @@ def activate(request, uidb64, token):
         user.save()
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         messages.success(request, 'Your account has been confirm successfully')
-        return redirect('home:home')
+        return redirect('account:choose_role')
     else:
         messages.error(request, 'There is an error confirming your account')
         return render(request, 'registration/account_activation_invalid.html')
