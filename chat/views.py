@@ -44,7 +44,7 @@ def inbox(request):
 def thread(request, shop_id, user_id):
     shop = get_object_or_404(Shop, id=shop_id)
     other_user = get_object_or_404(User, id=user_id)
-    if request.user not in {shop.owner, other_user}:
+    if shop.owner not in {request.user, other_user}:
         return HttpResponseBadRequest("Invalid conversation.")
 
     messages = (
@@ -76,7 +76,7 @@ def thread(request, shop_id, user_id):
 def thread_messages(request, shop_id, user_id):
     shop = get_object_or_404(Shop, id=shop_id)
     other_user = get_object_or_404(User, id=user_id)
-    if request.user not in {shop.owner, other_user}:
+    if shop.owner not in {request.user, other_user}:
         return HttpResponseBadRequest("Invalid conversation.")
     after_id = request.GET.get("after")
     queryset = (
