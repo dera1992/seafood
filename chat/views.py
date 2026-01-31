@@ -26,11 +26,18 @@ def inbox(request):
         if key in seen:
             continue
         seen.add(key)
+        unread_count = Message.objects.filter(
+            shop=message.shop,
+            sender=other_user,
+            receiver=request.user,
+            is_read=False,
+        ).count()
         conversations.append(
             {
                 "shop": message.shop,
                 "other_user": other_user,
                 "last_message": message,
+                "unread_count": unread_count,
             }
         )
     return render(

@@ -15,6 +15,9 @@
               {% if convo.last_message.product %}
                 <span class="badge badge-light">Product: {{ convo.last_message.product.title }}</span>
               {% endif %}
+              {% if convo.unread_count %}
+                <span class="badge badge-danger">{{ convo.unread_count }} new</span>
+              {% endif %}
             </p>
             <small class="text-muted">{{ convo.last_message.content|truncatechars:120 }}</small>
           </a>
