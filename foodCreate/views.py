@@ -102,6 +102,16 @@ def editAd(request, pk):
                 post_form.is_active = True
             post_form.save()
 
+            delete_image_ids = request.POST.getlist("delete_image_ids")
+            for image in product.images.all():
+                if str(image.id) in delete_image_ids:
+                    image.delete()
+                    continue
+                replacement = request.FILES.get(f"replace_image_{image.id}")
+                if replacement:
+                    image.product_image = replacement
+                    image.save()
+
             images = request.FILES.getlist("product_images")
             for image in images:
                 photo = ProductsImages(products=product, product_image=image)
