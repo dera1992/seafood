@@ -33,6 +33,14 @@
                                 {{ form.total_budget.label_tag }}
                                 {{ form.total_budget }}
                             </div>
+                            <div class="voice-assistant" data-voice-container>
+                                <button class="voice-assistant__button voice-assistant__button--inline" type="button" data-voice-action="budget" data-voice-input="id_total_budget" aria-label="Speak your budget amount">
+                                    <span class="fa fa-microphone" aria-hidden="true"></span>
+                                    Speak budget
+                                </button>
+                                <p class="voice-assistant__hint">AI voice assistant: try “set budget to 50 pounds” or “budget 120”.</p>
+                                <p class="voice-assistant__status" data-voice-status aria-live="polite"></p>
+                            </div>
                             <button class="btn btn-secondary" type="submit">Save Budget</button>
                         </form>
                     </div>
