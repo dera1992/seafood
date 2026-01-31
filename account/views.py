@@ -3,6 +3,7 @@ from django.contrib.auth import login
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 from django.utils.http import urlsafe_base64_encode
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
@@ -54,25 +55,6 @@ def register(request):
                   'account/register.html',
                   {'user_form': user_form})
 
-@login_required
-def select_role(request):
-    if request.method == "POST":
-        role = request.POST.get("role")
-        if role == "shop_owner":
-            role = "shop"
-        user = request.user
-        user.role = role
-        user.save()
-        if role == "customer":
-            Profile.objects.get_or_create(user=user)
-            return redirect("account:customer_setup")
-        elif role == "shop":
-            Shop.objects.get_or_create(owner=user)
-            return redirect("account:shop_info")
-        elif role == "dispatcher":
-            DispatcherProfile.objects.get_or_create(user=user)
-            return redirect("account:dispatcher_personal")
-    return render(request, "account/select_role.html")
 @login_required
 def edit(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
@@ -133,9 +115,9 @@ def activate(request, uidb64, token):
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
-        login(request, user)
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         messages.success(request, 'Your account has been confirm successfully')
-        return redirect('home:home')
+        return redirect('choose_role')
     else:
         messages.error(request, 'There is an error confirming your account')
         return render(request, 'registration/account_activation_invalid.html')
@@ -186,6 +168,11 @@ def customer_setup(request):
         return redirect('login')
 
     profile, _ = Profile.objects.get_or_create(user=request.user)
+    if request.method == 'GET' and request.GET.get('skip') == '1':
+        request.user.role = 'customer'
+        request.user.save()
+        messages.info(request, "You can complete your profile any time from your account settings.")
+        return redirect('home:dashboard')
     if request.method == 'POST':
         form = ProfileForm(request.POST, instance=profile)
         if form.is_valid():
@@ -193,7 +180,7 @@ def customer_setup(request):
             request.user.role = 'customer'
             request.user.save()
             messages.success(request, "Customer profile completed.")
-            return redirect('customer:dashboard')
+            return redirect('home:dashboard')
     else:
         form = ProfileForm(instance=profile)
     return render(request, 'account/customer_profile_setup.html', {'form': form})
@@ -203,85 +190,111 @@ def customer_setup(request):
 # Shop owner multi-step onboarding
 # We'll store progress in session under 'shop_onboarding' dict.
 # -------------------------
-def shop_info(request):
+def shop_onboarding(request, step='info'):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    shop, _ = Shop.objects.get_or_create(owner=request.user)
-    form = ShopInfoForm(request.POST or None, request.FILES or None, instance=shop)
-    if request.method == 'POST' and form.is_valid():
-        # save into session (we don't commit to DB until final step)
-        # store file uploads temporarily by saving to model - simplest approach: save partial
-        shop = form.save(commit=False)
-        # save partial to DB so file fields persist (logo/documents)
-        shop.owner = request.user
-        shop.save()
-        request.session['shop_onboarding'] = {'step': 'info'}
-        messages.success(request, "Shop basic info saved. Continue to address.")
-        return redirect('account:shop_address')
+    steps = ['info', 'address', 'docs', 'plan']
+    if step not in steps:
+        step = 'info'
 
-    return render(request, 'account/shop_info.html', {'form': form})
+    shop, _ = Shop.objects.get_or_create(owner=request.user)
+    form_map = {
+        'info': ShopInfoForm(request.POST or None, request.FILES or None, instance=shop),
+        'address': ShopAddressForm(request.POST or None, instance=shop),
+        'docs': ShopDocumentForm(request.POST or None, request.FILES or None, instance=shop),
+        'plan': PlanSelectionForm(request.POST or None),
+    }
+    form = form_map[step]
+
+    if request.method == 'POST' and form.is_valid():
+        if step == 'info':
+            shop = form.save(commit=False)
+            shop.owner = request.user
+            shop.save()
+            messages.success(request, "Shop basic info saved. Continue to address.")
+        elif step == 'address':
+            form.save()
+            messages.success(request, "Shop address saved. Continue to upload business documents (optional).")
+        elif step == 'docs':
+            form.save()
+            messages.success(request, "Document uploaded (or skipped). Continue to choose a plan.")
+        elif step == 'plan':
+            plan = form.cleaned_data.get('plan', None)
+            if plan:
+                shop.subscription = plan
+            shop.is_active = True
+            shop.save()
+
+            request.user.role = 'shop'
+            request.user.save()
+            request.session.pop('shop_onboarding', None)
+            messages.success(request, "Shop onboarding complete! Welcome.")
+            return redirect('shop:dashboard')
+
+        current_index = steps.index(step)
+        request.session['shop_onboarding'] = {'step': step}
+        next_step = steps[current_index + 1]
+        next_map = {
+            'info': 'account:shop_address',
+            'address': 'account:shop_docs',
+            'docs': 'account:shop_plan',
+        }
+        return redirect(next_map.get(step, 'account:shop_info'))
+
+    current_index = steps.index(step)
+    progress_percent = int(((current_index + 1) / len(steps)) * 100)
+    step_labels = {
+        'info': 'Shop Info',
+        'address': 'Address',
+        'docs': 'Documents',
+        'plan': 'Plan',
+    }
+    step_urls = {
+        'info': reverse('account:shop_info'),
+        'address': reverse('account:shop_address'),
+        'docs': reverse('account:shop_docs'),
+        'plan': reverse('account:shop_plan'),
+    }
+    step_items = [
+        {
+            'key': step_key,
+            'label': step_labels[step_key],
+            'is_current': step_key == step,
+            'is_complete': index < current_index,
+            'url': step_urls[step_key],
+        }
+        for index, step_key in enumerate(steps)
+    ]
+    prev_url = step_urls[steps[current_index - 1]] if current_index > 0 else None
+
+    return render(
+        request,
+        'account/shop_onboarding.html',
+        {
+            'form': form,
+            'step_items': step_items,
+            'current_step': step,
+            'progress_percent': progress_percent,
+            'prev_url': prev_url,
+        },
+    )
+
+
+def shop_info(request):
+    return shop_onboarding(request, step='info')
 
 
 def shop_address(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    shop, _ = Shop.objects.get_or_create(owner=request.user)
-    form = ShopAddressForm(request.POST or None, instance=shop)
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        onboarding = request.session.setdefault('shop_onboarding', {})
-        onboarding['step'] = 'address'
-        request.session['shop_onboarding'] = onboarding
-        messages.success(request, "Shop address saved. Continue to upload business documents (optional).")
-        return redirect('account:shop_docs')
-
-    return render(request, 'account/shop_address.html', {'form': form})
+    return shop_onboarding(request, step='address')
 
 
 def shop_docs(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    shop, _ = Shop.objects.get_or_create(owner=request.user)
-    form = ShopDocumentForm(request.POST or None, request.FILES or None, instance=shop)
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        onboarding = request.session.setdefault('shop_onboarding', {})
-        onboarding['step'] = 'docs'
-        request.session['shop_onboarding'] = onboarding
-        messages.success(request, "Document uploaded (or skipped). Continue to choose a plan.")
-        return redirect('account:shop_plan')
-
-    return render(request, 'account/shop_docs.html', {'form': form})
+    return shop_onboarding(request, step='docs')
 
 
 def shop_plan(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    form = PlanSelectionForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        plan = form.cleaned_data.get('plan', None)
-        shop, _ = Shop.objects.get_or_create(owner=request.user)
-        if plan:
-            shop.subscription = plan
-            shop.is_active = True
-            shop.save()
-        else:
-            # default free plan: mark shop active but no plan
-            shop.is_active = True
-            shop.save()
-
-        request.user.role = 'shop'
-        request.user.save()
-        # clear onboarding session
-        request.session.pop('shop_onboarding', None)
-        messages.success(request, "Shop onboarding complete! Welcome.")
-        return redirect('shop:dashboard')
-
-    return render(request, 'account/shop_plan.html', {'form': form})
+    return shop_onboarding(request, step='plan')
 
 
 # -------------------------

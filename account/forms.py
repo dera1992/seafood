@@ -7,36 +7,25 @@ from .models import Profile, Shop, DispatcherProfile, SubscriptionPlan
 User = get_user_model()
 
 class UserRegistrationForm(forms.ModelForm):
-    first_name = forms.CharField(
-        widget=forms.TextInput(
-            attrs={'class': 'form-control', 'placeholder': 'Enter First Name', 'label': ''}
-        )
-    )
-    last_name = forms.CharField(
-        widget=forms.TextInput(
-            attrs={'class': 'form-control', 'placeholder': 'Enter Last Name', }
-        )
-    )
     password = forms.CharField(
-         widget=forms.PasswordInput(
+        widget=forms.PasswordInput(
             attrs={'class': 'form-control', 'placeholder': 'Password'}
-        ))
+        )
+    )
     password2 = forms.CharField(
-         widget=forms.PasswordInput(
+        widget=forms.PasswordInput(
             attrs={'class': 'form-control', 'placeholder': 'Repeat Password'}
-        ))
-    phone_number = forms.CharField(help_text=False,
-        widget=forms.TextInput(
-            attrs={'class': 'form-control', 'placeholder': 'Phone Number'}
-        ))
+        )
+    )
     email = forms.EmailField(
-       widget=forms.EmailInput(
-           attrs={'class': 'form-control', 'placeholder': 'Email'}
-       ))
+        widget=forms.EmailInput(
+            attrs={'class': 'form-control', 'placeholder': 'Email'}
+        )
+    )
 
     class Meta:
         model = User
-        fields = ('phone_number','email','first_name', 'last_name',)
+        fields = ('email',)
     # def clean_username(self):
     #     username = self.cleaned_data.get('username')
     #     if User.objects.filter(username=username).exists():
