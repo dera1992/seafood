@@ -94,6 +94,13 @@ class SubscriptionPlan(models.Model):
         return self.name
 
 class Shop(models.Model):
+    WEIGHT_UNIT_CHOICES = (
+        ("kg", "Kilogram (kg)"),
+        ("g", "Gram (g)"),
+        ("lb", "Pound (lb)"),
+        ("oz", "Ounce (oz)"),
+        ("unit", "Unit"),
+    )
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="shops")
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
@@ -103,6 +110,8 @@ class Shop(models.Model):
     country = models.CharField(max_length=100, blank=True, null=True)
     postal_code = models.CharField(max_length=20, blank=True, null=True)
     logo = models.ImageField(upload_to="shops/logos/", blank=True)
+    currency = models.CharField(max_length=8, default="NGN")
+    weight_unit = models.CharField(max_length=10, choices=WEIGHT_UNIT_CHOICES, default="kg")
 
     if settings.GIS_ENABLED:
         location = gis_models.PointField(geography=True, blank=True, null=True)
@@ -197,3 +206,28 @@ class ShopNotification(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.shop.name} - {self.product.title}"
+
+
+class ShopIntegration(models.Model):
+    PROVIDER_CHOICES = (
+        ("shopify", "Shopify"),
+        ("square", "Square"),
+        ("quickbooks", "QuickBooks"),
+    )
+
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name="integrations")
+    provider = models.CharField(max_length=50, choices=PROVIDER_CHOICES)
+    access_token = models.CharField(max_length=255, blank=True)
+    refresh_token = models.CharField(max_length=255, blank=True)
+    external_store_id = models.CharField(max_length=255, blank=True)
+    last_synced_at = models.DateTimeField(null=True, blank=True)
+    sync_status = models.CharField(max_length=50, default="pending")
+    metadata = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["shop", "provider"], name="unique_shop_provider"),
+        ]
+
+    def __str__(self):
+        return f"{self.shop.name} - {self.provider}"
