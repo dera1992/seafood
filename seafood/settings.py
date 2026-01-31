@@ -246,8 +246,8 @@ HITCOUNT_HITS_PER_IP_LIMIT = 0
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = env.str('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD', default='')
 
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = f"Bunchfood <{EMAIL_HOST_USER}>"

@@ -56,25 +56,6 @@ def register(request):
                   {'user_form': user_form})
 
 @login_required
-def select_role(request):
-    if request.method == "POST":
-        role = request.POST.get("role")
-        if role == "shop_owner":
-            role = "shop"
-        user = request.user
-        user.role = role
-        user.save()
-        if role == "customer":
-            Profile.objects.get_or_create(user=user)
-            return redirect("account:customer_setup")
-        elif role == "shop":
-            Shop.objects.get_or_create(owner=user)
-            return redirect("account:shop_info")
-        elif role == "dispatcher":
-            DispatcherProfile.objects.get_or_create(user=user)
-            return redirect("account:dispatcher_personal")
-    return render(request, "account/select_role.html")
-@login_required
 def edit(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
@@ -134,7 +115,7 @@ def activate(request, uidb64, token):
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
-        login(request, user)
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         messages.success(request, 'Your account has been confirm successfully')
         return redirect('home:home')
     else:
@@ -187,6 +168,11 @@ def customer_setup(request):
         return redirect('login')
 
     profile, _ = Profile.objects.get_or_create(user=request.user)
+    if request.method == 'GET' and request.GET.get('skip') == '1':
+        request.user.role = 'customer'
+        request.user.save()
+        messages.info(request, "You can complete your profile any time from your account settings.")
+        return redirect('home:dashboard')
     if request.method == 'POST':
         form = ProfileForm(request.POST, instance=profile)
         if form.is_valid():

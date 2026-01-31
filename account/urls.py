@@ -41,7 +41,6 @@ urlpatterns = [
 
     path('register/', views.register, name='register'),
 
-    path('select_role/', views.select_role, name='select_role'),
     path('edit/', views.edit, name='edit'),
     path('profile_display/', views.profile_display, name='profile_display'),
 
