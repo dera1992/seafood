@@ -1,18 +1,13 @@
 from django.urls import path, re_path
 from django.contrib.auth import views as auth_views
 from . import views
-from account.forms import EmailAuthenticationForm
 
 
 urlpatterns = [
     # path('login/', auth_views.LoginView.as_view(redirect_authenticated_user=True), name='login'),
     path(
         'login/',
-        auth_views.LoginView.as_view(
-            template_name='registration/login.html',
-            redirect_authenticated_user=True,
-            authentication_form=EmailAuthenticationForm
-        ),
+        views.AccountLoginView.as_view(),
         name='login'
     ),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
@@ -41,12 +36,11 @@ urlpatterns = [
 
     path('register/', views.register, name='register'),
 
-    path('select_role/', views.select_role, name='select_role'),
     path('edit/', views.edit, name='edit'),
     path('profile_display/', views.profile_display, name='profile_display'),
 
     re_path(
-        r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+        r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,50})/$',
         views.activate,
         name='activate',
     ),

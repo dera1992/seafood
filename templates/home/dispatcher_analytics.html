@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Dispatcher Analytics{% endblock %}
+
+{% block content %}
+<div class="breadcrumb-area mb-50">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <div class="breadcrumb-container">
+          <ul>
+            <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+            <li class="active">Dispatcher Analytics</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-section section mb-50">
+  <div class="container">
+    <div class="row mb-30">
+      <div class="col-12">
+        <h3 class="mb-2">Dispatcher Analytics</h3>
+        <p class="text-muted">Stay on top of delivery demand and fulfillment progress.</p>
+      </div>
+    </div>
+
+    <div class="row mb-30">
+      <div class="col-lg-3 col-md-6">
+        <div class="cart-summary">
+          <div class="cart-summary-wrap">
+            <h4>Ready for Dispatch</h4>
+            <p>Awaiting pickup <span>{{ delivery_ready }}</span></p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="cart-summary">
+          <div class="cart-summary-wrap">
+            <h4>Active Deliveries</h4>
+            <p>Out for delivery <span>{{ active_deliveries }}</span></p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="cart-summary">
+          <div class="cart-summary-wrap">
+            <h4>Completed</h4>
+            <p>Delivered orders <span>{{ completed_deliveries }}</span></p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="cart-summary">
+          <div class="cart-summary-wrap">
+            <h4>Items to Move</h4>
+            <p>Total items <span>{{ total_items|intcomma }}</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <div class="cart-summary">
+          <div class="cart-summary-wrap">
+            <h4>Dispatch Queue</h4>
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Order Ref</th>
+                    <th>Status</th>
+                    <th>Address</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for order in recent_dispatch_queue %}
+                    <tr>
+                      <td>{{ order.ref|default:"Order" }}</td>
+                      <td>{{ order.get_status_label }}</td>
+                      <td>
+                        {% if order.billing_address %}
+                          {{ order.billing_address.street_address }}, {{ order.billing_address.city }}
+                        {% else %}
+                          <span class="text-muted">Address pending</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="3" class="text-muted">No deliveries in the queue.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <p class="text-muted mb-0">Total orders in system: {{ total_orders }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

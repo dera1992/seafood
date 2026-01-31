@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.conf import settings
 from .models import (
     DispatcherProfile,
     Profile,
@@ -43,8 +44,16 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display = ['user' ,'phone', 'photo']
 
 
+if settings.GIS_ENABLED:
+    from django.contrib.gis.admin import GISModelAdmin
+
+    ShopAdminBase = GISModelAdmin
+else:
+    ShopAdminBase = admin.ModelAdmin
+
+
 @admin.register(Shop)
-class ShopAdmin(admin.ModelAdmin):
+class ShopAdmin(ShopAdminBase):
     list_display = ['name', 'owner', 'is_verified', 'created_at']
     list_filter = ['is_verified', 'created_at']
     search_fields = ['name', 'owner__email']
