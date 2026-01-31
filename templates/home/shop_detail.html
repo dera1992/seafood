@@ -151,6 +151,15 @@
                                     <input type="hidden" name="receiver_id" value="{{ shop.owner_id }}">
                                     <input type="hidden" name="shop_id" value="{{ shop.id }}">
                                     <div class="form-group">
+                                        <label for="chat-product">Product (optional)</label>
+                                        <select class="form-control" id="chat-product" name="product_id">
+                                            <option value="">General question</option>
+                                            {% for product in products %}
+                                                <option value="{{ product.id }}">{{ product.title }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
                                         <label for="chat-content">Message</label>
                                         <textarea class="form-control" id="chat-content" name="content" rows="4" placeholder="Ask about products, availability, or pickup options." required></textarea>
                                     </div>
