@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Q
 
@@ -70,6 +70,34 @@ def thread(request, shop_id, user_id):
             "products": products,
         },
     )
+
+
+@login_required
+def thread_messages(request, shop_id, user_id):
+    shop = get_object_or_404(Shop, id=shop_id)
+    other_user = get_object_or_404(User, id=user_id)
+    if request.user not in {shop.owner, other_user}:
+        return HttpResponseBadRequest("Invalid conversation.")
+    after_id = request.GET.get("after")
+    queryset = (
+        Message.objects.select_related("sender", "product")
+        .filter(shop=shop)
+        .filter(sender__in=[request.user, other_user], receiver__in=[request.user, other_user])
+        .order_by("timestamp")
+    )
+    if after_id:
+        queryset = queryset.filter(id__gt=after_id)
+    messages = [
+        {
+            "id": message.id,
+            "sender": message.sender.email,
+            "content": message.content,
+            "timestamp": message.timestamp.isoformat(),
+            "product": message.product.title if message.product else None,
+        }
+        for message in queryset
+    ]
+    return JsonResponse({"messages": messages})
 
 
 @login_required

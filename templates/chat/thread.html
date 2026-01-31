@@ -12,9 +12,11 @@
     <div class="card mb-4">
       <div class="card-body">
         {% if messages %}
-          <ul class="list-unstyled mb-0">
+          {% with last_message=messages|last %}
+            <ul class="list-unstyled mb-0" id="chat-messages" data-last-id="{{ last_message.id }}">
+          {% endwith %}
             {% for message in messages %}
-              <li class="mb-3">
+              <li class="mb-3" data-message-id="{{ message.id }}">
                 <div class="d-flex justify-content-between">
                   <strong>{{ message.sender.email }}</strong>
                   <small class="text-muted">{{ message.timestamp }}</small>
@@ -29,7 +31,8 @@
             {% endfor %}
           </ul>
         {% else %}
-          <p class="text-muted mb-0">No messages yet. Start the conversation below.</p>
+          <p class="text-muted mb-0" id="chat-empty">No messages yet. Start the conversation below.</p>
+          <ul class="list-unstyled mb-0 d-none" id="chat-messages" data-last-id=""></ul>
         {% endif %}
       </div>
     </div>
@@ -59,4 +62,54 @@
       </div>
     </div>
   </div>
+  <script>
+    (() => {
+      const messageList = document.getElementById("chat-messages");
+      if (!messageList) return;
+      let lastId = messageList.dataset.lastId;
+      const emptyState = document.getElementById("chat-empty");
+      const endpoint = "{% url 'chat:thread_messages' shop_id=shop.id user_id=other_user.id %}";
+
+      const renderMessage = (message) => {
+        const li = document.createElement("li");
+        li.className = "mb-3";
+        li.dataset.messageId = message.id;
+        li.innerHTML = `
+          <div class="d-flex justify-content-between">
+            <strong>${message.sender}</strong>
+            <small class="text-muted">${new Date(message.timestamp).toLocaleString()}</small>
+          </div>
+          ${message.product ? `<div class="mb-1"><span class="badge badge-info">Product: ${message.product}</span></div>` : ""}
+          <p class="mb-0"></p>
+        `;
+        li.querySelector("p").textContent = message.content;
+        return li;
+      };
+
+      const fetchMessages = async () => {
+        const url = new URL(endpoint, window.location.origin);
+        if (lastId) {
+          url.searchParams.set("after", lastId);
+        }
+        try {
+          const response = await fetch(url.toString(), { headers: { "X-Requested-With": "XMLHttpRequest" } });
+          if (!response.ok) return;
+          const data = await response.json();
+          if (!data.messages || !data.messages.length) return;
+          if (emptyState) {
+            emptyState.classList.add("d-none");
+            messageList.classList.remove("d-none");
+          }
+          data.messages.forEach((message) => {
+            messageList.appendChild(renderMessage(message));
+            lastId = message.id;
+          });
+        } catch (error) {
+          console.error("Unable to refresh messages", error);
+        }
+      };
+
+      setInterval(fetchMessages, 5000);
+    })();
+  </script>
 {% endblock %}
