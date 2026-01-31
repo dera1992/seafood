@@ -1,0 +1,92 @@
+{% extends "base_admin.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+
+{% block title %}Bulk Upload Products{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+    <div class="row page-titles">
+      <div class="col-6 align-self-center">
+        <h3>Bulk Upload Products</h3>
+      </div>
+      <div class="col-6 text-right font-12">
+        <a href="{% url 'home:home' %}">Home</a> &gt; Bulk Upload
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-12 col-md-12">
+        <div class="card">
+          <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="uploadFile">Upload CSV or XLSX</label>
+                <input type="file" id="uploadFile" name="upload_file" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label for="uploadMode">Import mode</label>
+                <select id="uploadMode" name="upload_mode" class="form-control">
+                  <option value="products">Create new products</option>
+                  <option value="inventory">Update inventory (barcode + stock)</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Upload</button>
+              <a href="{% url 'foodcreate:post' %}" class="btn btn-outline-secondary">Back to product form</a>
+            </form>
+          </div>
+        </div>
+
+        {% if created_count %}
+          <div class="alert alert-success">Created {{ created_count }} products.</div>
+        {% endif %}
+        {% if updated_inventory %}
+          <div class="alert alert-success">Updated {{ updated_inventory }} inventory records.</div>
+        {% endif %}
+
+        {% if errors %}
+          <div class="alert alert-danger">
+            <h5>Validation errors</h5>
+            <ul class="mb-0">
+              {% for error in errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
+        {% if preview_rows %}
+          <div class="card">
+            <div class="card-body">
+              <h5>Preview (first rows)</h5>
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Category</th>
+                      <th>Price</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in preview_rows %}
+                      <tr>
+                        <td>{{ row.title }}</td>
+                        <td>{{ row.category }}</td>
+                        <td>{{ row.price }}</td>
+                        <td>{{ row.status }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
