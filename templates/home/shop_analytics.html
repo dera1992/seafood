@@ -1,0 +1,222 @@
+{% extends "base_admin.html" %}
+{% load humanize %}
+
+{% block title %}Shop Analytics{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row page-titles">
+    <div class="col-12 align-self-center">
+      <h3>Shop Analytics &amp; Reporting</h3>
+      <p class="text-muted mb-0">Track sales, inventory health, and subscription performance in real time.</p>
+    </div>
+  </div>
+
+  {% if shop_cards %}
+    {% for card in shop_cards %}
+      <div class="row">
+        <div class="col-12">
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="d-flex flex-wrap align-items-center justify-content-between">
+                <div>
+                  <h4 class="mb-1">{{ card.shop.name }}</h4>
+                  <p class="text-muted mb-0">{{ card.shop.address }}{% if card.shop.city %}, {{ card.shop.city }}{% endif %}</p>
+                </div>
+                <div class="text-right">
+                  <span class="badge badge-info">Followers {{ card.follower_count }}</span>
+                  <span class="badge badge-success">Avg Rating {{ card.average_rating|floatformat:1 }}</span>
+                  <span class="badge badge-secondary">{{ card.review_count }} reviews</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-3 col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="text-muted mb-1">Total Revenue</h6>
+              <h3>{{ card.shop.currency }} {{ card.total_revenue|floatformat:2|intcomma }}</h3>
+              <p class="text-muted mb-0">Across {{ card.total_orders }} orders</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="text-muted mb-1">Items Sold</h6>
+              <h3>{{ card.total_items_sold|intcomma }}</h3>
+              <p class="text-muted mb-0">Avg order value {{ card.shop.currency }} {{ card.avg_order_value|floatformat:2|intcomma }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="text-muted mb-1">Customer Reach</h6>
+              <h3>{{ card.customer_count }}</h3>
+              <p class="text-muted mb-0">Unique buyers</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="text-muted mb-1">Low Stock Alerts</h6>
+              <h3>{{ card.low_stock_products|length }}</h3>
+              <p class="text-muted mb-0">Threshold ≤ {{ low_stock_threshold }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Top-Selling Items</h5>
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th class="text-right">Units</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in card.top_items %}
+                      <tr>
+                        <td>{{ item.item__title }}</td>
+                        <td class="text-right">{{ item.total_quantity }}</td>
+                      </tr>
+                    {% empty %}
+                      <tr>
+                        <td colspan="2" class="text-muted">No sales yet.</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Customer Demographics</h5>
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>City</th>
+                      <th class="text-right">Customers</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for city in card.customer_cities %}
+                      <tr>
+                        <td>{{ city.city }}</td>
+                        <td class="text-right">{{ city.total }}</td>
+                      </tr>
+                    {% empty %}
+                      <tr>
+                        <td colspan="2" class="text-muted">No customer location data available.</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Inventory Performance</h5>
+              <p class="text-muted">Automated low-stock alerts and popularity signals.</p>
+              <div class="mb-3">
+                <h6 class="text-muted">Low Stock</h6>
+                {% for product in card.low_stock_products %}
+                  <span class="badge badge-danger mr-1">{{ product.title }} ({{ product.stock }})</span>
+                {% empty %}
+                  <span class="text-muted">All products are healthy.</span>
+                {% endfor %}
+              </div>
+              <div class="mb-3">
+                <h6 class="text-muted">Popular Products</h6>
+                {% for product in card.popular_products %}
+                  <span class="badge badge-success mr-1">{{ product.item__title }} ({{ product.total_quantity }})</span>
+                {% empty %}
+                  <span class="text-muted">No popularity data yet.</span>
+                {% endfor %}
+              </div>
+              <div>
+                <h6 class="text-muted">Slow Movers</h6>
+                {% for product in card.slow_movers %}
+                  <span class="badge badge-warning mr-1">{{ product.title }}</span>
+                {% empty %}
+                  <span class="text-muted">No slow movers detected.</span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Subscription Insights</h5>
+              <p class="text-muted mb-2">Review plan status, upgrade options, and performance.</p>
+              <div class="mb-3">
+                <h6 class="text-muted">Current Plan</h6>
+                <p class="mb-1"><strong>{{ card.current_plan.name|default:"No Plan" }}</strong></p>
+                <p class="text-muted mb-0">
+                  Status:
+                  {% if card.subscription_active %}
+                    <span class="text-success">Active</span>
+                  {% else %}
+                    <span class="text-warning">Inactive</span>
+                  {% endif %}
+                  {% if card.days_left is not None %}
+                    • {{ card.days_left }} days left
+                  {% endif %}
+                </p>
+              </div>
+              <div class="mb-3">
+                <h6 class="text-muted">Performance Snapshot</h6>
+                <p class="mb-1">Customer reach: {{ card.customer_count }} buyers</p>
+                <p class="mb-1">Follower growth: {{ card.follower_count }} followers</p>
+                <p class="mb-0">Customer feedback: {{ card.average_rating|floatformat:1 }} avg rating</p>
+              </div>
+              <div>
+                <h6 class="text-muted">Upgrade Options</h6>
+                <ul class="list-unstyled mb-0">
+                  {% for plan in subscription_plans %}
+                    <li class="mb-1">
+                      <strong>{{ plan.name }}</strong> • {{ card.shop.currency }} {{ plan.price|floatformat:2|intcomma }} • {{ plan.product_limit }} products
+                    </li>
+                  {% empty %}
+                    <li class="text-muted">No subscription plans available.</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="card">
+      <div class="card-body">
+        <h5>No shops found</h5>
+        <p class="text-muted mb-0">Create a shop to see analytics, inventory reports, and subscription insights.</p>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

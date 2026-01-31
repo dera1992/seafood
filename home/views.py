@@ -7,12 +7,20 @@ from foodCreate.forms import ReviewForm
 from foodCreate.models import Products, ProductsImages, Category, SubCategory, ReviewRating
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Avg, Count
-from django.db.models import Q
+from django.db.models import Avg, Count, Q, Sum
+from django.utils import timezone
 from django.contrib import messages
 from django.http import HttpResponseRedirect, Http404,HttpResponse, JsonResponse
 
-from account.models import Profile, User, Shop, ShopFollower, ShopNotification
+from account.models import (
+    Profile,
+    Shop,
+    ShopFollower,
+    ShopNotification,
+    ShopSubscription,
+    SubscriptionPlan,
+    User,
+)
 from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from blog.models import Post
@@ -51,8 +59,200 @@ def dashboard(request, category_slug=None):
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
         ads = ads.filter(category=category)
-    return render(request,'home/dashboard.html', {'category': category,'categories': categories,'ads': ads,'latests':latests,
-                                              'users':users,'blog':blog,'order':order})
+    return render(
+        request,
+        'home/dashboard.html',
+        {
+            'category': category,
+            'categories': categories,
+            'ads': ads,
+            'latests': latests,
+            'users': users,
+            'blog': blog,
+            'order': order,
+            'counts': counts,
+        },
+    )
+
+
+@login_required
+def customer_analytics(request):
+    if request.user.role != "customer" and not request.user.is_superuser:
+        raise Http404()
+    completed_orders = (
+        Order.objects.filter(user=request.user)
+        .filter(Q(is_ordered=True) | Q(paid=True) | Q(verified=True))
+    )
+    order_items = OrderItem.objects.filter(order__in=completed_orders).select_related(
+        "item", "item__category", "item__shop"
+    )
+    total_spend = sum(item.get_final_price() for item in order_items)
+    total_orders = completed_orders.count()
+    total_items = order_items.aggregate(total=Sum("quantity"))["total"] or 0
+    avg_order_value = total_spend / total_orders if total_orders else 0
+    top_categories = (
+        order_items.values("item__category__name")
+        .annotate(total_quantity=Sum("quantity"))
+        .order_by("-total_quantity")[:5]
+    )
+    top_shops = (
+        order_items.values("item__shop__name")
+        .annotate(total_quantity=Sum("quantity"))
+        .order_by("-total_quantity")[:5]
+    )
+    wishlist_count = WishlistItem.objects.filter(user=request.user).count()
+    unread_notifications = WishlistNotification.objects.filter(
+        user=request.user, is_read=False
+    ).count()
+    subscribed_shops = ShopFollower.objects.filter(user=request.user).select_related("shop")
+
+    context = {
+        "completed_orders": completed_orders[:5],
+        "total_spend": total_spend,
+        "total_orders": total_orders,
+        "total_items": total_items,
+        "avg_order_value": avg_order_value,
+        "top_categories": top_categories,
+        "top_shops": top_shops,
+        "wishlist_count": wishlist_count,
+        "unread_notifications": unread_notifications,
+        "subscribed_shops": subscribed_shops[:5],
+    }
+    return render(request, "home/customer_analytics.html", context)
+
+
+@login_required
+def dispatcher_analytics(request):
+    if request.user.role != "dispatcher" and not request.user.is_superuser:
+        raise Http404()
+    delivery_ready = Order.objects.filter(Q(paid=True) | Q(verified=True)).filter(
+        being_delivered=False, received=False
+    )
+    active_deliveries = Order.objects.filter(being_delivered=True, received=False)
+    completed_deliveries = Order.objects.filter(received=True)
+    all_orders = Order.objects.all()
+    total_orders = all_orders.count()
+    total_items = (
+        OrderItem.objects.filter(order__in=all_orders)
+        .aggregate(total=Sum("quantity"))["total"]
+        or 0
+    )
+    recent_dispatch_queue = (
+        Order.objects.filter(received=False)
+        .select_related("billing_address")
+        .order_by("-updated")[:6]
+    )
+
+    context = {
+        "delivery_ready": delivery_ready.count(),
+        "active_deliveries": active_deliveries.count(),
+        "completed_deliveries": completed_deliveries.count(),
+        "total_orders": total_orders,
+        "total_items": total_items,
+        "recent_dispatch_queue": recent_dispatch_queue,
+    }
+    return render(request, "home/dispatcher_analytics.html", context)
+
+
+@login_required
+def shop_analytics(request):
+    if request.user.role != "shop" and not request.user.is_superuser:
+        raise Http404()
+    shops = Shop.objects.filter(owner=request.user).prefetch_related("followers")
+    subscription_plans = SubscriptionPlan.objects.order_by("price")
+    low_stock_threshold = 5
+    shop_cards = []
+
+    for shop in shops:
+        completed_orders = (
+            Order.objects.filter(items__item__shop=shop)
+            .filter(Q(is_ordered=True) | Q(paid=True) | Q(verified=True))
+            .distinct()
+        )
+        order_items = (
+            OrderItem.objects.filter(item__shop=shop, order__in=completed_orders)
+            .select_related("item")
+        )
+        total_revenue = sum(item.get_final_price() for item in order_items)
+        total_orders = completed_orders.count()
+        total_items_sold = order_items.aggregate(total=Sum("quantity"))["total"] or 0
+        avg_order_value = total_revenue / total_orders if total_orders else 0
+
+        top_items = (
+            order_items.values("item__title")
+            .annotate(total_quantity=Sum("quantity"))
+            .order_by("-total_quantity")[:5]
+        )
+
+        customer_ids = list(completed_orders.values_list("user_id", flat=True).distinct())
+        customer_cities = (
+            Profile.objects.filter(user_id__in=customer_ids)
+            .exclude(city__isnull=True)
+            .exclude(city__exact="")
+            .values("city")
+            .annotate(total=Count("id"))
+            .order_by("-total")[:5]
+        )
+
+        low_stock_products = (
+            Products.objects.filter(shop=shop, is_active=True, stock__lte=low_stock_threshold)
+            .order_by("stock")
+        )
+
+        popular_products = (
+            order_items.values("item__title")
+            .annotate(total_quantity=Sum("quantity"))
+            .order_by("-total_quantity")[:5]
+        )
+
+        slow_movers = (
+            Products.objects.filter(shop=shop, is_active=True)
+            .exclude(order_items__order__in=completed_orders)
+            .order_by("stock")[:5]
+        )
+
+        subscription = ShopSubscription.objects.filter(shop=shop).select_related("plan").first()
+        current_plan = subscription.plan if subscription and subscription.plan else shop.subscription
+        subscription_active = subscription.is_active() if subscription else False
+        days_left = None
+        if subscription and subscription.end_date:
+            days_left = max((subscription.end_date - timezone.now()).days, 0)
+
+        review_summary = ReviewRating.objects.filter(post__shop=shop, status=True).aggregate(
+            average=Avg("rating"), total=Count("id")
+        )
+        average_rating = review_summary["average"] or 0
+        review_count = review_summary["total"] or 0
+
+        shop_cards.append(
+            {
+                "shop": shop,
+                "total_revenue": total_revenue,
+                "total_orders": total_orders,
+                "total_items_sold": total_items_sold,
+                "avg_order_value": avg_order_value,
+                "top_items": top_items,
+                "customer_cities": customer_cities,
+                "customer_count": len(customer_ids),
+                "low_stock_products": low_stock_products,
+                "popular_products": popular_products,
+                "slow_movers": slow_movers,
+                "subscription": subscription,
+                "current_plan": current_plan,
+                "subscription_active": subscription_active,
+                "days_left": days_left,
+                "follower_count": shop.followers.count(),
+                "average_rating": average_rating,
+                "review_count": review_count,
+            }
+        )
+
+    context = {
+        "shop_cards": shop_cards,
+        "subscription_plans": subscription_plans,
+        "low_stock_threshold": low_stock_threshold,
+    }
+    return render(request, "home/shop_analytics.html", context)
 
 def category_chart(request):
     labels = []
