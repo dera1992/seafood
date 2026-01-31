@@ -22,7 +22,7 @@ class EnsureRoleMiddleware:
                 path = request.path
                 # allow static, admin, API and onboarding URLs through
                 if not any(path.startswith(p) for p in allowed_paths) and not path.startswith('/admin'):
-                    return redirect('account:choose_role')
+                    return redirect('choose_role')
             else:
                 path = request.path
                 if request.user.role == 'shop':

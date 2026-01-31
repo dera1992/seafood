@@ -137,7 +137,7 @@ def choose_role(request):
         role = request.POST.get('role')
         if role not in ('customer', 'shop', 'dispatcher'):
             messages.error(request, "Invalid role selected.")
-            return redirect('account:choose_role')
+            return redirect('choose_role')
 
         # Save role on user
         user = request.user
@@ -146,16 +146,16 @@ def choose_role(request):
 
         if role == 'customer':
             Profile.objects.get_or_create(user=user)
-            return redirect('account:customer_setup')
+            return redirect('customer_setup')
         elif role == 'shop':
             Shop.objects.get_or_create(owner=user)
             # initialize shop onboarding in session
             request.session['shop_onboarding'] = {}
-            return redirect('account:shop_info')
+            return redirect('shop_info')
         else:
             # dispatcher
             DispatcherProfile.objects.get_or_create(user=user)
-            return redirect('account:dispatcher_personal')
+            return redirect('dispatcher_personal')
 
     return render(request, 'account/choose_role.html')
 
@@ -230,17 +230,17 @@ def shop_onboarding(request, step='info'):
             request.user.save()
             request.session.pop('shop_onboarding', None)
             messages.success(request, "Shop onboarding complete! Welcome.")
-            return redirect('shop:dashboard')
+            return redirect('home:dashboard')
 
         current_index = steps.index(step)
         request.session['shop_onboarding'] = {'step': step}
         next_step = steps[current_index + 1]
         next_map = {
-            'info': 'account:shop_address',
-            'address': 'account:shop_docs',
-            'docs': 'account:shop_plan',
+            'info': 'shop_address',
+            'address': 'shop_docs',
+            'docs': 'shop_plan',
         }
-        return redirect(next_map.get(step, 'account:shop_info'))
+        return redirect(next_map.get(step, 'shop_info'))
 
     current_index = steps.index(step)
     progress_percent = int(((current_index + 1) / len(steps)) * 100)
@@ -251,10 +251,10 @@ def shop_onboarding(request, step='info'):
         'plan': 'Plan',
     }
     step_urls = {
-        'info': reverse('account:shop_info'),
-        'address': reverse('account:shop_address'),
-        'docs': reverse('account:shop_docs'),
-        'plan': reverse('account:shop_plan'),
+        'info': reverse('shop_info'),
+        'address': reverse('shop_address'),
+        'docs': reverse('shop_docs'),
+        'plan': reverse('shop_plan'),
     }
     step_items = [
         {
@@ -313,7 +313,7 @@ def dispatcher_personal(request):
     if request.method == 'POST' and form.is_valid():
         form.save()
         request.session['dispatcher_onboarding'] = {'step': 'personal'}
-        return redirect('account:dispatcher_vehicle')
+        return redirect('dispatcher_vehicle')
 
     return render(request, 'account/dispatcher_personal.html', {'form': form})
 
@@ -332,6 +332,6 @@ def dispatcher_vehicle(request):
         request.user.role = 'dispatcher'
         request.user.save()
         messages.success(request, "Dispatcher application submitted and is pending admin approval.")
-        return redirect('dispatcher:pending')  # a page informing them of pending review
+        return redirect('home:dashboard')  # a page informing them of pending review
 
     return render(request, 'account/dispatcher_vehicle.html', {'form': form})
