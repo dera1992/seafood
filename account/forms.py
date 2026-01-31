@@ -12,8 +12,8 @@ User = get_user_model()
 
 
 def verify_recaptcha(token, remote_ip=None):
-    if not settings.RECAPTCHA_SECRET_KEY:
-        raise ValidationError("reCAPTCHA is not configured. Please contact support.")
+    if not settings.RECAPTCHA_SECRET_KEY or not settings.RECAPTCHA_SITE_KEY:
+        return
     if not token:
         raise ValidationError("Please complete the reCAPTCHA.")
     payload = {
