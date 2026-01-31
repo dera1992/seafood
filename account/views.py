@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth import login
 from django.contrib.auth import get_user_model
@@ -10,7 +11,7 @@ from django.utils.encoding import force_bytes
 from account.tokens import account_activation_token
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, send_mail
 from django.template.loader import get_template
 
 from .forms import (
@@ -226,10 +227,33 @@ def shop_onboarding(request, step='info'):
             shop.is_active = True
             shop.save()
 
+            admin_emails = list(
+                User.objects.filter(is_staff=True, is_superuser=True)
+                .exclude(email="")
+                .values_list("email", flat=True)
+            )
+            if admin_emails:
+                send_mail(
+                    "New shop account opened",
+                    (
+                        f"A new shop account has been opened.\n\n"
+                        f"Shop: {shop.name}\n"
+                        f"Owner: {request.user.email}\n"
+                        f"Shop ID: {shop.id}"
+                    ),
+                    getattr(settings, "DEFAULT_FROM_EMAIL", "no-reply@seafood.local"),
+                    admin_emails,
+                    fail_silently=True,
+                )
+
             request.user.role = 'shop'
             request.user.save()
             request.session.pop('shop_onboarding', None)
             messages.success(request, "Shop onboarding complete! Welcome.")
+            messages.warning(
+                request,
+                "Your shop account has been submitted. Activation can take up to 24 hours.",
+            )
             return redirect('shop:dashboard')
 
         current_index = steps.index(step)
