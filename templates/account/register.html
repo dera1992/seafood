@@ -5,6 +5,13 @@
 
 {% block title %}Register{% endblock %}
 
+{% block extra_head %}
+    {{ block.super }}
+    {% if recaptcha_site_key %}
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     <div class="breadcrumb-area mb-50">
         <div class="container">
@@ -30,6 +37,7 @@
 						<div class="login-form">
 							<h4 class="login-title" style="text-align:center;">Register</h4>
 
+                            {% bootstrap_form_errors user_form %}
 							<div class="row">
 								<div class="col-12 mb-20">
 									{% bootstrap_field user_form.email %}
@@ -40,6 +48,11 @@
 								<div class="col-md-6 mb-20">
 									{% bootstrap_field user_form.password2 %}
 								</div>
+                                <div class="col-12 mb-20">
+                                    {% if recaptcha_site_key %}
+									    <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+                                    {% endif %}
+                                </div>
 
 								<div class="col-12">
 									<button class="register-button mt-0">Register</button>

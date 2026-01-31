@@ -216,6 +216,13 @@ LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 LOGOUT_REDIRECT_URL = '/'
 
+RECAPTCHA_SITE_KEY = env("RECAPTCHA_SITE_KEY", default="")
+RECAPTCHA_SECRET_KEY = env("RECAPTCHA_SECRET_KEY", default="")
+RECAPTCHA_VERIFY_URL = env(
+    "RECAPTCHA_VERIFY_URL",
+    default="https://www.google.com/recaptcha/api/siteverify",
+)
+
 
 SOCIAL_AUTH_FACEBOOK_KEY = ''
 SOCIAL_AUTH_FACEBOOK_SECRET = ''
