@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h1 class="mb-1">{{ shop.name }}</h1>
+        <p class="text-muted mb-0">Chatting with {{ other_user.email }}</p>
+      </div>
+      <a href="{% url 'chat:inbox' %}" class="btn btn-outline-secondary btn-sm">Back to inbox</a>
+    </div>
+
+    <div class="alert alert-info d-none" id="chat-notice">New message received.</div>
+    <div class="card mb-4">
+      <div class="card-body">
+        {% if messages %}
+          <ul class="list-unstyled mb-0" id="chat-messages" data-last-id="{{ last_message_id }}" data-current-user="{{ request.user.email }}">
+            {% for message in messages %}
+              <li class="mb-3" data-message-id="{{ message.id }}">
+                {% if message.sender == shop.owner %}
+                  <div class="text-right">
+                    <div class="d-flex justify-content-end">
+                      <small class="text-muted mr-2">{{ message.timestamp }}</small>
+                      <strong>{{ message.sender.email }}</strong>
+                    </div>
+                    {% if message.product %}
+                      <div class="mb-1">
+                        <span class="badge badge-info">Product: {{ message.product.title }}</span>
+                      </div>
+                    {% endif %}
+                    <p class="mb-0">{{ message.content }}</p>
+                  </div>
+                {% else %}
+                  <div>
+                    <div class="d-flex justify-content-start">
+                      <strong>{{ message.sender.email }}</strong>
+                      <small class="text-muted ml-2">{{ message.timestamp }}</small>
+                    </div>
+                    {% if message.product %}
+                      <div class="mb-1">
+                        <span class="badge badge-info">Product: {{ message.product.title }}</span>
+                      </div>
+                    {% endif %}
+                    <p class="mb-0">{{ message.content }}</p>
+                  </div>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0" id="chat-empty">No messages yet. Start the conversation below.</p>
+          <ul class="list-unstyled mb-0 d-none" id="chat-messages" data-last-id="" data-current-user="{{ request.user.email }}"></ul>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Send a reply</h4>
+        <form method="post" action="{% url 'chat:send_message' %}">
+          {% csrf_token %}
+          <input type="hidden" name="receiver_id" value="{{ other_user.id }}">
+          <input type="hidden" name="shop_id" value="{{ shop.id }}">
+          <div class="form-group">
+            <label for="chat-product">Product (optional)</label>
+            <select class="form-control" id="chat-product" name="product_id">
+              <option value="">General question</option>
+              {% for product in products %}
+                <option value="{{ product.id }}">{{ product.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="chat-content">Message</label>
+            <textarea class="form-control" id="chat-content" name="content" rows="4" placeholder="Write your reply..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Send reply</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+    (() => {
+      const messageList = document.getElementById("chat-messages");
+      if (!messageList) return;
+      let lastId = messageList.dataset.lastId;
+      const emptyState = document.getElementById("chat-empty");
+      const notice = document.getElementById("chat-notice");
+      const currentUser = messageList.dataset.currentUser;
+      const endpoint = "{% url 'chat:thread_messages' shop_id=shop.id user_id=other_user.id %}";
+
+      const renderMessage = (message) => {
+        const li = document.createElement("li");
+        li.className = "mb-3";
+        li.dataset.messageId = message.id;
+        const timestamp = new Date(message.timestamp).toLocaleString();
+        const productBadge = message.product
+          ? `<div class="mb-1"><span class="badge badge-info">Product: ${message.product}</span></div>`
+          : "";
+        if (message.sender === "{{ shop.owner.email }}") {
+          li.innerHTML = `
+            <div class="text-right">
+              <div class="d-flex justify-content-end">
+                <small class="text-muted mr-2">${timestamp}</small>
+                <strong>${message.sender}</strong>
+              </div>
+              ${productBadge}
+              <p class="mb-0"></p>
+            </div>
+          `;
+        } else {
+          li.innerHTML = `
+            <div>
+              <div class="d-flex justify-content-start">
+                <strong>${message.sender}</strong>
+                <small class="text-muted ml-2">${timestamp}</small>
+              </div>
+              ${productBadge}
+              <p class="mb-0"></p>
+            </div>
+          `;
+        }
+        li.querySelector("p").textContent = message.content;
+        return li;
+      };
+
+      const fetchMessages = async () => {
+        const url = new URL(endpoint, window.location.origin);
+        if (lastId) {
+          url.searchParams.set("after", lastId);
+        }
+        try {
+          const response = await fetch(url.toString(), { headers: { "X-Requested-With": "XMLHttpRequest" } });
+          if (!response.ok) return;
+          const data = await response.json();
+          if (!data.messages || !data.messages.length) return;
+          if (emptyState) {
+            emptyState.classList.add("d-none");
+            messageList.classList.remove("d-none");
+          }
+          data.messages.forEach((message) => {
+            messageList.appendChild(renderMessage(message));
+            lastId = message.id;
+          });
+          const hasIncoming = data.messages.some((message) => message.sender !== currentUser);
+          if (notice && hasIncoming) {
+            notice.classList.remove("d-none");
+            setTimeout(() => notice.classList.add("d-none"), 3000);
+          }
+        } catch (error) {
+          console.error("Unable to refresh messages", error);
+        }
+      };
+
+      setInterval(fetchMessages, 5000);
+    })();
+  </script>
+{% endblock %}

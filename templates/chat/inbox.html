@@ -1,17 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1>Inbox</h1>
-  {% if messages %}
-    <ul>
-      {% for message in messages %}
-        <li>
-          <strong>{{ message.sender.email }}</strong>:
-          {{ message.content }}
-          <small>({{ message.timestamp }})</small>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No messages yet.</p>
-  {% endif %}
+  <div class="container mt-4">
+    <h1 class="mb-4">Inbox</h1>
+    {% if conversations %}
+      <div class="list-group">
+        {% for convo in conversations %}
+          <a class="list-group-item list-group-item-action" href="{% url 'chat:thread' shop_id=convo.shop.id user_id=convo.other_user.id %}">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">{{ convo.shop.name }}</h5>
+              <small>{{ convo.last_message.timestamp }}</small>
+            </div>
+            <p class="mb-1">
+              <strong>{{ convo.other_user.email }}</strong>
+              {% if convo.last_message.product %}
+                <span class="badge badge-light">Product: {{ convo.last_message.product.title }}</span>
+              {% endif %}
+              {% if convo.unread_count %}
+                <span class="badge badge-danger">{{ convo.unread_count }} new</span>
+              {% endif %}
+            </p>
+            <small class="text-muted">{{ convo.last_message.content|truncatechars:120 }}</small>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-info">No messages yet.</div>
+    {% endif %}
+  </div>
 {% endblock %}
