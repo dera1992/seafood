@@ -901,7 +901,7 @@
                         const params = new URLSearchParams({
                             lat: position.coords.latitude,
                             lng: position.coords.longitude,
-                            radius: radius,
+                            radius_km: radius,
                         });
                         try {
                             const response = await fetch(`${endpoint}?${params.toString()}`);

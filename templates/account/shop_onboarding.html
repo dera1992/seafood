@@ -77,10 +77,51 @@
                                     <div class="col-md-6 mb-20">
                                         {% bootstrap_field form.postal_code %}
                                     </div>
+                                    {{ form.latitude }}
+                                    {{ form.longitude }}
                                     <div class="col-12 mb-20">
-                                        {% bootstrap_field form.location %}
+                                        <p class="text-muted text-center mb-0" id="geo-status" role="status" aria-live="polite"></p>
                                     </div>
                                 </div>
+                                <script>
+                                    (() => {
+                                        const latitudeInput = document.getElementById("latitude");
+                                        const longitudeInput = document.getElementById("longitude");
+                                        const statusElement = document.getElementById("geo-status");
+                                        if (!latitudeInput || !longitudeInput || !statusElement) {
+                                            return;
+                                        }
+
+                                        const setStatus = (message, tone = "text-muted") => {
+                                            statusElement.textContent = message;
+                                            statusElement.className = `text-center mb-0 ${tone}`;
+                                        };
+
+                                        if (!navigator.geolocation) {
+                                            setStatus("Geolocation is not supported by your browser.", "text-danger");
+                                            return;
+                                        }
+
+                                        if (latitudeInput.value && longitudeInput.value) {
+                                            return;
+                                        }
+
+                                        navigator.geolocation.getCurrentPosition(
+                                            (position) => {
+                                                latitudeInput.value = position.coords.latitude.toFixed(6);
+                                                longitudeInput.value = position.coords.longitude.toFixed(6);
+                                                setStatus("Location captured from your browser.", "text-success");
+                                            },
+                                            () => {
+                                                setStatus(
+                                                    "We could not access your location; please enter address manually.",
+                                                    "text-danger"
+                                                );
+                                            },
+                                            { timeout: 10000 }
+                                        );
+                                    })();
+                                </script>
                             {% elif current_step == 'docs' %}
                                 <h4 class="login-title" style="text-align:center;">Business documents</h4>
                                 <p class="text-muted text-center mb-4">Upload proof of business ownership (optional).</p>
