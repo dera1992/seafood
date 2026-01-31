@@ -14,10 +14,13 @@ class AdsForm(forms.ModelForm):
 
     class Meta:
         model = Products
-        fields = ('title', 'category','subcategory','price','discount_price','description','label','status','delivery','available')
+        fields = ('title', 'category','subcategory','price','discount_price','description','label','status','delivery','available', 'barcode')
 
     def __init__(self, *args, **kwargs):
+        currency = kwargs.pop("currency", None)
         super().__init__(*args, **kwargs)
+        if currency:
+            self.fields["price"].widget.attrs["placeholder"] = currency
         self.fields['subcategory'].queryset = SubCategory.objects.none()
 
         if 'category' in self.data:
@@ -50,10 +53,13 @@ class AdsEditForm(forms.ModelForm):
 
     class Meta:
         model = Products
-        fields = ('title', 'category','subcategory','price','discount_price','description','label','status','delivery','available')
+        fields = ('title', 'category','subcategory','price','discount_price','description','label','status','delivery','available', 'barcode')
 
     def __init__(self, *args, **kwargs):
+        currency = kwargs.pop("currency", None)
         super().__init__(*args, **kwargs)
+        if currency:
+            self.fields["price"].widget.attrs["placeholder"] = currency
         self.fields['subcategory'].queryset = SubCategory.objects.none()
 
         if 'category' in self.data:
@@ -76,4 +82,3 @@ class ReviewForm(forms.ModelForm):
     class Meta:
         model = ReviewRating
         fields = ["subject", "review", "rating"]
-

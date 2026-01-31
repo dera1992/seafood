@@ -33,6 +33,15 @@
                                     {% if user.is_superuser %}
                                     <li class="dropdown-item"><a href="{% url "home:dashboard" %}">Dashboard</a></li>
                                     {% endif %}
+                                    {% if request.user.role == "customer" %}
+                                    <li class="dropdown-item"><a href="{% url "home:customer_analytics" %}">My Analytics</a></li>
+                                    {% endif %}
+                                    {% if request.user.role == "dispatcher" %}
+                                    <li class="dropdown-item"><a href="{% url "home:dispatcher_analytics" %}">Dispatcher Analytics</a></li>
+                                    {% endif %}
+                                    {% if request.user.role == "shop" %}
+                                    <li class="dropdown-item"><a href="{% url "home:shop_analytics" %}">Shop Analytics</a></li>
+                                    {% endif %}
                                     <li class="dropdown-item"><a href="{% url "home:shop_notifications" %}">Shop notifications</a></li>
                                     <li class="dropdown-item"><a href="{% url "profile_display" %}">Profile</a></li>
                                     <li class="dropdown-item"><a href="{% url "password_change" %}">Change Password</a></li>
