@@ -94,6 +94,13 @@ class SubscriptionPlan(models.Model):
         return self.name
 
 class Shop(models.Model):
+    WEIGHT_UNIT_CHOICES = (
+        ("kg", "Kilogram (kg)"),
+        ("g", "Gram (g)"),
+        ("lb", "Pound (lb)"),
+        ("oz", "Ounce (oz)"),
+        ("unit", "Unit"),
+    )
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="shops")
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
@@ -102,10 +109,14 @@ class Shop(models.Model):
     state = models.CharField(max_length=100, blank=True, null=True)
     country = models.CharField(max_length=100, blank=True, null=True)
     postal_code = models.CharField(max_length=20, blank=True, null=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     logo = models.ImageField(upload_to="shops/logos/", blank=True)
+    currency = models.CharField(max_length=8, default="NGN")
+    weight_unit = models.CharField(max_length=10, choices=WEIGHT_UNIT_CHOICES, default="kg")
 
     if settings.GIS_ENABLED:
-        location = gis_models.PointField(geography=True, blank=True, null=True)
+        location = gis_models.PointField(geography=True, srid=4326, blank=True, null=True)
     else:
         location = models.CharField(max_length=255, blank=True, null=True)
 
@@ -130,8 +141,10 @@ class Shop(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if settings.GIS_ENABLED and not self.location:
-            if self.address and self.city and self.country:
+        if settings.GIS_ENABLED:
+            if self.latitude is not None and self.longitude is not None:
+                self.location = Point(float(self.longitude), float(self.latitude), srid=4326)
+            elif not self.location and self.address and self.city and self.country:
                 geolocator = Nominatim(user_agent="ecommerce_app")
                 location = geolocator.geocode(f"{self.address}, {self.city}, {self.country}")
                 if location:
@@ -197,3 +210,28 @@ class ShopNotification(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.shop.name} - {self.product.title}"
+
+
+class ShopIntegration(models.Model):
+    PROVIDER_CHOICES = (
+        ("shopify", "Shopify"),
+        ("square", "Square"),
+        ("quickbooks", "QuickBooks"),
+    )
+
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name="integrations")
+    provider = models.CharField(max_length=50, choices=PROVIDER_CHOICES)
+    access_token = models.CharField(max_length=255, blank=True)
+    refresh_token = models.CharField(max_length=255, blank=True)
+    external_store_id = models.CharField(max_length=255, blank=True)
+    last_synced_at = models.DateTimeField(null=True, blank=True)
+    sync_status = models.CharField(max_length=50, default="pending")
+    metadata = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["shop", "provider"], name="unique_shop_provider"),
+        ]
+
+    def __str__(self):
+        return f"{self.shop.name} - {self.provider}"

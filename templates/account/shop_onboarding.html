@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+
+{% block title %}Shop Onboarding{% endblock %}
+
+{% block content %}
+    <div class="breadcrumb-area mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="breadcrumb-container">
+                        <ul>
+                            <li><a href="{% url 'home:home' %}"><i class="fa fa-home"></i> Home</a></li>
+                            <li class="active">Shop Onboarding</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-content mb-50">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-12 col-lg-8">
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            {% for item in step_items %}
+                                {% if item.is_current %}
+                                    <span class="small fw-bold">{{ item.label }}</span>
+                                {% else %}
+                                    <a class="small {% if item.is_complete %}text-success{% else %}text-muted{% endif %}" href="{{ item.url }}">
+                                        {{ item.label }}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ progress_percent }}%"></div>
+                        </div>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="login-form">
+                            {% if current_step == 'info' %}
+                                <h4 class="login-title" style="text-align:center;">Shop basics</h4>
+                                <p class="text-muted text-center mb-4">Tell customers about your shop and upload a logo.</p>
+                                <div class="row">
+                                    <div class="col-12 mb-20">
+                                        {% bootstrap_field form.name %}
+                                    </div>
+                                    <div class="col-12 mb-20">
+                                        {% bootstrap_field form.description %}
+                                    </div>
+                                    <div class="col-12 mb-20">
+                                        {% bootstrap_field form.logo %}
+                                    </div>
+                                </div>
+                            {% elif current_step == 'address' %}
+                                <h4 class="login-title" style="text-align:center;">Shop address</h4>
+                                <p class="text-muted text-center mb-4">Add your shop location so customers can find you.</p>
+                                <div class="row">
+                                    <div class="col-12 mb-20">
+                                        {% bootstrap_field form.address %}
+                                    </div>
+                                    <div class="col-md-6 mb-20">
+                                        {% bootstrap_field form.city %}
+                                    </div>
+                                    <div class="col-md-6 mb-20">
+                                        {% bootstrap_field form.state %}
+                                    </div>
+                                    <div class="col-md-6 mb-20">
+                                        {% bootstrap_field form.country %}
+                                    </div>
+                                    <div class="col-md-6 mb-20">
+                                        {% bootstrap_field form.postal_code %}
+                                    </div>
+                                    {{ form.latitude }}
+                                    {{ form.longitude }}
+                                    <div class="col-12 mb-20">
+                                        <p class="text-muted text-center mb-0" id="geo-status" role="status" aria-live="polite"></p>
+                                    </div>
+                                </div>
+                                <script>
+                                    (() => {
+                                        const latitudeInput = document.getElementById("latitude");
+                                        const longitudeInput = document.getElementById("longitude");
+                                        const statusElement = document.getElementById("geo-status");
+                                        if (!latitudeInput || !longitudeInput || !statusElement) {
+                                            return;
+                                        }
+
+                                        const setStatus = (message, tone = "text-muted") => {
+                                            statusElement.textContent = message;
+                                            statusElement.className = `text-center mb-0 ${tone}`;
+                                        };
+
+                                        if (!navigator.geolocation) {
+                                            setStatus("Geolocation is not supported by your browser.", "text-danger");
+                                            return;
+                                        }
+
+                                        if (latitudeInput.value && longitudeInput.value) {
+                                            return;
+                                        }
+
+                                        navigator.geolocation.getCurrentPosition(
+                                            (position) => {
+                                                latitudeInput.value = position.coords.latitude.toFixed(6);
+                                                longitudeInput.value = position.coords.longitude.toFixed(6);
+                                                setStatus("Location captured from your browser.", "text-success");
+                                            },
+                                            () => {
+                                                setStatus(
+                                                    "We could not access your location; please enter address manually.",
+                                                    "text-danger"
+                                                );
+                                            },
+                                            { timeout: 10000 }
+                                        );
+                                    })();
+                                </script>
+                            {% elif current_step == 'docs' %}
+                                <h4 class="login-title" style="text-align:center;">Business documents</h4>
+                                <p class="text-muted text-center mb-4">Upload proof of business ownership (optional).</p>
+                                <div class="row">
+                                    <div class="col-12 mb-20">
+                                        {% bootstrap_field form.business_document %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <h4 class="login-title" style="text-align:center;">Choose your plan</h4>
+                                <p class="text-muted text-center mb-4">Pick a subscription to activate your shop.</p>
+                                <div class="row">
+                                    <div class="col-12 mb-20">
+                                        {% bootstrap_field form.plan %}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <div class="col-12 d-flex justify-content-between align-items-center">
+                                {% if prev_url %}
+                                    <a class="btn btn-outline-secondary" href="{{ prev_url }}">Back</a>
+                                {% else %}
+                                    <span></span>
+                                {% endif %}
+                                <button class="register-button mt-0" type="submit">
+                                    {% if current_step == 'plan' %}Finish setup{% else %}Continue{% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

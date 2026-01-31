@@ -16,12 +16,10 @@
       <!-- ============================================================== -->
       <div class="row page-titles">
         <div class="col-6 align-self-center">
-          <h3>Bunchfood Dashboard</h3>
+          <h3>Admin Overview</h3>
+          <p class="text-muted mb-0">Quick snapshot of marketplace activity.</p>
         </div>
-        <div class="col-6 text-right font-12"> <a href="index.html">Admin</a> &gt;  Bunchfood Dashboard</div>
-        <div class="">
-          <button class="right-side-toggle waves-effect waves-light bg-primary btn btn-circle btn-sm pull-right ml-10"><i class="ti-settings text-white"></i></button>
-        </div>
+        <div class="col-6 text-right font-12"> <a href="{% url "home:dashboard" %}">Admin</a> &gt;  Overview</div>
       </div>
       <!-- ============================================================== -->
       <!-- End Bread crumb and right sidebar toggle -->
@@ -29,13 +27,13 @@
       <!-- ============================================================== -->
       <!-- Info box -->
       <!-- ============================================================== -->
-      <div class="row ">
+      <div class="row">
         <!-- Column -->
         <div class="col-lg-3 col-md-6">
           <div class="card">
             <div class="card-body">
               <div class="d-flex pa-10 no-block">
-                <div class="align-slef-center ">
+                <div class="align-self-center">
                   <h2 class="counter text-themecolor"><span class="">{{ ads.count }}</span></h2>
                   <h6 class="text-muted mb-0 text-uppercase">Total products</h6>
                 </div>
@@ -45,12 +43,11 @@
           </div>
         </div>
         <!-- Column -->
-        <!-- Column -->
         <div class="col-lg-3 col-md-6">
           <div class="card">
             <div class="card-body">
               <div class="d-flex pa-10 no-block">
-                <div class="align-slef-center ">
+                <div class="align-self-center">
                   <h2 class="counter text-themecolor"><span class="">{{ users.count }}</span></h2>
                   <h6 class="text-muted mb-0 text-uppercase">Users</h6>
                 </div>
@@ -60,12 +57,11 @@
           </div>
         </div>
         <!-- Column -->
-        <!-- Column -->
         <div class="col-lg-3 col-md-6">
           <div class="card">
             <div class="card-body">
               <div class="d-flex pa-10 no-block">
-                <div class="align-slef-center ">
+                <div class="align-self-center">
                   <h2 class="counter text-themecolor"><span class="">{{ order.count }}</span></h2>
                   <h6 class="text-muted mb-0 text-uppercase">Orders</h6>
                 </div>
@@ -75,12 +71,11 @@
           </div>
         </div>
         <!-- Column -->
-        <!-- Column -->
         <div class="col-lg-3 col-md-6">
           <div class="card">
             <div class="card-body">
               <div class="d-flex pa-10 no-block">
-                <div class="align-slef-center ">
+                <div class="align-self-center">
                   <h2 class="counter text-themecolor"><span class="">{{ blog.count }}</span></h2>
                   <h6 class="text-muted mb-0 text-uppercase">Blogs</h6>
                 </div>
@@ -90,15 +85,36 @@
           </div>
         </div>
         <!-- Column -->
-{#        <div class="col-lg-12 col-md-12">#}
-{#          <div class="card">#}
-{#            <div class="card-body">#}
-                <div id="container" style="width: 100%;">
-                    <canvas id="category-chart" data-url="{% url 'home:category_chart' %}"></canvas>
-                 </div>
-{#            </div>#}
-{#          </div>#}
-{#        </div>#}
+      </div>
+
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Product Categories</h5>
+              <div id="container" style="width: 100%;">
+                <canvas id="category-chart" data-url="{% url 'home:category_chart' %}"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Top Categories</h5>
+              <ul class="list-unstyled mb-0">
+                {% for category in counts %}
+                  <li class="d-flex justify-content-between">
+                    <span>{{ category.category__name }}</span>
+                    <span>{{ category.total }}</span>
+                  </li>
+                {% empty %}
+                  <li class="text-muted">No category data available.</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>
