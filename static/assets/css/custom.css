@@ -352,3 +352,57 @@ ul.thumb li img{
   border-radius: 999px;
   padding: 4px 10px;
 }
+
+.voice-assistant {
+  margin-top: 10px;
+}
+
+.voice-assistant__button {
+  border: none;
+  background: #f0f6f1;
+  color: #1f4d2f;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.modern-search .voice-assistant__button {
+  background: #fff;
+  border: 1px solid #cfe6d4;
+  padding: 10px 12px;
+}
+
+.voice-assistant__button--inline {
+  margin-bottom: 10px;
+}
+
+.voice-assistant__button:hover {
+  background: #e1efe5;
+}
+
+.voice-assistant__button.is-listening {
+  background: #3a8f3c;
+  color: #fff;
+}
+
+.voice-assistant__button.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.voice-assistant__hint {
+  margin: 6px 0 4px;
+  color: #5a6b5d;
+  font-size: 0.85rem;
+}
+
+.voice-assistant__status {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #2f4633;
+}

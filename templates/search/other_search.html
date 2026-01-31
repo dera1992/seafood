@@ -4,10 +4,15 @@
 {% load thumbnail %}
 
 
-<div class="header-advance-search modern-search">
+<div class="header-advance-search modern-search voice-assistant" data-voice-container>
     <form method="GET" action="{% url 'product_search:product_filter' %}">
         <span class="search-icon" aria-hidden="true"><span class="icon_search"></span></span>
         <input type="text" name="title_contains_query" placeholder="Search fresh deals and nearby shops" value="{{ request.GET.title_contains_query.strip }}">
+        <button class="voice-assistant__button" type="button" data-voice-action="search" data-voice-input="title_contains_query" aria-label="Start voice search">
+            <span class="fa fa-microphone" aria-hidden="true"></span>
+        </button>
         <button type="submit">Search</button>
     </form>
+    <p class="voice-assistant__hint">AI voice assistant: try “search for salmon” or “find fresh herbs”.</p>
+    <p class="voice-assistant__status" data-voice-status aria-live="polite"></p>
 </div>
