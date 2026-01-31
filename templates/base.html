@@ -46,20 +46,38 @@
 	<script src="{% static 'assets/js/vendor/modernizr-2.8.3.min.js' %}"></script>
     <link rel="stylesheet" href="{% static 'star-ratings/css/star-ratings.css' %}">
 
+    <style>
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 360px;
+        }
+        .alert-container .alert {
+            margin: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+    </style>
 </head>
 
 <body>
 
 {#    <div id="output_box"></div>#}
     {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div class="alert-container" role="status" aria-live="polite">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     {% endif %}
 	{% include 'navbar.html' %}
 
@@ -97,6 +115,10 @@
     <script src="{% static 'hitcount/hitcount-jquery.js' %}"></script>
      <script type="text/javascript">
           $(document).ready(function(event){
+            setTimeout(function() {
+              $('.alert').alert('close');
+            }, 3000);
+
               $('#delete').click(function(){
               return confirm("Are you sure to delete this post?");
             });
