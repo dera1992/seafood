@@ -7,67 +7,92 @@
 
 {% block title %}Payment{% endblock %}
 
+
 {% block content %}
-  <div class="grid gap-6 lg:grid-cols-3">
-    <div class="lg:col-span-2 bg-white rounded-xl shadow p-6 text-center space-y-4">
-      <h2 class="text-xl font-semibold text-gray-900">Make payment</h2>
-      <p class="text-sm text-gray-500">Complete your payment for <span class="font-semibold text-gray-900">£{{ amt|intcomma }}</span>.</p>
-      <script src="https://js.paystack.co/v1/inline.js"></script>
-      <button class="rounded-lg bg-emerald-600 px-6 py-2 text-sm font-semibold text-white hover:bg-emerald-700" onclick="payWithPayStack()" id="django-paystack-button">Pay with Paystack</button>
+     <div class="breadcrumb-area mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="breadcrumb-container">
+                        <ul>
+                            <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                            <li class="active">Payment</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow p-6">
-      <h3 class="text-lg font-semibold text-gray-900">Cart total</h3>
-      <div class="mt-4 space-y-3 text-sm text-gray-600">
-        <ul class="space-y-2">
-          {% for order_item in order.items.all %}
-            <li class="flex justify-between gap-4">
-              <span>{{ order_item.item.title }} × {{ order_item.quantity }}</span>
-              {% if order_item.item.discount_price %}
-                <span>£{{ order_item.get_total_discount_item_price|intcomma }}</span>
-              {% else %}
-                <span>£{{ order_item.get_total_item_price|intcomma }}</span>
-              {% endif %}
-            </li>
-          {% endfor %}
-        </ul>
+	<div class="page-section section mb-50">
+		<div class="container">
+{#			<div class="row">#}
+				<div class="card">
+                    <div class="card-header" style="text-align: center">
+                        <h5 class="card-title">Make Payment for: £{{ amt|intcomma }}</h5>
+                    </div>
+                    <div class="card-body" style="text-align: center">
+                        <script src ="https://js.paystack.co/v1/inline.js"></script>
+                        <button class="btn btn-large btn-success" onclick="payWithPayStack()" id="django-paystack-button">Make Payment</button>
+                    </div>
+                </div>
+                <br>
+                <div class="col-12">
+                    <h4 class="checkout-title">Cart Total</h4>
+                    <div class="checkout-cart-total">
 
-        {% for order_item in order.items.all %}
-          <p class="flex justify-between"><span>Sub total</span><span>£{{ order_item.get_final_price|intcomma }}</span></p>
-        {% endfor %}
-        <p class="flex justify-between"><span>Shipping fee</span><span>£00.00</span></p>
-        {% if order.coupon %}
-          <p class="flex justify-between"><span>Promo code ({{ order.coupon.code }})</span><span>-£{{ order.coupon.amount|intcomma }}</span></p>
-        {% endif %}
-        <p class="flex justify-between text-base font-semibold text-gray-900"><span>Grand total</span><span>£{{ order.get_total|intcomma }}</span></p>
-      </div>
-    </div>
-  </div>
+                        <h4>Product <span>Total</span></h4>
+                        <ul>
+                            {% for order_item in order.items.all %}
+                                <li>{{ order_item.item.title }}  X {{ order_item.quantity }}
+                                    {% if order_item.item.discount_price %}
+                                        <span>£{{ order_item.get_total_discount_item_price|intcomma }}</span>
+                                    {% else %}
+                                        <span>£{{ order_item.get_total_item_price |intcomma}}</span>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
 
-  <script>
-    function payWithPayStack() {
-      let currency = "NGN";
-      let plan = "";
-      let ref = "{{ order.ref }}";
-      let obj ={
-        key: "{{ paystack_public_key }}",
-        email:'{{ order.user.email }}',
-        amount:'{{ amount }}',
-        ref:ref,
-        callback:function (response) {
-          window.location.href = "{% url 'order:verify_payment' order.ref %}";
+                        {% for order_item in order.items.all %}
+                            <p>Sub Total <span>£{{ order_item.get_final_price|intcomma }}</span></p>
+                        {% endfor %}
+                        <p>Shipping Fee <span>£00.00</span></p>
+                        {% if order.coupon %}
+                            <p>Promo Code : {{ order.coupon.code }} <span>-£{{ order.coupon.amount|intcomma }}</span></p>
+                        {% endif %}
+                        <h4>Grand Total <span>£{{ order.get_total|intcomma }}</span></h4>
+
+                    </div>
+				</div>
+{#			</div>#}
+		</div>
+	</div>
+    <script>
+        function  payWithPayStack() {
+            let currency = "NGN";
+            let plan = "";
+            let ref = "{{ order.ref }}";
+            let obj ={
+                key: "{{ paystack_public_key }}",
+                email:'{{ order.user.email }}',
+                amount:'{{ amount }}',
+                ref:ref,
+                callback:function (response) {
+                    window.location.href = "{% url 'order:verify_payment' order.ref %}";
+                }
+            }
+
+            if (Boolean(currency)) {
+                obj.currency = currency.toUpperCase()
+            }
+
+            if (Boolean(plan)){
+                obj.plan = plan;
+            }
+            var handler = PaystackPop.setup(obj);
+            handler.openIframe();
         }
-      }
-
-      if (Boolean(currency)) {
-        obj.currency = currency.toUpperCase()
-      }
-
-      if (Boolean(plan)){
-        obj.plan = plan;
-      }
-      var handler = PaystackPop.setup(obj);
-      handler.openIframe();
-    }
-  </script>
+    </script>
 {% endblock %}
+

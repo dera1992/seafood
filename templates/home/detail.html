@@ -216,7 +216,7 @@
                                             <div class="comment_container">
                                                 <div class="comment-text">
                                                 <div class="rating-star">
-                                                <img class="avatar avatar-60 photo h-8 w-8" src="{{review.user.photo.url}}" alt="">
+                                                <img class="avatar avatar-60 photo" src="{{review.user.photo.url}}" alt="" style="width: 30px; height:30px">
                                                   <span>
                                                     <i class="fa fa-star{% if review.rating == 0.5 %}-half-o{% elif review.rating < 1 %}-o {% endif %}" aria-hidden="true"></i>
                                                     <i class="fa fa-star{% if review.rating == 1.5 %}-half-o{% elif review.rating < 2 %}-o {% endif %}" aria-hidden="true"></i>
@@ -362,7 +362,7 @@
                         </div>
                         {% empty %}
                                <div class="container-fluid">
-                                   <h6 class="text-center">No related food found</h6>
+                                   <h6 style="text-align:center;">No related food found </h6>
                                 </div>
                        {% endfor %}
 

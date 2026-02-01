@@ -1,18 +1,18 @@
+{% load static %}
+{% load django_bootstrap5 %}
 {% load i18n %}
+{% load thumbnail %}
 
-<div class="w-full" data-voice-container>
-  <form method="GET" action="{% url 'product_search:product_filter' %}" class="flex flex-wrap gap-3">
-    <div class="relative flex-1 min-w-[220px]">
-      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">
-        <span class="icon_search"></span>
-      </span>
-      <input type="text" name="title_contains_query" placeholder="Search fresh deals and nearby shops" value="{{ request.GET.title_contains_query.strip }}" class="w-full rounded-lg border border-gray-200 bg-white py-2 pl-10 pr-10 text-sm focus:border-blue-500 focus:outline-none">
-      <button class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600" type="button" data-voice-action="search" data-voice-input="title_contains_query" aria-label="Start voice search">
-        <span class="fa fa-microphone" aria-hidden="true"></span>
-      </button>
-    </div>
-    <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Search</button>
-  </form>
-  <p class="mt-2 text-xs text-gray-500">AI voice assistant: try “search for salmon” or “find fresh herbs”.</p>
-  <p class="text-xs text-gray-500" data-voice-status aria-live="polite"></p>
+
+<div class="header-advance-search modern-search voice-assistant" data-voice-container>
+    <form method="GET" action="{% url 'product_search:product_filter' %}">
+        <span class="search-icon" aria-hidden="true"><span class="icon_search"></span></span>
+        <input type="text" name="title_contains_query" placeholder="Search fresh deals and nearby shops" value="{{ request.GET.title_contains_query.strip }}">
+        <button class="voice-assistant__button" type="button" data-voice-action="search" data-voice-input="title_contains_query" aria-label="Start voice search">
+            <span class="fa fa-microphone" aria-hidden="true"></span>
+        </button>
+        <button type="submit">Search</button>
+    </form>
+    <p class="voice-assistant__hint">AI voice assistant: try “search for salmon” or “find fresh herbs”.</p>
+    <p class="voice-assistant__status" data-voice-status aria-live="polite"></p>
 </div>

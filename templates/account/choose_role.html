@@ -4,28 +4,46 @@
 {% block title %}Choose Role{% endblock %}
 
 {% block content %}
-  <div class="max-w-3xl mx-auto space-y-6">
-    <div class="text-center">
-      <h1 class="text-3xl font-semibold text-gray-900">Choose your account type</h1>
-      <p class="mt-2 text-sm text-gray-500">Tell us how you want to use Bunchfood so we can tailor your experience.</p>
+    <div class="breadcrumb-area mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="breadcrumb-container">
+                        <ul>
+                            <li><a href="{% url 'home:home' %}"><i class="fa fa-home"></i> Home</a></li>
+                            <li class="active">Choose Role</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow p-6">
-      <form method="post" class="flex flex-wrap justify-center gap-4">
-        {% csrf_token %}
-        <button name="role" value="customer" class="flex min-w-[200px] flex-col items-center gap-2 rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-sm font-semibold text-blue-700 hover:bg-blue-100" type="submit">
-          🛍️ I’m a Customer
-          <span class="text-xs font-normal text-blue-600">Shop local and manage your orders</span>
-        </button>
-        <button name="role" value="shop" class="flex min-w-[200px] flex-col items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 px-5 py-4 text-sm font-semibold text-emerald-700 hover:bg-emerald-100" type="submit">
-          🏪 I’m a Shop Owner
-          <span class="text-xs font-normal text-emerald-600">Grow your storefront and manage listings</span>
-        </button>
-        <button name="role" value="dispatcher" class="flex min-w-[200px] flex-col items-center gap-2 rounded-xl border border-sky-100 bg-sky-50 px-5 py-4 text-sm font-semibold text-sky-700 hover:bg-sky-100" type="submit">
-          🚚 I’m a Dispatcher
-          <span class="text-xs font-normal text-sky-600">Handle deliveries and earnings</span>
-        </button>
-      </form>
+    <div class="page-content mb-50">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="text-center">
+                        <h2 class="mb-3">Choose your account type</h2>
+                        <p class="text-muted mb-4">Tell us how you want to use Seafood so we can tailor your experience.</p>
+
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="d-flex justify-content-center gap-4 flex-wrap">
+                                <button name="role" value="customer" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-3">
+                                    🛍️ I’m a Customer
+                                </button>
+                                <button name="role" value="shop" class="btn btn-outline-success btn-lg px-5 py-3 rounded-3">
+                                    🏪 I’m a Shop Owner
+                                </button>
+                                <button name="role" value="dispatcher" class="btn btn-outline-info btn-lg px-5 py-3 rounded-3">
+                                    🚚 I’m a Dispatcher
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 {% endblock %}

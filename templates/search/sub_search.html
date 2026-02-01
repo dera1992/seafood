@@ -7,7 +7,7 @@
 <div class="col-lg-3 order-2 order-lg-1">
 					<!--=======  sidebar area  =======-->
 
-					<div class="sidebar-area" data-voice-container>
+					<div class="sidebar-area">
                         <form method="GET" action="{% url 'product_search:product_filter' %}" id="search-filter-form">
                             <input type="hidden" name="order" value="{{ request.GET.order.strip }}"/>
                             <input type="hidden" name="view" value="{{ request.GET.view.strip }}"/>
@@ -16,17 +16,9 @@
                             <div class="sidebar mb-35">
                                 <h3 class="sidebar-title">Search Products</h3>
                                 <div class="sidebar-search">
-                                    <div class="input-group">
-                                        <input class="form-control {% if request.GET.title_contains_query.strip %}border border-success{% endif %}" type="text" name="title_contains_query"
-                                               placeholder="Search by name or description"
-                                               value="{{ request.GET.title_contains_query.strip }}">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-outline-secondary" type="button" data-voice-action="search" data-voice-input="title_contains_query" aria-label="Start voice search">
-                                                <span class="fa fa-microphone" aria-hidden="true"></span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <small class="form-text text-muted" data-voice-status aria-live="polite"></small>
+                                    <input class="form-control {% if request.GET.title_contains_query.strip %}border border-success{% endif %}" type="text" name="title_contains_query"
+                                           placeholder="Search by name or description"
+                                           value="{{ request.GET.title_contains_query.strip }}">
                                 </div>
                             </div>
 
