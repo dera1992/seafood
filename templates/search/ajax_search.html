@@ -37,7 +37,7 @@
 
 {#                                        <h6 class="">{{ ad.category }}</h6>#}
             <div class="listing-short-detail">
-                <span class="listing-location" style="color: #00A877">{{ ad.category }}</span>
+                <span class="listing-location text-emerald-600">{{ ad.category }}</span>
                 <h4 class="listing-name"><a href="{{ ad.get_absolute_url }}">{{ ad.property_title }}</a></h4>
                 <span class="listing-location"><i class="ti-location-pin"></i>{{ ad.address|truncatechars_html:50 }}</span>
             </div>
@@ -68,6 +68,6 @@
 </div>
 {% empty %}
     <div class="container-fluid">
-        <h3 style="text-align:center;">No Property found </h3>
+        <h3 class="text-center">No Property found</h3>
     </div>
 {% endfor %}

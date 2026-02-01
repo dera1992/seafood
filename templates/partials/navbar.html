@@ -1,0 +1,67 @@
+{% load static %}
+{% load cart_template_tags %}
+
+<nav class="bg-white border-b border-gray-200">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
+    <a href="{% url 'home:home' %}" class="flex items-center gap-3">
+      <img src="{% static 'assets/images/logo.png' %}" class="h-9 w-auto" alt="Bunchfood">
+      <span class="text-lg font-semibold text-gray-900">Bunchfood</span>
+    </a>
+
+    <div class="hidden lg:flex flex-1 justify-center px-6">
+      {% include 'search/other_search.html' %}
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a href="{% url 'home:favourites' %}" class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <span class="icon_heart_alt"></span>
+        <span>{{ request.user|wish_item_count }} item{{ request.user|wish_item_count|pluralize }}</span>
+      </a>
+      <a href="{% url 'cart:order-summary' %}" class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <span class="icon_cart_alt"></span>
+        <span>{{ request.user|cart_item_count }} item{{ request.user|cart_item_count|pluralize }}</span>
+      </a>
+
+      {% if user.is_authenticated %}
+        <div class="relative group">
+          <button class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" type="button">
+            {% if request.user.profile.photo %}
+              <img src="{{ request.user.profile.photo.url }}" alt="user" class="h-8 w-8 rounded-full object-cover" />
+            {% else %}
+              <img src="{% static 'images/users/1.jpg' %}" alt="user" class="h-8 w-8 rounded-full object-cover" />
+            {% endif %}
+            <span>{{ request.user.get_full_name|default:request.user.email }}</span>
+            <i class="fa fa-chevron-down text-xs"></i>
+          </button>
+          <div class="absolute right-0 mt-2 hidden w-56 rounded-xl border border-gray-200 bg-white shadow-lg group-hover:block group-focus-within:block">
+            <div class="py-2 text-sm text-gray-700">
+              {% if user.is_superuser %}
+                <a class="block px-4 py-2 hover:bg-gray-50" href="{% url 'home:dashboard' %}">Dashboard</a>
+              {% endif %}
+              {% if request.user.role == "customer" %}
+                <a class="block px-4 py-2 hover:bg-gray-50" href="{% url 'home:customer_analytics' %}">My Analytics</a>
+              {% endif %}
+              {% if request.user.role == "dispatcher" %}
+                <a class="block px-4 py-2 hover:bg-gray-50" href="{% url 'home:dispatcher_analytics' %}">Dispatcher Analytics</a>
+              {% endif %}
+              {% if request.user.role == "shop" %}
+                <a class="block px-4 py-2 hover:bg-gray-50" href="{% url 'home:shop_analytics' %}">Shop Analytics</a>
+              {% endif %}
+              <a class="block px-4 py-2 hover:bg-gray-50" href="{% url 'home:shop_notifications' %}">Shop notifications</a>
+              <a class="block px-4 py-2 hover:bg-gray-50" href="{% url 'profile_display' %}">Profile</a>
+              <a class="block px-4 py-2 hover:bg-gray-50" href="{% url 'password_change' %}">Change Password</a>
+              <a class="block px-4 py-2 hover:bg-gray-50" href="{% url 'logout' %}">Log Out</a>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <a href="{% url 'login' %}" class="inline-flex items-center rounded-lg border border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50">Login</a>
+        <a href="{% url 'register' %}" class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Register</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-4 pb-4 lg:hidden">
+    {% include 'search/other_search.html' %}
+  </div>
+</nav>

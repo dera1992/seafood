@@ -1,37 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Payment Failure</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% load humanize %}
 
-{% autoescape off %}
-Hi {{ payment.user.get_full_name }},
+{% block title %}Payment Failed{% endblock %}
 
-    <p>Payment Failure</p>
+{% block content %}
+  <div class="max-w-3xl mx-auto space-y-6">
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h1 class="text-2xl font-semibold text-gray-900">Payment failed</h1>
+      <p class="text-sm text-gray-500">Hi {{ payment.user.get_full_name|default:payment.user.email }}, we couldn’t complete your payment.</p>
 
-      <tbody>
-        <tr>
-          <td><a href="mailto:test@example.com">{{ payment.user.email }}</a></td>
-          <td>
-              {% for ord_item in payment.items.all %}
-                  <p>Purchase Item : {{ ord_item.item.title }}</p>
-                  <p>Quantity : {{ ord_item.quantity }}</p>
-                  <p>Amount : £{{ ord_item.get_total|intcomma }}</p>
-              {% endfor %}
-          </td>
-          <td>{{ payment.ref }}</td>
-          <td>{{ payment.date_ordered }}</td>
-        </tr>
-      </tbody>
+      <div class="rounded-lg border border-gray-200 p-4">
+        <p class="text-sm text-gray-600">Reference: <span class="font-semibold text-gray-900">{{ payment.ref }}</span></p>
+        <p class="text-sm text-gray-600">Date: <span class="font-semibold text-gray-900">{{ payment.date_ordered }}</span></p>
+      </div>
 
-<P>Regards,</P>
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900">Order summary</h2>
+        <ul class="mt-3 space-y-2 text-sm text-gray-600">
+          {% for ord_item in payment.items.all %}
+            <li class="flex flex-wrap justify-between gap-2">
+              <span>{{ ord_item.item.title }} × {{ ord_item.quantity }}</span>
+              <span>£{{ ord_item.get_total|intcomma }}</span>
+            </li>
+          {% empty %}
+            <li>No items were found for this payment.</li>
+          {% endfor %}
+        </ul>
+      </div>
 
-<p>Bunchfood</p>
-{% endautoescape %}
-
-</body>
-</html>
+      <p class="text-sm text-gray-500">Please try again or contact support if the issue persists.</p>
+      <a class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" href="{% url 'order:checkout' %}">Return to checkout</a>
+    </div>
+  </div>
+{% endblock %}
