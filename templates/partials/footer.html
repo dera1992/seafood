@@ -1,0 +1,48 @@
+{% load static %}
+
+<footer class="mt-12 bg-gray-900 text-gray-200">
+  <div class="max-w-6xl mx-auto px-4 py-10 space-y-10">
+    <div class="grid gap-8 lg:grid-cols-3">
+      <div>
+        <h2 class="text-lg font-semibold text-white">Stay in the loop</h2>
+        <p class="mt-2 text-sm text-gray-300">Get fresh deals, seasonal offers, and local picks in your inbox.</p>
+        <form method="POST" action="{% url 'marketing:email-list-signup' %}" class="mt-4 flex flex-col gap-3 sm:flex-row">
+          {% csrf_token %}
+          <input type="email" id="mc-email" name="email" autocomplete="off" placeholder="Your email address" class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white placeholder:text-gray-400 focus:border-blue-500 focus:outline-none">
+          <button id="mc-submit" type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Subscribe</button>
+        </form>
+      </div>
+      <div>
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-400">Information</h3>
+        <ul class="mt-4 space-y-2 text-sm">
+          <li>Phone: <span class="text-white">+234 806 362 7547</span></li>
+          <li>Email: <span class="text-white">bunchfood@gmail.com</span></li>
+          <li class="flex gap-3">
+            <a href="#" title="facebook" class="hover:text-white"><i class="fa fa-facebook"></i></a>
+            <a href="#" title="instagram" class="hover:text-white"><i class="fa fa-instagram"></i></a>
+            <a href="#" title="twitter" class="hover:text-white"><i class="fa fa-twitter"></i></a>
+            <a href="#" title="linkedin" class="hover:text-white"><i class="fa fa-pinterest"></i></a>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-400">Quick links</h3>
+        <ul class="mt-4 space-y-2 text-sm">
+          <li><a class="hover:text-white" href="{% url 'owner:about_us' %}">About Us</a></li>
+          <li><a class="hover:text-white" href="{% url 'owner:create_contact' %}">Contact Us</a></li>
+          <li><a class="hover:text-white" href="{% url 'owner:faq' %}">FAQ</a></li>
+          <li><a class="hover:text-white" href="{% url 'profile_display' %}">My Account</a></li>
+          <li><a class="hover:text-white" href="{% url 'home:favourites' %}">Wishlist</a></li>
+          <li><a class="hover:text-white" href="{% url 'cart:order-summary' %}">Shopping Cart</a></li>
+          <li><a class="hover:text-white" href="{% url 'order:tracking' %}">Track Order</a></li>
+          <li><a class="hover:text-white" href="{% url 'blog:list' %}">Newsletter</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="border-t border-gray-800">
+    <div class="max-w-6xl mx-auto px-4 py-4 text-center text-xs text-gray-500">
+      &copy; {% now "Y" %} Bunchfood. All rights reserved.
+    </div>
+  </div>
+</footer>
