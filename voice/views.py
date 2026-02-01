@@ -4,20 +4,30 @@ import json
 from django.core.cache import cache
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
 from voice.ai import call_openai
-from voice.parser import normalize, rules_parse, INTENT_BUDGET_PLAN, INTENT_HELP, INTENT_PRODUCT_SEARCH
+from voice.parser import (
+    normalize,
+    remaining_query,
+    rules_parse,
+    INTENT_BUDGET_PLAN,
+    INTENT_HELP,
+    INTENT_PRODUCT_SEARCH,
+)
 from voice.services import budget_plan, product_search
 from voice.validators import requires_ai, validate_schema
 
 CACHE_TTL_SECONDS = 60 * 60 * 24
 
 
+@ensure_csrf_cookie
 def search_page(request):
     return render(request, "voice/search.html")
 
 
+@ensure_csrf_cookie
 def budget_page(request):
     return render(request, "voice/budget.html")
 
@@ -30,14 +40,19 @@ def interpret_voice(request):
     except json.JSONDecodeError:
         payload = {}
     text = payload.get("text", "")
+    prefer_rules = payload.get("prefer_rules", False)
     normalized = normalize(text)
 
     parsed_schema = rules_parse(normalized)
+    if prefer_rules and parsed_schema.get("intent") == INTENT_HELP and normalized:
+        parsed_schema["intent"] = INTENT_PRODUCT_SEARCH
+        parsed_schema["entities"]["query"] = remaining_query(normalized)
+        parsed_schema["confidence"] = max(parsed_schema.get("confidence", 0), 0.7)
     nearby_only = "near me" in normalized
     schema = parsed_schema
 
     cache_key = None
-    if requires_ai(parsed_schema):
+    if requires_ai(parsed_schema) and not prefer_rules:
         cache_key = f"voice_intent:gb:{hashlib.sha256(normalized.encode('utf-8')).hexdigest()}"
         cached = cache.get(cache_key)
         if cached:
