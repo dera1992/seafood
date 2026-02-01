@@ -4,6 +4,7 @@ import json
 from django.core.cache import cache
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
 from voice.ai import call_openai
@@ -14,10 +15,12 @@ from voice.validators import requires_ai, validate_schema
 CACHE_TTL_SECONDS = 60 * 60 * 24
 
 
+@ensure_csrf_cookie
 def search_page(request):
     return render(request, "voice/search.html")
 
 
+@ensure_csrf_cookie
 def budget_page(request):
     return render(request, "voice/budget.html")
 
