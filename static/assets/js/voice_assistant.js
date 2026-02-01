@@ -14,6 +14,17 @@
     }
   };
 
+  const getRecognitionLang = () => {
+    const documentLang = document.documentElement.lang?.trim();
+    const fallbackLang = navigator.language || "en-US";
+
+    if (!documentLang || documentLang === "zxx" || documentLang === "und") {
+      return fallbackLang;
+    }
+
+    return documentLang;
+  };
+
   const findInput = (button, target) => {
     if (!target) {
       return null;
@@ -83,7 +94,7 @@
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = document.documentElement.lang || "en-US";
+    recognition.lang = getRecognitionLang();
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
