@@ -1,33 +1,16 @@
 {% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load i18n %}
 
-{% block title %}Error in validating{% endblock %}
+{% block title %}Activation link invalid{% endblock %}
 
 {% block content %}
-     <div class="breadcrumb-area mb-50">
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <div class="breadcrumb-container">
-                        <ul>
-                            <li><a href="{% url 'home:home' %}"><i class="fa fa-home"></i> Home</a></li>
-                            <li class="active">Validating Error</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="max-w-xl mx-auto space-y-6">
+    <div class="bg-white rounded-xl shadow p-6 text-center space-y-3">
+      <h1 class="text-2xl font-semibold text-gray-900">Activation link invalid</h1>
+      <p class="text-sm text-gray-500">The activation link is invalid or has expired. Please request a new activation email.</p>
+      <a class="inline-flex items-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50" href="{% url 'register' %}">Return to registration</a>
     </div>
-    <div class="page-content mb-50">
-		<div class="container">
-			<div class="row justify-content-center">
-				<div class="col-sm-12 col-md-12 col-xs-12 col-lg-6 mb-30">
-
-                    <div class="login-form">
-                            <h2 class="login-title" style="text-align:center;">Validating Error</h2>
-                        <p>The confirmation link was invalid, possibly because it has already been used.</p>
-                    </div>
-				</div>
-			</div>
-		</div>
-	</div>
+  </div>
 {% endblock %}

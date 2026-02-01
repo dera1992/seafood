@@ -2,61 +2,52 @@
 {% load static %}
 {% load django_bootstrap5 %}
 
-{% block title %}Dispatcher Onboarding - Personal{% endblock %}
+{% block title %}Dispatcher Personal Details{% endblock %}
 
 {% block content %}
-    <div class="breadcrumb-area mb-50">
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <div class="breadcrumb-container">
-                        <ul>
-                            <li><a href="{% url 'home:home' %}"><i class="fa fa-home"></i> Home</a></li>
-                            <li class="active">Dispatcher Setup</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="max-w-3xl mx-auto space-y-6">
+    <div class="text-center">
+      <h1 class="text-3xl font-semibold text-gray-900">Dispatcher onboarding</h1>
+      <p class="mt-2 text-sm text-gray-500">Add your personal details to get started.</p>
     </div>
 
-    <div class="page-content mb-50">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-12 col-lg-7">
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="small fw-bold">Personal</span>
-                            <a class="small text-muted" href="{% url 'dispatcher_vehicle' %}">Vehicle</a>
-                        </div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-info" role="progressbar" style="width: 50%"></div>
-                        </div>
-                    </div>
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="login-form">
-                            <h4 class="login-title" style="text-align:center;">Personal details</h4>
-                            <p class="text-muted text-center mb-4">Tell us who you are and upload an ID document.</p>
-
-                            <div class="row">
-                                <div class="col-12 mb-20">
-                                    {% bootstrap_field form.full_name %}
-                                </div>
-                                <div class="col-12 mb-20">
-                                    {% bootstrap_field form.id_number %}
-                                </div>
-                                <div class="col-12 mb-20">
-                                    {% bootstrap_field form.id_document %}
-                                </div>
-                                <div class="col-12">
-                                    <button class="register-button mt-0" type="submit">Continue to vehicle</button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <div class="bg-white rounded-xl shadow p-6 space-y-6">
+      <div class="space-y-3">
+        <div class="flex justify-between text-sm font-medium text-gray-500">
+          <span class="text-blue-600">Personal details</span>
+          <span>Vehicle details</span>
         </div>
+        <div class="h-2 w-full rounded-full bg-gray-100">
+          <div class="h-2 w-1/2 rounded-full bg-sky-500"></div>
+        </div>
+      </div>
+
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        <div class="grid gap-4 md:grid-cols-2">
+          <div>
+            {% bootstrap_field form.first_name %}
+          </div>
+          <div>
+            {% bootstrap_field form.last_name %}
+          </div>
+          <div class="md:col-span-2">
+            {% bootstrap_field form.phone %}
+          </div>
+          <div class="md:col-span-2">
+            {% bootstrap_field form.address %}
+          </div>
+          <div>
+            {% bootstrap_field form.city %}
+          </div>
+          <div>
+            {% bootstrap_field form.state %}
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" type="submit">Continue</button>
+        </div>
+      </form>
     </div>
+  </div>
 {% endblock %}
