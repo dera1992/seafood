@@ -33,6 +33,7 @@ def interpret_voice(request):
     except json.JSONDecodeError:
         payload = {}
     text = payload.get("text", "")
+    prefer_rules = payload.get("prefer_rules", False)
     normalized = normalize(text)
 
     parsed_schema = rules_parse(normalized)
@@ -40,7 +41,7 @@ def interpret_voice(request):
     schema = parsed_schema
 
     cache_key = None
-    if requires_ai(parsed_schema):
+    if requires_ai(parsed_schema) and not prefer_rules:
         cache_key = f"voice_intent:gb:{hashlib.sha256(normalized.encode('utf-8')).hexdigest()}"
         cached = cache.get(cache_key)
         if cached:
