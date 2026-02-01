@@ -50,26 +50,30 @@
         return cookieValue;
     }
 
-    function renderProducts(products) {
-        resultsContainer.innerHTML = "";
-        if (!products.length) {
-            return;
+    function buildSearchQuery(payload, fallback) {
+        if (!payload || payload.intent !== "PRODUCT_SEARCH") {
+            return fallback.trim();
         }
-        products.forEach(product => {
-            const card = document.createElement("div");
-            card.className = "col-md-4";
-            card.innerHTML = `
-                <div class="card h-100">
-                    ${product.image_url ? `<img src="${product.image_url}" class="card-img-top" alt="${product.title}">` : ''}
-                    <div class="card-body">
-                        <h5 class="card-title">${product.title}</h5>
-                        <p class="card-text">£${product.price.toFixed(2)} · ${product.shop}</p>
-                        <a class="btn btn-sm btn-primary" href="${product.url}">View</a>
-                    </div>
-                </div>
-            `;
-            resultsContainer.appendChild(card);
-        });
+        const entities = payload.entities || {};
+        const items = entities.items || [];
+        const query = entities.query || "";
+        const maxPrice = entities.max_price;
+        const parts = [];
+        if (items.length) {
+            parts.push(items.join(" "));
+        } else if (query) {
+            parts.push(query);
+        }
+        if (maxPrice) {
+            parts.push(`under ${maxPrice}`);
+        }
+        return parts.length ? parts.join(" ").trim() : fallback.trim();
+    }
+
+    function redirectToSearch(query) {
+        const searchUrl = "{% url 'product_search:product_filter' %}";
+        const params = new URLSearchParams({ title_contains_query: query });
+        window.location.assign(`${searchUrl}?${params.toString()}`);
     }
 
     function sendVoiceText(text) {
@@ -91,7 +95,9 @@
         .then(data => {
             assistantMessage.textContent = data.assistant_message || "";
             if (data.intent === "PRODUCT_SEARCH") {
-                renderProducts((data.results && data.results.products) || []);
+                const query = buildSearchQuery(data, text);
+                redirectToSearch(query);
+                return;
             }
         })
         .catch(() => {
