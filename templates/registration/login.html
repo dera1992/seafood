@@ -6,88 +6,57 @@
 {% block title %}Log-in{% endblock %}
 
 {% block extra_head %}
-    {{ block.super }}
-    {% if recaptcha_site_key %}
-        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    {% endif %}
+  {{ block.super }}
+  {% if recaptcha_site_key %}
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
-      <div class="breadcrumb-area mb-50">
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <div class="breadcrumb-container">
-                        <ul>
-                            <li><a href="{% url 'home:home' %}"><i class="fa fa-home"></i> Home</a></li>
-                            <li class="active">Login</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="max-w-xl mx-auto space-y-6">
+    <div class="text-center">
+      <h1 class="text-3xl font-semibold text-gray-900">Welcome back</h1>
+      <p class="mt-2 text-sm text-gray-500">Sign in to continue shopping and manage your orders.</p>
     </div>
 
-	<div class="page-content mb-50">
-		<div class="container">
-			<div class="row justify-content-center">
-				<div class="col-sm-12 col-md-12 col-xs-12 col-lg-6 mb-30">
-					<!-- Login Form s-->
-					<form method="post" action=".">
-                        {% csrf_token %}
-						<div class="login-form">
-							<h2 class="login-title" style="text-align:center;">Login</h2>
+    <div class="bg-white rounded-xl shadow p-6 space-y-6">
+      <form method="post" action="." class="space-y-6">
+        {% csrf_token %}
+        {% bootstrap_form_errors form %}
+        <input type="hidden" name="next" value="{{ next }}">
 
-                            {% bootstrap_form_errors form %}
-                            {% if form.errors %}
-                            <p style="text-align:center;">
-                                Please enter correct username and password.
-                                Please try again.
-                            </p >
-                            {% else %}
-                                <p style="text-align:center;">Please, use the following form to log-in:</p>
-                             {% endif %}
+        {% if form.errors %}
+          <p class="text-sm text-red-600">Please enter a correct username and password and try again.</p>
+        {% else %}
+          <p class="text-sm text-gray-500">Please, use the following form to log in.</p>
+        {% endif %}
 
-							<div class="row">
-                                <input type="hidden" name="next" value="{{ next }}">
-								<div class="col-md-12 col-12 mb-20">
-									{% bootstrap_field form.username %}
-								</div>
-								<div class="col-12 mb-20">
-									{% bootstrap_field form.password %}
-								</div>
-								<div class="col-md-8">
-									{% bootstrap_field form.remember_me %}
-								</div>
+        <div class="space-y-4">
+          {% bootstrap_field form.username %}
+          {% bootstrap_field form.password %}
+          {% bootstrap_field form.remember_me %}
+        </div>
 
-								<div class="col-12 mb-20">
-                                    {% if recaptcha_site_key %}
-									    <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
-                                    {% endif %}
-								</div>
+        {% if recaptcha_site_key %}
+          <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+        {% endif %}
 
-								<div class="col-md-4 mt-10 mb-20 text-left text-md-right">
-									<a href="{% url "register" %}"> Create account</a> | <a href="{% url "password_reset" %}"> Forgotten pasward?</a>
-								</div>
+        <div class="flex flex-wrap items-center justify-between gap-3 text-sm">
+          <a href="{% url 'register' %}" class="text-blue-600 hover:text-blue-700">Create account</a>
+          <a href="{% url 'password_reset' %}" class="text-gray-500 hover:text-gray-700">Forgotten password?</a>
+        </div>
 
-								<div class="col-md-12 justify-content-center">
-									<button class="register-button mt-0">Login</button>
-								</div>
+        <button class="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" type="submit">Login</button>
+      </form>
 
-							</div>
-						</div>
-
-					</form>
-					<div class="text-center mt-4">
-						<p class="text-muted mb-3">Or continue with</p>
-						<div class="d-flex justify-content-center gap-3 flex-wrap">
-							<a class="btn btn-outline-danger" href="{% url 'social:begin' 'google-oauth2' %}">Google</a>
-							<a class="btn btn-outline-primary" href="{% url 'social:begin' 'facebook' %}">Facebook</a>
-							<a class="btn btn-outline-info" href="{% url 'social:begin' 'twitter' %}">Twitter</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+      <div class="text-center">
+        <p class="text-sm text-gray-500">Or continue with</p>
+        <div class="mt-3 flex flex-wrap justify-center gap-3">
+          <a class="inline-flex items-center rounded-lg border border-red-500 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50" href="{% url 'social:begin' 'google-oauth2' %}">Google</a>
+          <a class="inline-flex items-center rounded-lg border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50" href="{% url 'social:begin' 'facebook' %}">Facebook</a>
+          <a class="inline-flex items-center rounded-lg border border-sky-500 px-4 py-2 text-sm font-semibold text-sky-600 hover:bg-sky-50" href="{% url 'social:begin' 'twitter' %}">Twitter</a>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
