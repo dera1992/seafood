@@ -15,6 +15,7 @@ urlpatterns = [
     path('budget/', include('budget.urls', namespace='budget')),
     path('order/',include('order.urls', namespace='order')),
     path('owner/',include('owner.urls', namespace='owner')),
+    path('voice/', include('voice.urls', namespace='voice')),
     path('',include('home.urls', namespace='home')),
     path('product_search/',include('search.urls', namespace='product_search')),
     path('hitcount/', include(('hitcount.urls', 'hitcount'), namespace='hitcount')),

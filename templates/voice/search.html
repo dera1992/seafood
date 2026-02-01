@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="container py-5">
+    <h1 class="mb-3">Voice Product Search</h1>
+    <p class="text-muted">Say things like “Find catfish under 20 pounds”.</p>
+
+    <div class="mb-3">
+        <button id="voice-mic" class="btn btn-primary" type="button">🎤 Start Listening</button>
+        <span id="voice-status" class="ms-3 text-muted"></span>
+    </div>
+
+    <div class="mb-3">
+        <label for="voice-text" class="form-label">Type your request</label>
+        <input id="voice-text" class="form-control" type="text" placeholder="Search for rice under £10" />
+    </div>
+
+    <button id="voice-submit" class="btn btn-outline-secondary" type="button">Search</button>
+
+    <div class="mt-4">
+        <p id="assistant-message" class="fw-semibold"></p>
+        <div id="voice-results" class="row g-3"></div>
+    </div>
+</section>
+
+<script>
+    const micButton = document.getElementById("voice-mic");
+    const submitButton = document.getElementById("voice-submit");
+    const textInput = document.getElementById("voice-text");
+    const statusText = document.getElementById("voice-status");
+    const assistantMessage = document.getElementById("assistant-message");
+    const resultsContainer = document.getElementById("voice-results");
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function renderProducts(products) {
+        resultsContainer.innerHTML = "";
+        if (!products.length) {
+            return;
+        }
+        products.forEach(product => {
+            const card = document.createElement("div");
+            card.className = "col-md-4";
+            card.innerHTML = `
+                <div class="card h-100">
+                    ${product.image_url ? `<img src="${product.image_url}" class="card-img-top" alt="${product.title}">` : ''}
+                    <div class="card-body">
+                        <h5 class="card-title">${product.title}</h5>
+                        <p class="card-text">£${product.price.toFixed(2)} · ${product.shop}</p>
+                        <a class="btn btn-sm btn-primary" href="${product.url}">View</a>
+                    </div>
+                </div>
+            `;
+            resultsContainer.appendChild(card);
+        });
+    }
+
+    function sendVoiceText(text) {
+        if (!text) {
+            assistantMessage.textContent = "Please say or type your search request.";
+            return;
+        }
+        assistantMessage.textContent = "";
+        resultsContainer.innerHTML = "";
+        fetch("/voice/interpret/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: JSON.stringify({ text })
+        })
+        .then(response => response.json())
+        .then(data => {
+            assistantMessage.textContent = data.assistant_message || "";
+            if (data.intent === "PRODUCT_SEARCH") {
+                renderProducts((data.results && data.results.products) || []);
+            }
+        })
+        .catch(() => {
+            assistantMessage.textContent = "Something went wrong. Please try again.";
+        });
+    }
+
+    if (!recognition) {
+        statusText.textContent = "Speech recognition is not supported. Use the text box instead.";
+    } else {
+        recognition.lang = "en-GB";
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.addEventListener("start", () => {
+            statusText.textContent = "Listening...";
+        });
+        recognition.addEventListener("end", () => {
+            statusText.textContent = "";
+        });
+        recognition.addEventListener("result", (event) => {
+            const transcript = event.results[0][0].transcript;
+            textInput.value = transcript;
+            sendVoiceText(transcript);
+        });
+
+        micButton.addEventListener("click", () => {
+            recognition.start();
+        });
+    }
+
+    submitButton.addEventListener("click", () => {
+        sendVoiceText(textInput.value);
+    });
+</script>
+{% endblock %}
