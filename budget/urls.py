@@ -7,6 +7,7 @@ app_name = 'budget'
 urlpatterns = [
     path('', views.budget_dashboard, name='budget-dashboard'),
     path('create/', views.set_budget, name='set-budget'),
+    path('products/autocomplete/', views.product_autocomplete, name='product-autocomplete'),
     path('<int:budget_id>/', views.view_budget, name='view-budget'),
     path('<int:budget_id>/add-item/', views.add_to_budget, name='add-item'),
     path('<int:budget_id>/items/<int:item_id>/edit/', views.edit_budget_item, name='edit-item'),

@@ -3,6 +3,8 @@ from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
 
 from order.models import Order
 from foodCreate.models import Products
@@ -78,7 +80,6 @@ def view_budget(request, budget_id):
     price_predictions = build_price_predictions(items)
     savings_suggestions = build_savings_suggestions(items, remaining_budget)
     for item in items:
-        item.edit_form = ShoppingListItemForm(instance=item)
         item.suggestions = []
         if item.product or not item.name:
             continue
@@ -141,12 +142,25 @@ def edit_budget_item(request, budget_id, item_id):
             return redirect('budget:view-budget', budget_id=budget.id)
     else:
         form = ShoppingListItemForm(instance=item)
-    product_options = list(Products.objects.filter(is_active=True).order_by('title')[:200])
     return render(
         request,
         'budget/edit_item.html',
-        {'budget': budget, 'form': form, 'item': item, 'product_options': product_options},
+        {'budget': budget, 'form': form, 'item': item},
     )
+
+
+@login_required
+@require_GET
+def product_autocomplete(request):
+    query = request.GET.get("q", "").strip()
+    if not query:
+        return JsonResponse({"results": []})
+    products = (
+        Products.objects.filter(is_active=True, title__icontains=query)
+        .order_by("title")[:10]
+    )
+    results = [{"id": product.id, "title": product.title} for product in products]
+    return JsonResponse({"results": results})
 
 
 @login_required

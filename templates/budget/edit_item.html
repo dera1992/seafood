@@ -26,11 +26,7 @@
                 <div class="cart-summary">
                     <div class="cart-summary-wrap">
                         <h4>Edit shopping list item</h4>
-                        <datalist id="product-options">
-                            {% for product in product_options %}
-                                <option value="{{ product.title }}" data-id="{{ product.id }}"></option>
-                            {% endfor %}
-                        </datalist>
+                        <datalist id="product-options"></datalist>
                         <form method="post">
                             {% csrf_token %}
                             <div class="mb-25">
@@ -43,6 +39,7 @@
                                     list="product-options"
                                     value="{{ form.product_name.value|default_if_none:'' }}"
                                     data-product-autocomplete
+                                    data-autocomplete-url="{% url 'budget:product-autocomplete' %}"
                                     data-product-id-target="edit-product-id"
                                     placeholder="Start typing a product"
                                 />
@@ -73,20 +70,61 @@
 </div>
 <script>
     (function () {
-        const options = document.querySelectorAll("#product-options option");
-        const lookup = new Map();
-        options.forEach((option) => {
-            lookup.set(option.value, option.dataset.id);
-        });
+        const datalist = document.getElementById("product-options");
+        const cache = new Map();
+        const setOptions = (results) => {
+            datalist.innerHTML = "";
+            results.forEach((result) => {
+                const option = document.createElement("option");
+                option.value = result.title;
+                option.dataset.id = result.id;
+                datalist.appendChild(option);
+            });
+        };
 
         document.querySelectorAll("[data-product-autocomplete]").forEach((input) => {
+            let timeoutId = null;
             input.addEventListener("input", () => {
                 const targetId = input.dataset.productIdTarget;
                 const hidden = document.getElementById(targetId);
                 if (!hidden) {
                     return;
                 }
-                hidden.value = lookup.get(input.value) || "";
+                const currentValue = input.value.trim();
+                const options = datalist.querySelectorAll("option");
+                let matched = "";
+                options.forEach((option) => {
+                    if (option.value === currentValue) {
+                        matched = option.dataset.id || "";
+                    }
+                });
+                hidden.value = matched;
+
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+                if (!currentValue) {
+                    datalist.innerHTML = "";
+                    return;
+                }
+                timeoutId = setTimeout(() => {
+                    if (cache.has(currentValue)) {
+                        setOptions(cache.get(currentValue));
+                        return;
+                    }
+                    const url = input.dataset.autocompleteUrl;
+                    if (!url) {
+                        return;
+                    }
+                    fetch(`${url}?q=${encodeURIComponent(currentValue)}`)
+                        .then((response) => response.json())
+                        .then((data) => {
+                            const results = data.results || [];
+                            cache.set(currentValue, results);
+                            setOptions(results);
+                        })
+                        .catch(() => {});
+                }, 200);
             });
         });
     })();
