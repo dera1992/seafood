@@ -134,7 +134,10 @@
                                                     name="quantity"
                                                     class="form-control form-control-sm"
                                                     min="1"
-                                                    value="{{ item.quantity }}"
+                                                    value="{{ item.quantity|default:1 }}"
+                                                    inputmode="numeric"
+                                                    style="max-width: 90px;"
+                                                    aria-label="Quantity"
                                                 />
                                                 <button class="btn btn-sm btn-outline-secondary" type="submit">Update</button>
                                             </form>
@@ -145,7 +148,7 @@
                                                 <a
                                                     class="btn btn-sm btn-outline-secondary me-2 js-product-modal"
                                                     href="{{ item.product.get_absolute_url }}"
-                                                    data-product-url="{{ item.product.get_absolute_url }}"
+                                                    data-product-url="{% url 'home:ad_preview' item.product.id item.product.slug %}"
                                                     data-toggle="modal"
                                                     data-target="#productPreviewModal"
                                                     aria-label="View product"
@@ -377,13 +380,10 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body p-0">
-                <iframe
-                    id="productPreviewFrame"
-                    title="Product preview"
-                    src=""
-                    style="width: 100%; height: 70vh; border: 0;"
-                ></iframe>
+            <div class="modal-body p-4">
+                <div id="productPreviewContent">
+                    <p class="text-muted mb-0">Loading product preview...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -440,13 +440,30 @@
         });
 
         const modalTriggers = document.querySelectorAll(".js-product-modal");
-        const previewFrame = document.getElementById("productPreviewFrame");
+        const previewContent = document.getElementById("productPreviewContent");
         modalTriggers.forEach((trigger) => {
-            trigger.addEventListener("click", (event) => {
-                if (!previewFrame) {
+            trigger.addEventListener("click", async () => {
+                if (!previewContent) {
                     return;
                 }
-                previewFrame.src = trigger.dataset.productUrl || trigger.href;
+                previewContent.innerHTML = "<p class=\"text-muted mb-0\">Loading product preview...</p>";
+                const previewUrl = trigger.dataset.productUrl || trigger.href;
+                try {
+                    const response = await fetch(previewUrl, {
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                        },
+                    });
+                    if (!response.ok) {
+                        throw new Error("Preview failed");
+                    }
+                    previewContent.innerHTML = await response.text();
+                } catch (error) {
+                    previewContent.innerHTML = `
+                        <p class="text-danger">Unable to load product preview.</p>
+                        <a class="btn btn-outline-secondary" href="${trigger.href}">View full product page</a>
+                    `;
+                }
             });
         });
 
@@ -490,9 +507,9 @@
         });
 
         const previewModal = document.getElementById("productPreviewModal");
-        if (previewModal && previewFrame) {
+        if (previewModal && previewContent) {
             previewModal.addEventListener("hidden.bs.modal", () => {
-                previewFrame.src = "";
+                previewContent.innerHTML = "<p class=\"text-muted mb-0\">Loading product preview...</p>";
             });
         }
     })();

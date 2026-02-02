@@ -1,0 +1,33 @@
+{% load humanize %}
+{% load thumbnail %}
+
+<div class="row g-4">
+    <div class="col-md-5">
+        {% if primary_image and primary_image.product_image %}
+            {% thumbnail primary_image.product_image "420x420" crop="center" as im %}
+                <img src="{{ im.url }}" alt="{{ ad.title }}" class="img-fluid rounded" />
+            {% endthumbnail %}
+        {% else %}
+            <div class="border rounded d-flex align-items-center justify-content-center" style="height: 280px;">
+                <span class="text-muted">No image available</span>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-md-7">
+        <h4 class="mb-2">{{ ad.title }}</h4>
+        <div class="mb-3">
+            {% if ad.discount_price %}
+                <span class="fw-bold">£{{ ad.discount_price|intcomma }}</span>
+                <span class="text-muted text-decoration-line-through ms-2">£{{ ad.price|intcomma }}</span>
+            {% else %}
+                <span class="fw-bold">£{{ ad.price|intcomma }}</span>
+            {% endif %}
+        </div>
+        {% if ad.description %}
+            <p class="text-muted">{{ ad.description|truncatewords:30 }}</p>
+        {% endif %}
+        <div class="d-flex gap-2 mt-4">
+            <a class="btn btn-secondary" href="{{ ad.get_absolute_url }}">View full details</a>
+        </div>
+    </div>
+</div>
