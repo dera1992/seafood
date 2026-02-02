@@ -153,7 +153,7 @@
                                                                 name="product_name"
                                                                 type="text"
                                                                 list="product-options"
-                                                                value="{{ edit_forms[item.id].product_name.value|default_if_none:'' }}"
+                                                                value="{{ item.edit_form.product_name.value|default_if_none:'' }}"
                                                                 data-product-autocomplete
                                                                 data-product-id-target="edit-product-id-{{ item.id }}"
                                                                 placeholder="Start typing a product"
@@ -162,17 +162,17 @@
                                                                 id="edit-product-id-{{ item.id }}"
                                                                 name="product_id"
                                                                 type="hidden"
-                                                                value="{{ edit_forms[item.id].product_id.value|default_if_none:'' }}"
+                                                                value="{{ item.edit_form.product_id.value|default_if_none:'' }}"
                                                             />
-                                                            {{ edit_forms[item.id].product }}
+                                                            {{ item.edit_form.product }}
                                                         </div>
                                                         <div class="mb-3">
-                                                            {{ edit_forms[item.id].name.label_tag }}
-                                                            {{ edit_forms[item.id].name }}
+                                                            {{ item.edit_form.name.label_tag }}
+                                                            {{ item.edit_form.name }}
                                                         </div>
                                                         <div class="mb-3">
-                                                            {{ edit_forms[item.id].quantity.label_tag }}
-                                                            {{ edit_forms[item.id].quantity }}
+                                                            {{ item.edit_form.quantity.label_tag }}
+                                                            {{ item.edit_form.quantity }}
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
