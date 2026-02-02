@@ -90,7 +90,7 @@
                 "Content-Type": "application/json",
                 "X-CSRFToken": getCookie("csrftoken")
             },
-            body: JSON.stringify({ text })
+            body: JSON.stringify({ text, prefer_rules: true, mode: "budget" })
         })
         .then(response => response.json())
         .then(data => {
