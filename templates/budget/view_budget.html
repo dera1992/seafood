@@ -52,12 +52,19 @@
                             <datalist id="product-options"></datalist>
                             <div class="row">
                                 <div class="col-md-5 col-12 mb-25">
+                                    <label for="add-product-search">Search products</label>
+                                    <input
+                                        id="add-product-search"
+                                        class="form-control mb-2"
+                                        type="text"
+                                        data-select-filter="id_product"
+                                        placeholder="Search products"
+                                    />
                                     {{ add_form.product.label_tag }}
                                     {{ add_form.product }}
                                 </div>
                                 <div class="col-md-4 col-12 mb-25">
-                                    {{ add_form.name.label_tag }}
-                                    {{ add_form.name }}
+                                    {{ add_form.name.as_hidden }}
                                 </div>
                                 <div class="col-md-3 col-12 mb-25">
                                     {{ add_form.quantity.label_tag }}
@@ -318,78 +325,30 @@
 </div>
 <script>
     (function () {
-        const cache = new Map();
-
-        document.querySelectorAll("[data-product-autocomplete]").forEach((input) => {
-            let timeoutId = null;
-            const resultsTarget = document.getElementById(input.dataset.resultsTarget);
-            const renderResults = (results) => {
-                if (!resultsTarget) {
-                    return;
-                }
-                resultsTarget.innerHTML = "";
-                if (!results.length) {
-                    return;
-                }
-                results.forEach((result) => {
-                    const button = document.createElement("button");
-                    button.type = "button";
-                    button.className = "autocomplete-results__item";
-                    button.textContent = result.title;
-                    button.addEventListener("click", () => {
-                        input.value = result.title;
-                        const hidden = document.getElementById(input.dataset.productIdTarget);
-                        if (hidden) {
-                            hidden.value = result.id;
-                        }
-                        resultsTarget.innerHTML = "";
-                    });
-                    resultsTarget.appendChild(button);
-                });
-            };
+        document.querySelectorAll("[data-select-filter]").forEach((input) => {
+            const targetId = input.dataset.selectFilter;
+            const select = document.getElementById(targetId);
+            if (!select) {
+                return;
+            }
+            const options = Array.from(select.options).map((option) => ({
+                value: option.value,
+                text: option.text,
+                selected: option.selected,
+            }));
 
             input.addEventListener("input", () => {
-                const targetId = input.dataset.productIdTarget;
-                const hidden = document.getElementById(targetId);
-                if (!hidden) {
-                    return;
-                }
-                const currentValue = input.value.trim();
-                hidden.value = "";
-
-                if (timeoutId) {
-                    clearTimeout(timeoutId);
-                }
-                if (!currentValue) {
-                    renderResults([]);
-                    return;
-                }
-                timeoutId = setTimeout(() => {
-                    if (cache.has(currentValue)) {
-                        renderResults(cache.get(currentValue));
-                        return;
+                const query = input.value.trim().toLowerCase();
+                select.innerHTML = "";
+                options.forEach((option) => {
+                    if (!query || option.text.toLowerCase().includes(query)) {
+                        const newOption = document.createElement("option");
+                        newOption.value = option.value;
+                        newOption.text = option.text;
+                        newOption.selected = option.selected;
+                        select.appendChild(newOption);
                     }
-                    const url = input.dataset.autocompleteUrl;
-                    if (!url) {
-                        return;
-                    }
-                    fetch(`${url}?q=${encodeURIComponent(currentValue)}`)
-                        .then((response) => response.json())
-                        .then((data) => {
-                            const results = data.results || [];
-                            cache.set(currentValue, results);
-                            renderResults(results);
-                        })
-                        .catch(() => {});
-                }, 200);
-            });
-
-            input.addEventListener("blur", () => {
-                if (resultsTarget) {
-                    setTimeout(() => {
-                        resultsTarget.innerHTML = "";
-                    }, 150);
-                }
+                });
             });
         });
     })();

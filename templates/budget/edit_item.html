@@ -29,12 +29,19 @@
                         <form method="post">
                             {% csrf_token %}
                             <div class="mb-25">
+                                <label for="edit-product-search">Search products</label>
+                                <input
+                                    id="edit-product-search"
+                                    class="form-control mb-2"
+                                    type="text"
+                                    data-select-filter="id_product"
+                                    placeholder="Search products"
+                                />
                                 {{ form.product.label_tag }}
                                 {{ form.product }}
                             </div>
                             <div class="mb-25">
-                                {{ form.name.label_tag }}
-                                {{ form.name }}
+                                {{ form.name.as_hidden }}
                             </div>
                             <div class="mb-25">
                                 {{ form.quantity.label_tag }}
@@ -49,4 +56,34 @@
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        document.querySelectorAll("[data-select-filter]").forEach((input) => {
+            const targetId = input.dataset.selectFilter;
+            const select = document.getElementById(targetId);
+            if (!select) {
+                return;
+            }
+            const options = Array.from(select.options).map((option) => ({
+                value: option.value,
+                text: option.text,
+                selected: option.selected,
+            }));
+
+            input.addEventListener("input", () => {
+                const query = input.value.trim().toLowerCase();
+                select.innerHTML = "";
+                options.forEach((option) => {
+                    if (!query || option.text.toLowerCase().includes(query)) {
+                        const newOption = document.createElement("option");
+                        newOption.value = option.value;
+                        newOption.text = option.text;
+                        newOption.selected = option.selected;
+                        select.appendChild(newOption);
+                    }
+                });
+            });
+        });
+    })();
+</script>
 {% endblock %}
