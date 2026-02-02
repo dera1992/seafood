@@ -45,20 +45,23 @@ def view_budget(request, budget_id):
     budget = get_object_or_404(Budget, id=budget_id, user=request.user)
     items = budget.items.select_related('product', 'product__category').all()
     add_form = ShoppingListItemForm()
+    edit_forms = {item.id: ShoppingListItemForm(instance=item) for item in items}
+    product_options = list(Products.objects.filter(is_active=True).order_by('title')[:200])
     template_form = BudgetTemplateForm()
 
     category_totals = {}
     for item in items:
-        category_name = item.product.category.name
-        category_totals[category_name] = category_totals.get(category_name, Decimal('0.00')) + item.total_cost
+        if item.product:
+            category_name = item.product.category.name
+            category_totals[category_name] = category_totals.get(category_name, Decimal('0.00')) + item.total_cost
 
-    discounted_items = [item for item in items if item.product.discount_price]
+    discounted_items = [item for item in items if item.product and item.product.discount_price]
     affordable_discounts = [
         item for item in discounted_items if item.total_cost <= max(budget.remaining_budget, Decimal('0.00'))
     ]
 
     remaining_budget = budget.remaining_budget
-    item_product_ids = [item.product_id for item in items]
+    item_product_ids = [item.product_id for item in items if item.product_id]
     suggested_discounts = []
     if remaining_budget > 0:
         suggested_discounts = list(
@@ -75,11 +78,21 @@ def view_budget(request, budget_id):
     active_order = Order.objects.filter(user=request.user, is_ordered=False).first()
     price_predictions = build_price_predictions(items)
     savings_suggestions = build_savings_suggestions(items, remaining_budget)
+    for item in items:
+        item.suggestions = []
+        if item.product or not item.name:
+            continue
+        item.suggestions = list(
+            Products.objects.filter(title__icontains=item.name, is_active=True)
+            .order_by('price')[:3]
+        )
 
     context = {
         'budget': budget,
         'items': items,
         'add_form': add_form,
+        'edit_forms': edit_forms,
+        'product_options': product_options,
         'category_totals': category_totals,
         'discounted_items': discounted_items,
         'affordable_discounts': affordable_discounts,
@@ -103,8 +116,9 @@ def add_to_budget(request, budget_id):
     form = ShoppingListItemForm(request.POST)
     if form.is_valid():
         product = form.cleaned_data['product']
+        name = form.cleaned_data.get('name', '')
         quantity = form.cleaned_data['quantity']
-        item, created = ShoppingListItem.objects.get_or_create(budget=budget, product=product)
+        item, created = ShoppingListItem.objects.get_or_create(budget=budget, product=product, name=name)
         if created:
             item.quantity = quantity
         else:
@@ -114,6 +128,26 @@ def add_to_budget(request, budget_id):
     else:
         messages.error(request, 'Unable to add that item. Please try again.')
     return redirect('budget:view-budget', budget_id=budget.id)
+
+
+@login_required
+def edit_budget_item(request, budget_id, item_id):
+    budget = get_object_or_404(Budget, id=budget_id, user=request.user)
+    item = get_object_or_404(ShoppingListItem, id=item_id, budget=budget)
+    if request.method == 'POST':
+        form = ShoppingListItemForm(request.POST, instance=item)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Shopping list item updated.')
+            return redirect('budget:view-budget', budget_id=budget.id)
+    else:
+        form = ShoppingListItemForm(instance=item)
+    product_options = list(Products.objects.filter(is_active=True).order_by('title')[:200])
+    return render(
+        request,
+        'budget/edit_item.html',
+        {'budget': budget, 'form': form, 'item': item, 'product_options': product_options},
+    )
 
 
 @login_required
@@ -137,6 +171,7 @@ def add_from_cart(request, budget_id):
         item, created = ShoppingListItem.objects.get_or_create(
             budget=budget,
             product=order_item.item,
+            name="",
         )
         if created:
             item.quantity = order_item.quantity
@@ -156,6 +191,7 @@ def duplicate_budget(request, budget_id):
         ShoppingListItem.objects.create(
             budget=budget,
             product=item.product,
+            name=item.name,
             quantity=item.quantity,
         )
     messages.success(request, 'Budget duplicated. You can now adjust it for a new trip.')
@@ -174,6 +210,8 @@ def create_template(request, budget_id):
         template.user = request.user
         template.save()
         for item in budget.items.all():
+            if not item.product:
+                continue
             BudgetTemplateItem.objects.create(
                 template=template,
                 product=item.product,
@@ -240,6 +278,7 @@ def apply_template(request, budget_id, template_id):
         item, created = ShoppingListItem.objects.get_or_create(
             budget=budget,
             product=template_item.product,
+            name="",
         )
         if created:
             item.quantity = template_item.quantity
