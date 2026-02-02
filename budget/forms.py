@@ -55,7 +55,11 @@ class ShoppingListItemForm(forms.ModelForm):
         fields = ['product', 'name', 'quantity']
         widgets = {
             'product': forms.HiddenInput(),
-            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Custom item name'}),
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Custom item name',
+                'id': 'shopping-list-name',
+            }),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
         }
 
