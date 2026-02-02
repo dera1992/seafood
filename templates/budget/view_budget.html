@@ -50,15 +50,31 @@
                         <form method="post" action="{% url 'budget:add-item' budget.id %}">
                             {% csrf_token %}
                             <div class="row">
-                                <div class="col-md-7 col-12 mb-25">
-                                    {{ add_form.product.label_tag }}
+                                <div class="col-md-5 col-12 mb-25">
+                                    <label for="add-product-name">Product</label>
+                                    <input
+                                        id="add-product-name"
+                                        class="form-control"
+                                        name="product_name"
+                                        type="text"
+                                        data-product-autocomplete
+                                        data-autocomplete-url="{% url 'budget:product-autocomplete' %}"
+                                        data-product-id-target="add-product-id"
+                                        data-results-target="add-product-results"
+                                        placeholder="Start typing a product"
+                                    />
+                                    <input id="add-product-id" name="product_id" type="hidden" />
+                                    <div id="add-product-results" class="autocomplete-results"></div>
                                     {{ add_form.product }}
+                                </div>
+                                <div class="col-md-4 col-12 mb-25">
+                                    {{ add_form.name.as_hidden }}
                                 </div>
                                 <div class="col-md-3 col-12 mb-25">
                                     {{ add_form.quantity.label_tag }}
                                     {{ add_form.quantity }}
                                 </div>
-                                <div class="col-md-2 col-12 mb-25 d-flex align-items-end">
+                                <div class="col-md-12 col-12 mb-25 d-flex align-items-end">
                                     <button class="btn btn-secondary" type="submit">Add</button>
                                 </div>
                             </div>
@@ -83,11 +99,29 @@
                                 <tbody>
                                 {% for item in items %}
                                     <tr>
-                                        <td>{{ item.product.title }}</td>
+                                        <td>
+                                            {% if item.product %}
+                                                {{ item.product.title }}
+                                            {% else %}
+                                                {{ item.name|default:"Custom item" }}
+                                                <span class="badge bg-warning text-dark ms-2">Unmatched</span>
+                                                {% if item.suggestions %}
+                                                    <div class="text-muted small mt-1">Suggestions:</div>
+                                                    <ul class="list-unstyled small mb-0">
+                                                        {% for suggestion in item.suggestions %}
+                                                            <li>{{ suggestion.title }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
                                         <td>£{{ item.unit_price|intcomma }}</td>
                                         <td>{{ item.quantity }}</td>
                                         <td>£{{ item.total_cost|intcomma }}</td>
                                         <td>
+                                            <a class="btn btn-sm btn-outline-secondary me-2" href="{% url 'budget:edit-item' budget.id item.id %}" aria-label="Edit item">
+                                                <i class="fa fa-pencil"></i>
+                                            </a>
                                             <a href="{% url 'budget:remove-item' budget.id item.id %}"><i class="fa fa-trash-o"></i></a>
                                         </td>
                                     </tr>
@@ -245,4 +279,82 @@
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        const cache = new Map();
+
+        document.querySelectorAll("[data-product-autocomplete]").forEach((input) => {
+            let timeoutId = null;
+            const resultsTarget = document.getElementById(input.dataset.resultsTarget);
+            const renderResults = (results) => {
+                if (!resultsTarget) {
+                    return;
+                }
+                resultsTarget.innerHTML = "";
+                if (!results.length) {
+                    return;
+                }
+                results.forEach((result) => {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "autocomplete-results__item";
+                    button.textContent = result.title;
+                    button.addEventListener("click", () => {
+                        input.value = result.title;
+                        const hidden = document.getElementById(input.dataset.productIdTarget);
+                        if (hidden) {
+                            hidden.value = result.id;
+                        }
+                        resultsTarget.innerHTML = "";
+                    });
+                    resultsTarget.appendChild(button);
+                });
+            };
+
+            input.addEventListener("input", () => {
+                const targetId = input.dataset.productIdTarget;
+                const hidden = document.getElementById(targetId);
+                if (!hidden) {
+                    return;
+                }
+                const currentValue = input.value.trim();
+                hidden.value = "";
+
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+                if (!currentValue) {
+                    renderResults([]);
+                    return;
+                }
+                timeoutId = setTimeout(() => {
+                    if (cache.has(currentValue)) {
+                        renderResults(cache.get(currentValue));
+                        return;
+                    }
+                    const url = input.dataset.autocompleteUrl;
+                    if (!url) {
+                        return;
+                    }
+                    fetch(`${url}?q=${encodeURIComponent(currentValue)}`)
+                        .then((response) => response.json())
+                        .then((data) => {
+                            const results = data.results || [];
+                            cache.set(currentValue, results);
+                            renderResults(results);
+                        })
+                        .catch(() => {});
+                }, 200);
+            });
+
+            input.addEventListener("blur", () => {
+                if (resultsTarget) {
+                    setTimeout(() => {
+                        resultsTarget.innerHTML = "";
+                    }, 150);
+                }
+            });
+        });
+    })();
+</script>
 {% endblock %}
