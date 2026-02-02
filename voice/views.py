@@ -1,4 +1,5 @@
 import hashlib
+import re
 import json
 
 from django.core.cache import cache
@@ -48,6 +49,16 @@ def interpret_voice(request):
         parsed_schema["intent"] = INTENT_PRODUCT_SEARCH
         parsed_schema["entities"]["query"] = remaining_query(normalized)
         parsed_schema["confidence"] = max(parsed_schema.get("confidence", 0), 0.7)
+    if prefer_rules and parsed_schema.get("intent") == INTENT_BUDGET_PLAN:
+        if not parsed_schema["entities"].get("items"):
+            items_text = remaining_query(normalized)
+            if items_text:
+                items = [
+                    item.strip()
+                    for item in re.split(r"\band\b|,", items_text)
+                    if item.strip()
+                ]
+                parsed_schema["entities"]["items"] = items[:20]
     nearby_only = "near me" in normalized
     schema = parsed_schema
 
