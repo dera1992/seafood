@@ -36,11 +36,9 @@
                     <div class="cart-summary-button">
                         <a class="btn btn-secondary" href="{% url 'budget:duplicate-budget' budget.id %}">Duplicate Budget</a>
                         <a class="btn btn-secondary" href="{% url 'budget:add-from-cart' budget.id %}">Add Items From Cart</a>
-                        {% if active_order %}
-                            <a class="btn btn-secondary" href="{% url 'order:checkout' %}">Proceed to Checkout</a>
-                        {% else %}
-                            <a class="btn btn-secondary" href="{% url 'cart:order-summary' %}">Review Cart</a>
-                        {% endif %}
+                        <a class="btn btn-secondary" href="{% url 'order:checkout' %}?budget={{ budget.id }}">
+                            Proceed to Checkout
+                        </a>
                     </div>
                 </div>
 
@@ -88,11 +86,9 @@
                     <div class="cart-summary-wrap">
                         <div class="d-flex justify-content-between align-items-center mb-20">
                             <h4 class="mb-0">Your shopping list</h4>
-                            {% if active_order %}
-                                <a class="btn btn-secondary btn-sm" href="{% url 'order:checkout' %}">Proceed to Checkout</a>
-                            {% else %}
-                                <a class="btn btn-secondary btn-sm" href="{% url 'cart:order-summary' %}">Review Cart</a>
-                            {% endif %}
+                            <a class="btn btn-secondary btn-sm" href="{% url 'order:checkout' %}?budget={{ budget.id }}">
+                                Proceed to Checkout
+                            </a>
                         </div>
                         <div class="cart-table table-responsive">
                             <table class="table">
@@ -107,7 +103,7 @@
                                 </thead>
                                 <tbody>
                                 {% for item in items %}
-                                    <tr>
+                                    <tr data-item-row="{{ item.id }}">
                                         <td>
                                             {% if item.product %}
                                                 {{ item.product.title }}
@@ -124,12 +120,13 @@
                                                 {% endif %}
                                             {% endif %}
                                         </td>
-                                        <td>£{{ item.unit_price|intcomma }}</td>
+                                        <td data-unit-price>£{{ item.unit_price|intcomma }}</td>
                                         <td>
                                             <form
                                                 method="post"
                                                 action="{% url 'budget:update-item-quantity' budget.id item.id %}"
-                                                class="d-flex align-items-center gap-2"
+                                                class="d-flex align-items-center gap-2 js-quantity-form"
+                                                data-item-id="{{ item.id }}"
                                             >
                                                 {% csrf_token %}
                                                 <input
@@ -142,10 +139,17 @@
                                                 <button class="btn btn-sm btn-outline-secondary" type="submit">Update</button>
                                             </form>
                                         </td>
-                                        <td>£{{ item.total_cost|intcomma }}</td>
+                                        <td data-total-cost>£{{ item.total_cost|intcomma }}</td>
                                         <td>
                                             {% if item.product %}
-                                                <a class="btn btn-sm btn-outline-secondary me-2" href="{{ item.product.get_absolute_url }}" aria-label="View product">
+                                                <a
+                                                    class="btn btn-sm btn-outline-secondary me-2 js-product-modal"
+                                                    href="{{ item.product.get_absolute_url }}"
+                                                    data-product-url="{{ item.product.get_absolute_url }}"
+                                                    data-toggle="modal"
+                                                    data-target="#productPreviewModal"
+                                                    aria-label="View product"
+                                                >
                                                     <i class="fa fa-eye"></i>
                                                 </a>
                                             {% endif %}
@@ -357,6 +361,33 @@
         </div>
     </div>
 </div>
+<div
+    class="modal fade"
+    id="productPreviewModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="productPreviewLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productPreviewLabel">Product preview</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe
+                    id="productPreviewFrame"
+                    title="Product preview"
+                    src=""
+                    style="width: 100%; height: 70vh; border: 0;"
+                ></iframe>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     (function () {
         document.querySelectorAll("[data-product-input]").forEach((input) => {
@@ -407,6 +438,63 @@
             input.addEventListener("input", syncFromInput);
             input.addEventListener("change", syncFromInput);
         });
+
+        const modalTriggers = document.querySelectorAll(".js-product-modal");
+        const previewFrame = document.getElementById("productPreviewFrame");
+        modalTriggers.forEach((trigger) => {
+            trigger.addEventListener("click", (event) => {
+                if (!previewFrame) {
+                    return;
+                }
+                previewFrame.src = trigger.dataset.productUrl || trigger.href;
+            });
+        });
+
+        const formatCurrency = (value) => {
+            const numberValue = Number.parseFloat(value);
+            if (Number.isNaN(numberValue)) {
+                return value;
+            }
+            return new Intl.NumberFormat("en-GB", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }).format(numberValue);
+        };
+
+        document.querySelectorAll(".js-quantity-form").forEach((form) => {
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const formData = new FormData(form);
+                const response = await fetch(form.action, {
+                    method: "POST",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    window.alert("Unable to update quantity. Please try again.");
+                    return;
+                }
+
+                const data = await response.json();
+                const row = form.closest("[data-item-row]");
+                if (row) {
+                    const totalCell = row.querySelector("[data-total-cost]");
+                    if (totalCell) {
+                        totalCell.textContent = `£${formatCurrency(data.total_cost)}`;
+                    }
+                }
+            });
+        });
+
+        const previewModal = document.getElementById("productPreviewModal");
+        if (previewModal && previewFrame) {
+            previewModal.addEventListener("hidden.bs.modal", () => {
+                previewFrame.src = "";
+            });
+        }
     })();
 </script>
 {% endblock %}

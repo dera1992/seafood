@@ -20,6 +20,7 @@ from foodCreate.models import Products, ProductsImages, Category, SubCategory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count
 from django.http import HttpRequest, HttpResponse
+from budget.models import Budget
 
 
 from datetime import date
@@ -41,7 +42,53 @@ def create_ref_code():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=20))
 
 class CheckoutView(View):
+    def _sync_budget_items(self, budget_id):
+        budget = Budget.objects.filter(id=budget_id, user=self.request.user).first()
+        if not budget:
+            return None, 0, 0
+
+        order, _ = Order.objects.get_or_create(user=self.request.user, is_ordered=False)
+        added_count = 0
+        skipped_count = 0
+        for item in budget.items.select_related('product').all():
+            if not item.product:
+                skipped_count += 1
+                continue
+            order_item, _ = OrderItem.objects.get_or_create(
+                user=self.request.user,
+                item=item.product,
+                is_ordered=False,
+            )
+            order_item.quantity = item.quantity
+            order_item.save()
+            order.items.add(order_item)
+            added_count += 1
+
+        return order, added_count, skipped_count
+
     def get(self, *args, **kwargs):
+        budget_id = self.request.GET.get('budget')
+        if budget_id:
+            order, added_count, skipped_count = self._sync_budget_items(budget_id)
+            if order:
+                if added_count:
+                    messages.success(self.request, 'Your shopping list items have been added to the cart.')
+                if skipped_count:
+                    messages.warning(
+                        self.request,
+                        'Some custom items could not be added to the cart. Please select products for them.',
+                    )
+                form = CheckoutForm()
+                states = State.objects.all()
+                cities = Lga.objects.all()
+                context = {
+                    'form': form,
+                    'order': order,
+                    'states': states,
+                    'cities': cities,
+                }
+                return render(self.request, "owner/checkout.html", context)
+
         try:
             order = Order.objects.get(user=self.request.user, is_ordered=False)
             form = CheckoutForm()

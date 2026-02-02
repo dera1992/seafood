@@ -138,6 +138,13 @@ def edit_budget_item(request, budget_id, item_id):
     if request.method == 'POST':
         form = ShoppingListItemForm(request.POST, instance=item)
         if form.is_valid():
+            product = form.cleaned_data.get('product')
+            if product and ShoppingListItem.objects.filter(budget=budget, product=product).exclude(id=item.id).exists():
+                messages.warning(
+                    request,
+                    'That product is already in your shopping list. Please update the quantity instead.',
+                )
+                return redirect('budget:view-budget', budget_id=budget.id)
             form.save()
             messages.success(request, 'Shopping list item updated.')
             return redirect('budget:view-budget', budget_id=budget.id)
@@ -182,9 +189,17 @@ def update_budget_item_quantity(request, budget_id, item_id):
 
     form = ShoppingListItemQuantityForm(request.POST, instance=item)
     if form.is_valid():
-        form.save()
+        updated_item = form.save()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'quantity': updated_item.quantity,
+                'total_cost': str(updated_item.total_cost),
+                'unit_price': str(updated_item.unit_price),
+            })
         messages.success(request, 'Quantity updated.')
     else:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'error': 'Unable to update quantity.'}, status=400)
         messages.error(request, 'Unable to update quantity. Please try again.')
     return redirect('budget:view-budget', budget_id=budget.id)
 
