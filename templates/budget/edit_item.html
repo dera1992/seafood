@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Shopping List Item{% endblock %}
+
+{% block content %}
+<div class="breadcrumb-area mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="breadcrumb-container">
+                    <ul>
+                        <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                        <li><a href="{% url "budget:view-budget" budget.id %}">Budget</a></li>
+                        <li class="active">Edit item</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-section section mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-12">
+                <div class="cart-summary">
+                    <div class="cart-summary-wrap">
+                        <h4>Edit shopping list item</h4>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-25">
+                                <label for="edit-product-input">Product</label>
+                                <input
+                                    id="edit-product-input"
+                                    class="form-control"
+                                    type="text"
+                                    data-product-input="id_product"
+                                    data-name-input="id_name"
+                                    data-product-datalist="edit-product-options"
+                                    placeholder="Search products or enter a custom item"
+                                    autocomplete="off"
+                                    list="edit-product-options"
+                                />
+                                <datalist id="edit-product-options"></datalist>
+                                <div class="d-none">
+                                    {{ form.product }}
+                                </div>
+                            </div>
+                            <div class="mb-25">
+                                {{ form.name.as_hidden }}
+                            </div>
+                            <div class="mb-25">
+                                {{ form.quantity.label_tag }}
+                                {{ form.quantity }}
+                            </div>
+                            <button class="btn btn-secondary" type="submit">Save</button>
+                            <a class="btn btn-outline-secondary" href="{% url "budget:view-budget" budget.id %}">Cancel</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    (function () {
+        document.querySelectorAll("[data-product-input]").forEach((input) => {
+            const select = document.getElementById(input.dataset.productInput);
+            const nameInput = document.getElementById(input.dataset.nameInput);
+            const datalist = document.getElementById(input.dataset.productDatalist);
+            if (!select || !datalist) {
+                return;
+            }
+            const options = Array.from(select.options)
+                .filter((option) => option.value)
+                .map((option) => ({
+                    value: option.value,
+                    text: option.text.trim(),
+                }));
+            datalist.innerHTML = "";
+            options.forEach((option) => {
+                const entry = document.createElement("option");
+                entry.value = option.text;
+                datalist.appendChild(entry);
+            });
+
+            const syncFromInput = () => {
+                const query = input.value.trim();
+                const match = options.find(
+                    (option) => option.text.toLowerCase() === query.toLowerCase(),
+                );
+                if (match) {
+                    select.value = match.value;
+                    if (nameInput) {
+                        nameInput.value = "";
+                    }
+                } else {
+                    select.value = "";
+                    if (nameInput) {
+                        nameInput.value = query;
+                    }
+                }
+            };
+
+            const selectedOption = select.options[select.selectedIndex];
+            if (selectedOption && selectedOption.value) {
+                input.value = selectedOption.text.trim();
+            } else if (nameInput && nameInput.value) {
+                input.value = nameInput.value;
+            }
+
+            input.addEventListener("input", syncFromInput);
+            input.addEventListener("change", syncFromInput);
+        });
+    })();
+</script>
+{% endblock %}

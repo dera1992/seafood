@@ -309,11 +309,18 @@ ul.thumb li img{
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
 }
 
+.modern-search {
+  height: auto;
+  padding-right: 0;
+}
+
 .modern-search input {
   border: none;
   background: transparent;
   padding: 10px 12px 10px 36px;
   flex: 1;
+  width: auto;
+  margin: 0;
 }
 
 .modern-search input:focus {
@@ -327,6 +334,9 @@ ul.thumb li img{
 }
 
 .modern-search button {
+  position: static;
+  width: auto;
+  height: auto;
   border-radius: 999px;
   padding: 10px 18px;
   background: #7ccf5b;
@@ -405,4 +415,23 @@ ul.thumb li img{
   margin: 0;
   font-size: 0.85rem;
   color: #2f4633;
+}
+
+.autocomplete-results {
+  position: relative;
+  z-index: 5;
+}
+
+.autocomplete-results__item {
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #d8e4dc;
+  border-top: none;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.autocomplete-results__item:hover {
+  background: #f4f8f5;
 }
