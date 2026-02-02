@@ -48,6 +48,7 @@ def view_budget(request, budget_id):
     budget = get_object_or_404(Budget, id=budget_id, user=request.user)
     items = budget.items.select_related('product', 'product__category').all()
     add_form = ShoppingListItemForm()
+    product_options = list(Products.objects.filter(is_active=True).order_by('title')[:200])
     template_form = BudgetTemplateForm()
 
     category_totals = {}
@@ -92,6 +93,7 @@ def view_budget(request, budget_id):
         'budget': budget,
         'items': items,
         'add_form': add_form,
+        'product_options': product_options,
         'category_totals': category_totals,
         'discounted_items': discounted_items,
         'affordable_discounts': affordable_discounts,
