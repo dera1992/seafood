@@ -435,3 +435,9 @@ ul.thumb li img{
 .autocomplete-results__item:hover {
   background: #f4f8f5;
 }
+.shopping-qty-input {
+    min-width: 70px;
+    max-width: 90px;
+    color: #212529;
+    background-color: #ffffff;
+}
