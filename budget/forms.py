@@ -13,11 +13,21 @@ class BudgetForm(forms.ModelForm):
 
 
 class ShoppingListItemForm(forms.ModelForm):
+    def clean(self):
+        cleaned_data = super().clean()
+        product = cleaned_data.get('product')
+        name = (cleaned_data.get('name') or '').strip()
+        if not product and not name:
+            raise forms.ValidationError('Select a product or enter a custom item name.')
+        cleaned_data['name'] = name
+        return cleaned_data
+
     class Meta:
         model = ShoppingListItem
-        fields = ['product', 'quantity']
+        fields = ['product', 'name', 'quantity']
         widgets = {
             'product': forms.Select(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Custom item name'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
         }
 
