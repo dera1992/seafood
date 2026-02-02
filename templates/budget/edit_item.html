@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Shopping List Item{% endblock %}
+
+{% block content %}
+<div class="breadcrumb-area mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="breadcrumb-container">
+                    <ul>
+                        <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                        <li><a href="{% url "budget:view-budget" budget.id %}">Budget</a></li>
+                        <li class="active">Edit item</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-section section mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-12">
+                <div class="cart-summary">
+                    <div class="cart-summary-wrap">
+                        <h4>Edit shopping list item</h4>
+                        <datalist id="product-options">
+                            {% for product in product_options %}
+                                <option value="{{ product.title }}" data-id="{{ product.id }}"></option>
+                            {% endfor %}
+                        </datalist>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-25">
+                                <label for="edit-product-name">Product</label>
+                                <input
+                                    id="edit-product-name"
+                                    class="form-control"
+                                    name="product_name"
+                                    type="text"
+                                    list="product-options"
+                                    value="{{ form.product_name.value|default_if_none:'' }}"
+                                    data-product-autocomplete
+                                    data-product-id-target="edit-product-id"
+                                    placeholder="Start typing a product"
+                                />
+                                <input
+                                    id="edit-product-id"
+                                    name="product_id"
+                                    type="hidden"
+                                    value="{{ form.product_id.value|default_if_none:'' }}"
+                                />
+                                {{ form.product }}
+                            </div>
+                            <div class="mb-25">
+                                {{ form.name.label_tag }}
+                                {{ form.name }}
+                            </div>
+                            <div class="mb-25">
+                                {{ form.quantity.label_tag }}
+                                {{ form.quantity }}
+                            </div>
+                            <button class="btn btn-secondary" type="submit">Save</button>
+                            <a class="btn btn-outline-secondary" href="{% url "budget:view-budget" budget.id %}">Cancel</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    (function () {
+        const options = document.querySelectorAll("#product-options option");
+        const lookup = new Map();
+        options.forEach((option) => {
+            lookup.set(option.value, option.dataset.id);
+        });
+
+        document.querySelectorAll("[data-product-autocomplete]").forEach((input) => {
+            input.addEventListener("input", () => {
+                const targetId = input.dataset.productIdTarget;
+                const hidden = document.getElementById(targetId);
+                if (!hidden) {
+                    return;
+                }
+                hidden.value = lookup.get(input.value) || "";
+            });
+        });
+    })();
+</script>
+{% endblock %}
