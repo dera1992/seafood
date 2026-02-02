@@ -72,9 +72,6 @@
                                 <div class="col-md-4 col-12 mb-25">
                                     {{ add_form.name.as_hidden }}
                                 </div>
-                                <div class="col-md-4 col-12 mb-25">
-                                    {{ add_form.name.as_hidden }}
-                                </div>
                                 <div class="col-md-3 col-12 mb-25">
                                     {{ add_form.quantity.label_tag }}
                                     {{ add_form.quantity }}
@@ -89,7 +86,14 @@
 
                 <div class="cart-summary">
                     <div class="cart-summary-wrap">
-                        <h4>Your shopping list</h4>
+                        <div class="d-flex justify-content-between align-items-center mb-20">
+                            <h4 class="mb-0">Your shopping list</h4>
+                            {% if active_order %}
+                                <a class="btn btn-secondary btn-sm" href="{% url 'order:checkout' %}">Proceed to Checkout</a>
+                            {% else %}
+                                <a class="btn btn-secondary btn-sm" href="{% url 'cart:order-summary' %}">Review Cart</a>
+                            {% endif %}
+                        </div>
                         <div class="cart-table table-responsive">
                             <table class="table">
                                 <thead>
@@ -121,9 +125,30 @@
                                             {% endif %}
                                         </td>
                                         <td>£{{ item.unit_price|intcomma }}</td>
-                                        <td>{{ item.quantity }}</td>
+                                        <td>
+                                            <form
+                                                method="post"
+                                                action="{% url 'budget:update-item-quantity' budget.id item.id %}"
+                                                class="d-flex align-items-center gap-2"
+                                            >
+                                                {% csrf_token %}
+                                                <input
+                                                    type="number"
+                                                    name="quantity"
+                                                    class="form-control form-control-sm"
+                                                    min="1"
+                                                    value="{{ item.quantity }}"
+                                                />
+                                                <button class="btn btn-sm btn-outline-secondary" type="submit">Update</button>
+                                            </form>
+                                        </td>
                                         <td>£{{ item.total_cost|intcomma }}</td>
                                         <td>
+                                            {% if item.product %}
+                                                <a class="btn btn-sm btn-outline-secondary me-2" href="{{ item.product.get_absolute_url }}" aria-label="View product">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
+                                            {% endif %}
                                             <a class="btn btn-sm btn-outline-secondary me-2" href="{% url 'budget:edit-item' budget.id item.id %}" aria-label="Edit item">
                                                 <i class="fa fa-pencil"></i>
                                             </a>

@@ -56,3 +56,12 @@ class BudgetTemplateItemForm(forms.ModelForm):
             'product': forms.Select(attrs={'class': 'form-control'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
         }
+
+
+class ShoppingListItemQuantityForm(forms.ModelForm):
+    class Meta:
+        model = ShoppingListItem
+        fields = ['quantity']
+        widgets = {
+            'quantity': forms.NumberInput(attrs={'class': 'form-control form-control-sm', 'min': 1}),
+        }

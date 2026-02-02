@@ -11,6 +11,7 @@ urlpatterns = [
     path('<int:budget_id>/', views.view_budget, name='view-budget'),
     path('<int:budget_id>/add-item/', views.add_to_budget, name='add-item'),
     path('<int:budget_id>/items/<int:item_id>/edit/', views.edit_budget_item, name='edit-item'),
+    path('<int:budget_id>/items/<int:item_id>/quantity/', views.update_budget_item_quantity, name='update-item-quantity'),
     path('<int:budget_id>/remove-item/<int:item_id>/', views.remove_from_budget, name='remove-item'),
     path('<int:budget_id>/from-cart/', views.add_from_cart, name='add-from-cart'),
     path('<int:budget_id>/duplicate/', views.duplicate_budget, name='duplicate-budget'),

@@ -13,6 +13,7 @@ from .forms import (
     BudgetForm,
     BudgetTemplateForm,
     BudgetTemplateItemForm,
+    ShoppingListItemQuantityForm,
     ShoppingListItemForm,
 )
 from .models import Budget, BudgetTemplate, BudgetTemplateItem, ShoppingListItem
@@ -169,6 +170,22 @@ def remove_from_budget(request, budget_id, item_id):
     item = get_object_or_404(ShoppingListItem, id=item_id, budget=budget)
     item.delete()
     messages.info(request, 'Item removed from your shopping list.')
+    return redirect('budget:view-budget', budget_id=budget.id)
+
+
+@login_required
+def update_budget_item_quantity(request, budget_id, item_id):
+    budget = get_object_or_404(Budget, id=budget_id, user=request.user)
+    item = get_object_or_404(ShoppingListItem, id=item_id, budget=budget)
+    if request.method != 'POST':
+        return redirect('budget:view-budget', budget_id=budget.id)
+
+    form = ShoppingListItemQuantityForm(request.POST, instance=item)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Quantity updated.')
+    else:
+        messages.error(request, 'Unable to update quantity. Please try again.')
     return redirect('budget:view-budget', budget_id=budget.id)
 
 
