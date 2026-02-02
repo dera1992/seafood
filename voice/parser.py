@@ -202,6 +202,10 @@ def _remaining_query(text):
     return cleaned
 
 
+def remaining_query(text):
+    return _remaining_query(text)
+
+
 def rules_parse(text):
     schema = build_schema()
     if not text:
