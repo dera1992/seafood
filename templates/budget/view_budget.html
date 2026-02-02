@@ -50,15 +50,19 @@
                         <form method="post" action="{% url 'budget:add-item' budget.id %}">
                             {% csrf_token %}
                             <div class="row">
-                                <div class="col-md-7 col-12 mb-25">
+                                <div class="col-md-5 col-12 mb-25">
                                     {{ add_form.product.label_tag }}
                                     {{ add_form.product }}
+                                </div>
+                                <div class="col-md-4 col-12 mb-25">
+                                    {{ add_form.name.label_tag }}
+                                    {{ add_form.name }}
                                 </div>
                                 <div class="col-md-3 col-12 mb-25">
                                     {{ add_form.quantity.label_tag }}
                                     {{ add_form.quantity }}
                                 </div>
-                                <div class="col-md-2 col-12 mb-25 d-flex align-items-end">
+                                <div class="col-md-12 col-12 mb-25 d-flex align-items-end">
                                     <button class="btn btn-secondary" type="submit">Add</button>
                                 </div>
                             </div>
@@ -83,11 +87,26 @@
                                 <tbody>
                                 {% for item in items %}
                                     <tr>
-                                        <td>{{ item.product.title }}</td>
+                                        <td>
+                                            {% if item.product %}
+                                                {{ item.product.title }}
+                                            {% else %}
+                                                {{ item.name|default:"Custom item" }}
+                                                {% if item.suggestions %}
+                                                    <div class="text-muted small mt-1">Suggestions:</div>
+                                                    <ul class="list-unstyled small mb-0">
+                                                        {% for suggestion in item.suggestions %}
+                                                            <li>{{ suggestion.title }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
                                         <td>£{{ item.unit_price|intcomma }}</td>
                                         <td>{{ item.quantity }}</td>
                                         <td>£{{ item.total_cost|intcomma }}</td>
                                         <td>
+                                            <a class="me-2" href="{% url 'budget:edit-item' budget.id item.id %}"><i class="fa fa-pencil"></i></a>
                                             <a href="{% url 'budget:remove-item' budget.id item.id %}"><i class="fa fa-trash-o"></i></a>
                                         </td>
                                     </tr>
