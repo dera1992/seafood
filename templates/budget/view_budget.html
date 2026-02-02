@@ -52,24 +52,12 @@
                             <datalist id="product-options"></datalist>
                             <div class="row">
                                 <div class="col-md-5 col-12 mb-25">
-                                    <label for="add-product-name">Product</label>
-                                    <input
-                                        id="add-product-name"
-                                        class="form-control"
-                                        name="product_name"
-                                        type="text"
-                                        data-product-autocomplete
-                                        data-autocomplete-url="{% url 'budget:product-autocomplete' %}"
-                                        data-product-id-target="add-product-id"
-                                        data-results-target="add-product-results"
-                                        placeholder="Start typing a product"
-                                    />
-                                    <input id="add-product-id" name="product_id" type="hidden" />
-                                    <div id="add-product-results" class="autocomplete-results"></div>
+                                    {{ add_form.product.label_tag }}
                                     {{ add_form.product }}
                                 </div>
                                 <div class="col-md-4 col-12 mb-25">
-                                    {{ add_form.name.as_hidden }}
+                                    {{ add_form.name.label_tag }}
+                                    {{ add_form.name }}
                                 </div>
                                 <div class="col-md-3 col-12 mb-25">
                                     {{ add_form.quantity.label_tag }}
