@@ -42,6 +42,7 @@ def interpret_voice(request):
         payload = {}
     text = payload.get("text", "")
     prefer_rules = payload.get("prefer_rules", False)
+    mode = payload.get("mode", "")
     normalized = normalize(text)
 
     parsed_schema = rules_parse(normalized)
@@ -59,6 +60,25 @@ def interpret_voice(request):
                     if item.strip()
                 ]
                 parsed_schema["entities"]["items"] = items[:20]
+    if mode == "budget" and parsed_schema.get("intent") == INTENT_HELP and normalized:
+        parsed_schema["intent"] = INTENT_BUDGET_PLAN
+    if mode == "budget" and not parsed_schema["entities"].get("items"):
+        items_text = remaining_query(normalized)
+        if items_text:
+            items = [
+                item.strip()
+                for item in re.split(r"\band\b|,", items_text)
+                if item.strip()
+            ]
+            parsed_schema["entities"]["items"] = items[:20]
+    if mode == "budget":
+        amount = parsed_schema["entities"].get("amount")
+        if amount is None:
+            cached_amount = request.session.get("voice_budget_amount")
+            if cached_amount is not None:
+                parsed_schema["entities"]["amount"] = cached_amount
+        else:
+            request.session["voice_budget_amount"] = amount
     nearby_only = "near me" in normalized
     schema = parsed_schema
 
