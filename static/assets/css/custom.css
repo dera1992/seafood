@@ -416,3 +416,22 @@ ul.thumb li img{
   font-size: 0.85rem;
   color: #2f4633;
 }
+
+.autocomplete-results {
+  position: relative;
+  z-index: 5;
+}
+
+.autocomplete-results__item {
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #d8e4dc;
+  border-top: none;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.autocomplete-results__item:hover {
+  background: #f4f8f5;
+}

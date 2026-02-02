@@ -26,7 +26,6 @@
                 <div class="cart-summary">
                     <div class="cart-summary-wrap">
                         <h4>Edit shopping list item</h4>
-                        <datalist id="product-options"></datalist>
                         <form method="post">
                             {% csrf_token %}
                             <div class="mb-25">
@@ -36,11 +35,11 @@
                                     class="form-control"
                                     name="product_name"
                                     type="text"
-                                    list="product-options"
                                     value="{{ form.product_name.value|default_if_none:'' }}"
                                     data-product-autocomplete
                                     data-autocomplete-url="{% url 'budget:product-autocomplete' %}"
                                     data-product-id-target="edit-product-id"
+                                    data-results-target="edit-product-results"
                                     placeholder="Start typing a product"
                                 />
                                 <input
@@ -49,11 +48,11 @@
                                     type="hidden"
                                     value="{{ form.product_id.value|default_if_none:'' }}"
                                 />
+                                <div id="edit-product-results" class="autocomplete-results"></div>
                                 {{ form.product }}
                             </div>
                             <div class="mb-25">
-                                {{ form.name.label_tag }}
-                                {{ form.name }}
+                                {{ form.name.as_hidden }}
                             </div>
                             <div class="mb-25">
                                 {{ form.quantity.label_tag }}
@@ -70,20 +69,35 @@
 </div>
 <script>
     (function () {
-        const datalist = document.getElementById("product-options");
         const cache = new Map();
-        const setOptions = (results) => {
-            datalist.innerHTML = "";
-            results.forEach((result) => {
-                const option = document.createElement("option");
-                option.value = result.title;
-                option.dataset.id = result.id;
-                datalist.appendChild(option);
-            });
-        };
-
         document.querySelectorAll("[data-product-autocomplete]").forEach((input) => {
             let timeoutId = null;
+            const resultsTarget = document.getElementById(input.dataset.resultsTarget);
+            const renderResults = (results) => {
+                if (!resultsTarget) {
+                    return;
+                }
+                resultsTarget.innerHTML = "";
+                if (!results.length) {
+                    return;
+                }
+                results.forEach((result) => {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "autocomplete-results__item";
+                    button.textContent = result.title;
+                    button.addEventListener("click", () => {
+                        input.value = result.title;
+                        const hidden = document.getElementById(input.dataset.productIdTarget);
+                        if (hidden) {
+                            hidden.value = result.id;
+                        }
+                        resultsTarget.innerHTML = "";
+                    });
+                    resultsTarget.appendChild(button);
+                });
+            };
+
             input.addEventListener("input", () => {
                 const targetId = input.dataset.productIdTarget;
                 const hidden = document.getElementById(targetId);
@@ -91,25 +105,18 @@
                     return;
                 }
                 const currentValue = input.value.trim();
-                const options = datalist.querySelectorAll("option");
-                let matched = "";
-                options.forEach((option) => {
-                    if (option.value === currentValue) {
-                        matched = option.dataset.id || "";
-                    }
-                });
-                hidden.value = matched;
+                hidden.value = "";
 
                 if (timeoutId) {
                     clearTimeout(timeoutId);
                 }
                 if (!currentValue) {
-                    datalist.innerHTML = "";
+                    renderResults([]);
                     return;
                 }
                 timeoutId = setTimeout(() => {
                     if (cache.has(currentValue)) {
-                        setOptions(cache.get(currentValue));
+                        renderResults(cache.get(currentValue));
                         return;
                     }
                     const url = input.dataset.autocompleteUrl;
@@ -121,10 +128,18 @@
                         .then((data) => {
                             const results = data.results || [];
                             cache.set(currentValue, results);
-                            setOptions(results);
+                            renderResults(results);
                         })
                         .catch(() => {});
                 }, 200);
+            });
+
+            input.addEventListener("blur", () => {
+                if (resultsTarget) {
+                    setTimeout(() => {
+                        resultsTarget.innerHTML = "";
+                    }, 150);
+                }
             });
         });
     })();
