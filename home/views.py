@@ -512,7 +512,23 @@ def ad_detail(request, id, slug):
                                                'profile':profile,'latests':latests,'is_favourite': is_favourite,
                                                 'categories': categories,'cart_product_form': cart_product_form,
                                                 'rating':rating, 'user_rating':user_rating,'reviews':reviews,
-                                                'affiliates':affiliates, 'is_shop_subscribed': is_shop_subscribed})
+                                               'affiliates':affiliates, 'is_shop_subscribed': is_shop_subscribed})
+
+
+def ad_preview(request, id, slug):
+    ad = get_object_or_404(Products, id=id, slug=slug, available=True)
+    adsimage = ProductsImages.objects.filter(products=ad)
+    primary_image = adsimage.first()
+    return render(
+        request,
+        'home/preview.html',
+        {
+            'ad': ad,
+            'primary_image': primary_image,
+        },
+    )
+
+
 @login_required
 def ads_favourite_list(request):
     user = request.user
