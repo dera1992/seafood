@@ -1,6 +1,8 @@
 import hashlib
 import re
 import json
+import re
+from decimal import Decimal
 
 from django.core.cache import cache
 from django.http import JsonResponse
@@ -8,6 +10,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
+from budget.models import Budget, ShoppingListItem
 from voice.ai import call_openai
 from voice.parser import (
     normalize,
@@ -109,13 +112,30 @@ def interpret_voice(request):
             validated["assistant_message"] = "No products matched. Try another search."
 
     elif validated["intent"] == INTENT_BUDGET_PLAN:
-        bundles, message = budget_plan(validated["entities"])
+        bundles, message, selected_products = budget_plan(validated["entities"])
         if message:
             validated["intent"] = INTENT_HELP
             validated["assistant_message"] = message
         else:
             results["bundles"] = bundles
             validated["assistant_message"] = validated["assistant_message"] or "Here is a bundle within your budget."
+            if mode == "budget" and request.user.is_authenticated:
+                amount = validated["entities"].get("amount")
+                budget = Budget.get_active_for_user(request.user)
+                if budget is None and amount is not None:
+                    budget = Budget.objects.create(
+                        user=request.user,
+                        total_budget=Decimal(str(amount)),
+                    )
+                elif budget is not None and amount is not None and budget.total_budget != amount:
+                    budget.total_budget = Decimal(str(amount))
+                    budget.save(update_fields=["total_budget", "updated_at"])
+                if budget is not None:
+                    for product in selected_products:
+                        ShoppingListItem.objects.get_or_create(
+                            budget=budget,
+                            product=product,
+                        )
 
     if validated["intent"] == INTENT_HELP and not validated["assistant_message"]:
         validated["assistant_message"] = "Please tell me what you want to buy or your budget."
