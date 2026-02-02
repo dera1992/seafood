@@ -1,5 +1,7 @@
 from django import forms
 
+from foodCreate.models import Products
+
 from .models import Budget, BudgetTemplate, BudgetTemplateItem, ShoppingListItem
 
 
