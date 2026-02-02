@@ -49,16 +49,33 @@
                         <h4>Add products to your shopping list</h4>
                         <form method="post" action="{% url 'budget:add-item' budget.id %}">
                             {% csrf_token %}
+                            <datalist id="product-options"></datalist>
                             <div class="row">
-                                <div class="col-md-7 col-12 mb-25">
-                                    {{ add_form.product.label_tag }}
+                                <div class="col-md-5 col-12 mb-25">
+                                    <label for="add-product-name">Product</label>
+                                    <input
+                                        id="add-product-name"
+                                        class="form-control"
+                                        name="product_name"
+                                        type="text"
+                                        list="product-options"
+                                        data-product-autocomplete
+                                        data-autocomplete-url="{% url 'budget:product-autocomplete' %}"
+                                        data-product-id-target="add-product-id"
+                                        placeholder="Start typing a product"
+                                    />
+                                    <input id="add-product-id" name="product_id" type="hidden" />
                                     {{ add_form.product }}
+                                </div>
+                                <div class="col-md-4 col-12 mb-25">
+                                    {{ add_form.name.label_tag }}
+                                    {{ add_form.name }}
                                 </div>
                                 <div class="col-md-3 col-12 mb-25">
                                     {{ add_form.quantity.label_tag }}
                                     {{ add_form.quantity }}
                                 </div>
-                                <div class="col-md-2 col-12 mb-25 d-flex align-items-end">
+                                <div class="col-md-12 col-12 mb-25 d-flex align-items-end">
                                     <button class="btn btn-secondary" type="submit">Add</button>
                                 </div>
                             </div>
@@ -83,11 +100,29 @@
                                 <tbody>
                                 {% for item in items %}
                                     <tr>
-                                        <td>{{ item.product.title }}</td>
+                                        <td>
+                                            {% if item.product %}
+                                                {{ item.product.title }}
+                                            {% else %}
+                                                {{ item.name|default:"Custom item" }}
+                                                <span class="badge bg-warning text-dark ms-2">Unmatched</span>
+                                                {% if item.suggestions %}
+                                                    <div class="text-muted small mt-1">Suggestions:</div>
+                                                    <ul class="list-unstyled small mb-0">
+                                                        {% for suggestion in item.suggestions %}
+                                                            <li>{{ suggestion.title }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
                                         <td>£{{ item.unit_price|intcomma }}</td>
                                         <td>{{ item.quantity }}</td>
                                         <td>£{{ item.total_cost|intcomma }}</td>
                                         <td>
+                                            <a class="btn btn-sm btn-outline-secondary me-2" href="{% url 'budget:edit-item' budget.id item.id %}" aria-label="Edit item">
+                                                <i class="fa fa-pencil"></i>
+                                            </a>
                                             <a href="{% url 'budget:remove-item' budget.id item.id %}"><i class="fa fa-trash-o"></i></a>
                                         </td>
                                     </tr>
@@ -245,4 +280,65 @@
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        const datalist = document.getElementById("product-options");
+        const cache = new Map();
+        const setOptions = (results) => {
+            datalist.innerHTML = "";
+            results.forEach((result) => {
+                const option = document.createElement("option");
+                option.value = result.title;
+                option.dataset.id = result.id;
+                datalist.appendChild(option);
+            });
+        };
+
+        document.querySelectorAll("[data-product-autocomplete]").forEach((input) => {
+            let timeoutId = null;
+            input.addEventListener("input", () => {
+                const targetId = input.dataset.productIdTarget;
+                const hidden = document.getElementById(targetId);
+                if (!hidden) {
+                    return;
+                }
+                const currentValue = input.value.trim();
+                const options = datalist.querySelectorAll("option");
+                let matched = "";
+                options.forEach((option) => {
+                    if (option.value === currentValue) {
+                        matched = option.dataset.id || "";
+                    }
+                });
+                hidden.value = matched;
+
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+                if (!currentValue) {
+                    datalist.innerHTML = "";
+                    return;
+                }
+                timeoutId = setTimeout(() => {
+                    if (cache.has(currentValue)) {
+                        setOptions(cache.get(currentValue));
+                        return;
+                    }
+                    const url = input.dataset.autocompleteUrl;
+                    if (!url) {
+                        return;
+                    }
+                    fetch(`${url}?q=${encodeURIComponent(currentValue)}`)
+                        .then((response) => response.json())
+                        .then((data) => {
+                            const results = data.results || [];
+                            cache.set(currentValue, results);
+                            setOptions(results);
+                        })
+                        .catch(() => {});
+                }, 200);
+            });
+        });
+    })();
+</script>
 {% endblock %}
