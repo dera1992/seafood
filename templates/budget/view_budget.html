@@ -52,14 +52,6 @@
                             <datalist id="product-options"></datalist>
                             <div class="row">
                                 <div class="col-md-5 col-12 mb-25">
-                                    <label for="add-product-search">Search products</label>
-                                    <input
-                                        id="add-product-search"
-                                        class="form-control mb-2"
-                                        type="text"
-                                        data-select-filter="id_product"
-                                        placeholder="Search products"
-                                    />
                                     {{ add_form.product.label_tag }}
                                     {{ add_form.product }}
                                 </div>
@@ -325,30 +317,40 @@
 </div>
 <script>
     (function () {
-        document.querySelectorAll("[data-select-filter]").forEach((input) => {
-            const targetId = input.dataset.selectFilter;
-            const select = document.getElementById(targetId);
-            if (!select) {
-                return;
-            }
+        document.querySelectorAll("#id_product").forEach((select) => {
+            let buffer = "";
+            let timeoutId = null;
             const options = Array.from(select.options).map((option) => ({
                 value: option.value,
                 text: option.text,
-                selected: option.selected,
             }));
 
-            input.addEventListener("input", () => {
-                const query = input.value.trim().toLowerCase();
+            const renderOptions = (query) => {
+                const lowered = query.toLowerCase();
                 select.innerHTML = "";
                 options.forEach((option) => {
-                    if (!query || option.text.toLowerCase().includes(query)) {
+                    if (!lowered || option.text.toLowerCase().includes(lowered)) {
                         const newOption = document.createElement("option");
                         newOption.value = option.value;
                         newOption.text = option.text;
-                        newOption.selected = option.selected;
                         select.appendChild(newOption);
                     }
                 });
+            };
+
+            select.addEventListener("keydown", (event) => {
+                if (event.key.length !== 1) {
+                    return;
+                }
+                buffer += event.key;
+                renderOptions(buffer);
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+                timeoutId = setTimeout(() => {
+                    buffer = "";
+                    renderOptions("");
+                }, 800);
             });
         });
     })();
