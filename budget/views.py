@@ -162,6 +162,7 @@ def add_from_cart(request, budget_id):
         item, created = ShoppingListItem.objects.get_or_create(
             budget=budget,
             product=order_item.item,
+            name="",
         )
         if created:
             item.quantity = order_item.quantity
@@ -181,6 +182,7 @@ def duplicate_budget(request, budget_id):
         ShoppingListItem.objects.create(
             budget=budget,
             product=item.product,
+            name=item.name,
             quantity=item.quantity,
         )
     messages.success(request, 'Budget duplicated. You can now adjust it for a new trip.')
@@ -199,6 +201,8 @@ def create_template(request, budget_id):
         template.user = request.user
         template.save()
         for item in budget.items.all():
+            if not item.product:
+                continue
             BudgetTemplateItem.objects.create(
                 template=template,
                 product=item.product,
@@ -265,6 +269,7 @@ def apply_template(request, budget_id, template_id):
         item, created = ShoppingListItem.objects.get_or_create(
             budget=budget,
             product=template_item.product,
+            name="",
         )
         if created:
             item.quantity = template_item.quantity

@@ -143,6 +143,7 @@ def interpret_voice(request):
                     ShoppingListItem.objects.get_or_create(
                         budget=budget_record,
                         product=product,
+                        name="",
                     )
                 for item_name in missing_items:
                     ShoppingListItem.objects.get_or_create(

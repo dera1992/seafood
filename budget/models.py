@@ -36,12 +36,12 @@ class Budget(models.Model):
 class ShoppingListItem(models.Model):
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Products, on_delete=models.CASCADE, null=True, blank=True)
-    name = models.CharField(max_length=255, blank=True)
+    name = models.CharField(max_length=255, blank=True, default="")
     quantity = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('budget', 'product')
+        unique_together = ('budget', 'product', 'name')
 
     def __str__(self) -> str:
         if self.product:

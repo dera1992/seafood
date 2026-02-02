@@ -17,4 +17,8 @@ class Migration(migrations.Migration):
             name="product",
             field=models.ForeignKey(blank=True, null=True, on_delete=models.deletion.CASCADE, to="foodCreate.products"),
         ),
+        migrations.AlterUniqueTogether(
+            name="shoppinglistitem",
+            unique_together={("budget", "product", "name")},
+        ),
     ]
