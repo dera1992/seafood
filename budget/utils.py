@@ -18,6 +18,8 @@ def build_price_predictions(items):
     today = timezone.localdate()
     for item in items:
         product = item.product
+        if not product:
+            continue
         if product.expires_on and product.expires_on <= today + timedelta(days=7):
             message = 'Discount ending soon — price may rise.'
         elif product.discount_price:
@@ -36,8 +38,9 @@ def build_savings_suggestions(items, remaining_budget):
     if remaining_budget <= 0:
         return suggestions
 
-    item_products = [item.product for item in items]
     for item in items:
+        if not item.product:
+            continue
         category = item.product.category
         current_price = get_effective_price(item.product)
         alternatives = Products.objects.filter(category=category)
