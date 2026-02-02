@@ -95,6 +95,10 @@
         .then(response => response.json())
         .then(data => {
             assistantMessage.textContent = data.assistant_message || "";
+            if (data.budget_url) {
+                window.location.assign(data.budget_url);
+                return;
+            }
             if (data.intent === "BUDGET_PLAN") {
                 renderBundles((data.results && data.results.bundles) || []);
             }

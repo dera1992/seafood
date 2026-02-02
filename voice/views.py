@@ -7,6 +7,7 @@ from decimal import Decimal
 from django.core.cache import cache
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
@@ -99,6 +100,19 @@ def interpret_voice(request):
         cache.set(cache_key, validated, CACHE_TTL_SECONDS)
 
     results = {}
+    budget_record = None
+    if mode == "budget" and request.user.is_authenticated:
+        amount = request.session.get("voice_budget_amount")
+        if amount is not None:
+            budget_record = Budget.get_active_for_user(request.user)
+            if budget_record is None:
+                budget_record = Budget.objects.create(
+                    user=request.user,
+                    total_budget=Decimal(str(amount)),
+                )
+            elif budget_record.total_budget != Decimal(str(amount)):
+                budget_record.total_budget = Decimal(str(amount))
+                budget_record.save(update_fields=["total_budget", "updated_at"])
 
     if validated["intent"] == INTENT_PRODUCT_SEARCH:
         results["products"] = product_search(
@@ -119,26 +133,17 @@ def interpret_voice(request):
         else:
             results["bundles"] = bundles
             validated["assistant_message"] = validated["assistant_message"] or "Here is a bundle within your budget."
-            if mode == "budget" and request.user.is_authenticated:
-                amount = validated["entities"].get("amount")
-                budget = Budget.get_active_for_user(request.user)
-                if budget is None and amount is not None:
-                    budget = Budget.objects.create(
-                        user=request.user,
-                        total_budget=Decimal(str(amount)),
+            if budget_record is not None:
+                for product in selected_products:
+                    ShoppingListItem.objects.get_or_create(
+                        budget=budget_record,
+                        product=product,
                     )
-                elif budget is not None and amount is not None and budget.total_budget != amount:
-                    budget.total_budget = Decimal(str(amount))
-                    budget.save(update_fields=["total_budget", "updated_at"])
-                if budget is not None:
-                    for product in selected_products:
-                        ShoppingListItem.objects.get_or_create(
-                            budget=budget,
-                            product=product,
-                        )
 
     if validated["intent"] == INTENT_HELP and not validated["assistant_message"]:
         validated["assistant_message"] = "Please tell me what you want to buy or your budget."
 
     response_payload = {**validated, "results": results}
+    if budget_record is not None:
+        response_payload["budget_url"] = reverse("budget:view-budget", args=[budget_record.id])
     return JsonResponse(response_payload)
