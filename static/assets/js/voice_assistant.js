@@ -14,6 +14,21 @@
     }
   };
 
+  const getCookie = (name) => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i += 1) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === `${name}=`) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  };
+
   const getRecognitionLang = () => {
     const documentLang = document.documentElement.lang?.trim();
     const fallbackLang = navigator.language || "en-US";
@@ -50,6 +65,77 @@
     return match ? match[1] : null;
   };
 
+  const buildSearchQuery = (payload, transcript) => {
+    if (!payload || payload.intent !== "PRODUCT_SEARCH") {
+      return cleanSearchQuery(transcript);
+    }
+
+    const items = (payload.entities && payload.entities.items) || [];
+    const query = (payload.entities && payload.entities.query) || "";
+    const maxPrice = payload.entities ? payload.entities.max_price : null;
+
+    const parts = [];
+    if (items.length) {
+      parts.push(items.join(" "));
+    } else if (query) {
+      parts.push(query);
+    }
+    if (maxPrice) {
+      parts.push(`under ${maxPrice}`);
+    }
+
+    return parts.length ? parts.join(" ").trim() : cleanSearchQuery(transcript);
+  };
+
+  const submitSearchTranscript = (transcript, input, statusElement, form) => {
+    if (!input) {
+      updateStatus(statusElement, "Unable to find the search field.");
+      return;
+    }
+
+    const csrfToken = getCookie("csrftoken");
+    if (!csrfToken || !window.fetch) {
+      const cleaned = cleanSearchQuery(transcript);
+      input.value = cleaned;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      updateStatus(statusElement, `Searching for “${cleaned}”.`);
+      if (form) {
+        form.submit();
+      }
+      return;
+    }
+
+    updateStatus(statusElement, "Interpreting your request...");
+
+    fetch("/voice/interpret/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      body: JSON.stringify({ text: transcript }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const query = buildSearchQuery(data, transcript);
+        input.value = query;
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        updateStatus(statusElement, `Searching for “${query}”.`);
+        if (form) {
+          form.submit();
+        }
+      })
+      .catch(() => {
+        const cleaned = cleanSearchQuery(transcript);
+        input.value = cleaned;
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        updateStatus(statusElement, `Searching for “${cleaned}”.`);
+        if (form) {
+          form.submit();
+        }
+      });
+  };
+
   const handleTranscript = (action, transcript, input, statusElement, form) => {
     if (!transcript) {
       updateStatus(statusElement, "Sorry, we did not catch that.");
@@ -74,18 +160,7 @@
       return;
     }
 
-    const cleaned = cleanSearchQuery(transcript);
-
-    if (input) {
-      input.value = cleaned;
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-    }
-
-    updateStatus(statusElement, `Searching for \u201c${cleaned}\u201d.`);
-
-    if (form) {
-      form.submit();
-    }
+    submitSearchTranscript(transcript, input, statusElement, form);
   };
 
   const startRecognition = (button, statusElement) => {
