@@ -45,10 +45,11 @@ def budget_plan(entities):
     amount = Decimal(str(entities.get("amount", 0)))
     bundles = []
     if not items or amount <= 0:
-        return bundles, "Please say your budget amount in pounds", []
+        return bundles, "Please say your budget amount in pounds", [], []
 
     selected_items = []
     selected_products = []
+    missing_items = []
     total = Decimal("0.00")
 
     for item in items:
@@ -59,6 +60,7 @@ def budget_plan(entities):
             .first()
         )
         if not candidate:
+            missing_items.append(item)
             continue
         price = Decimal(str(get_effective_price(candidate)))
         image = candidate.images.first()
@@ -74,10 +76,10 @@ def budget_plan(entities):
         total += price
 
     if not selected_items:
-        return bundles, "What items should I include?", []
+        return bundles, "", [], missing_items
 
     if total > amount:
-        return bundles, "That bundle is over budget. Try increasing your budget or removing an item.", []
+        return bundles, "That bundle is over budget. Try increasing your budget or removing an item.", [], missing_items
 
     bundles.append({
         "total": float(total),
@@ -85,4 +87,4 @@ def budget_plan(entities):
         "items": selected_items,
     })
 
-    return bundles, "", selected_products
+    return bundles, "", selected_products, missing_items

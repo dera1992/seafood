@@ -126,18 +126,29 @@ def interpret_voice(request):
             validated["assistant_message"] = "No products matched. Try another search."
 
     elif validated["intent"] == INTENT_BUDGET_PLAN:
-        bundles, message, selected_products = budget_plan(validated["entities"])
+        bundles, message, selected_products, missing_items = budget_plan(validated["entities"])
         if message:
             validated["intent"] = INTENT_HELP
             validated["assistant_message"] = message
         else:
             results["bundles"] = bundles
-            validated["assistant_message"] = validated["assistant_message"] or "Here is a bundle within your budget."
+            if missing_items and not bundles:
+                validated["assistant_message"] = (
+                    "I couldn't find some products, but I added them to your shopping list."
+                )
+            else:
+                validated["assistant_message"] = validated["assistant_message"] or "Here is a bundle within your budget."
             if budget_record is not None:
                 for product in selected_products:
                     ShoppingListItem.objects.get_or_create(
                         budget=budget_record,
                         product=product,
+                    )
+                for item_name in missing_items:
+                    ShoppingListItem.objects.get_or_create(
+                        budget=budget_record,
+                        product=None,
+                        name=item_name,
                     )
 
     if validated["intent"] == INTENT_HELP and not validated["assistant_message"]:

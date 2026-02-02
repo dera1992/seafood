@@ -35,7 +35,8 @@ class Budget(models.Model):
 
 class ShoppingListItem(models.Model):
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Products, on_delete=models.CASCADE)
+    product = models.ForeignKey(Products, on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(max_length=255, blank=True)
     quantity = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -43,10 +44,16 @@ class ShoppingListItem(models.Model):
         unique_together = ('budget', 'product')
 
     def __str__(self) -> str:
-        return f"{self.quantity} x {self.product.title}"
+        if self.product:
+            return f"{self.quantity} x {self.product.title}"
+        if self.name:
+            return f"{self.quantity} x {self.name}"
+        return f"{self.quantity} x item"
 
     @property
     def unit_price(self) -> Decimal:
+        if not self.product:
+            return Decimal("0.00")
         if self.product.discount_price:
             return self.product.discount_price
         return self.product.price
