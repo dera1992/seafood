@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Shopping List Item{% endblock %}
+
+{% block content %}
+<div class="breadcrumb-area mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="breadcrumb-container">
+                    <ul>
+                        <li><a href="{% url "home:home" %}"><i class="fa fa-home"></i> Home</a></li>
+                        <li><a href="{% url "budget:view-budget" budget.id %}">Budget</a></li>
+                        <li class="active">Edit item</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-section section mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-12">
+                <div class="cart-summary">
+                    <div class="cart-summary-wrap">
+                        <h4>Edit shopping list item</h4>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-25">
+                                <label for="edit-product-search">Search products</label>
+                                <input
+                                    id="edit-product-search"
+                                    class="form-control mb-2"
+                                    type="text"
+                                    data-select-filter="id_product"
+                                    placeholder="Search products"
+                                />
+                                {{ form.product.label_tag }}
+                                {{ form.product }}
+                            </div>
+                            <div class="mb-25">
+                                {{ form.name.as_hidden }}
+                            </div>
+                            <div class="mb-25">
+                                {{ form.quantity.label_tag }}
+                                {{ form.quantity }}
+                            </div>
+                            <button class="btn btn-secondary" type="submit">Save</button>
+                            <a class="btn btn-outline-secondary" href="{% url "budget:view-budget" budget.id %}">Cancel</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    (function () {
+        document.querySelectorAll("[data-select-filter]").forEach((input) => {
+            const targetId = input.dataset.selectFilter;
+            const select = document.getElementById(targetId);
+            if (!select) {
+                return;
+            }
+            const options = Array.from(select.options).map((option) => ({
+                value: option.value,
+                text: option.text,
+                selected: option.selected,
+            }));
+
+            input.addEventListener("input", () => {
+                const query = input.value.trim().toLowerCase();
+                select.innerHTML = "";
+                options.forEach((option) => {
+                    if (!query || option.text.toLowerCase().includes(query)) {
+                        const newOption = document.createElement("option");
+                        newOption.value = option.value;
+                        newOption.text = option.text;
+                        newOption.selected = option.selected;
+                        select.appendChild(newOption);
+                    }
+                });
+            });
+        });
+    })();
+</script>
+{% endblock %}
