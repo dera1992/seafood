@@ -29,7 +29,26 @@
                         <form method="post">
                             {% csrf_token %}
                             <div class="mb-25">
-                                {{ form.product.label_tag }}
+                                <label for="edit-product-name">Product</label>
+                                <input
+                                    id="edit-product-name"
+                                    class="form-control"
+                                    name="product_name"
+                                    type="text"
+                                    value="{{ form.product_name.value|default_if_none:'' }}"
+                                    data-product-autocomplete
+                                    data-autocomplete-url="{% url 'budget:product-autocomplete' %}"
+                                    data-product-id-target="edit-product-id"
+                                    data-results-target="edit-product-results"
+                                    placeholder="Search or type a product"
+                                />
+                                <input
+                                    id="edit-product-id"
+                                    name="product_id"
+                                    type="hidden"
+                                    value="{{ form.product_id.value|default_if_none:'' }}"
+                                />
+                                <div id="edit-product-results" class="autocomplete-results"></div>
                                 {{ form.product }}
                             </div>
                             <div class="mb-25">
@@ -50,40 +69,78 @@
 </div>
 <script>
     (function () {
-        document.querySelectorAll("#id_product").forEach((select) => {
-            let buffer = "";
-            let timeoutId = null;
-            const options = Array.from(select.options).map((option) => ({
-                value: option.value,
-                text: option.text,
-            }));
+        const cache = new Map();
 
-            const renderOptions = (query) => {
-                const lowered = query.toLowerCase();
-                select.innerHTML = "";
-                options.forEach((option) => {
-                    if (!lowered || option.text.toLowerCase().includes(lowered)) {
-                        const newOption = document.createElement("option");
-                        newOption.value = option.value;
-                        newOption.text = option.text;
-                        select.appendChild(newOption);
-                    }
+        document.querySelectorAll("[data-product-autocomplete]").forEach((input) => {
+            let timeoutId = null;
+            const resultsTarget = document.getElementById(input.dataset.resultsTarget);
+            const renderResults = (results) => {
+                if (!resultsTarget) {
+                    return;
+                }
+                resultsTarget.innerHTML = "";
+                if (!results.length) {
+                    return;
+                }
+                results.forEach((result) => {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "autocomplete-results__item";
+                    button.textContent = result.title;
+                    button.addEventListener("click", () => {
+                        input.value = result.title;
+                        const hidden = document.getElementById(input.dataset.productIdTarget);
+                        if (hidden) {
+                            hidden.value = result.id;
+                        }
+                        resultsTarget.innerHTML = "";
+                    });
+                    resultsTarget.appendChild(button);
                 });
             };
 
-            select.addEventListener("keydown", (event) => {
-                if (event.key.length !== 1) {
+            input.addEventListener("input", () => {
+                const targetId = input.dataset.productIdTarget;
+                const hidden = document.getElementById(targetId);
+                if (!hidden) {
                     return;
                 }
-                buffer += event.key;
-                renderOptions(buffer);
+                const currentValue = input.value.trim();
+                hidden.value = "";
+
                 if (timeoutId) {
                     clearTimeout(timeoutId);
                 }
+                if (!currentValue) {
+                    renderResults([]);
+                    return;
+                }
                 timeoutId = setTimeout(() => {
-                    buffer = "";
-                    renderOptions("");
-                }, 800);
+                    if (cache.has(currentValue)) {
+                        renderResults(cache.get(currentValue));
+                        return;
+                    }
+                    const url = input.dataset.autocompleteUrl;
+                    if (!url) {
+                        return;
+                    }
+                    fetch(`${url}?q=${encodeURIComponent(currentValue)}`)
+                        .then((response) => response.json())
+                        .then((data) => {
+                            const results = data.results || [];
+                            cache.set(currentValue, results);
+                            renderResults(results);
+                        })
+                        .catch(() => {});
+                }, 200);
+            });
+
+            input.addEventListener("blur", () => {
+                if (resultsTarget) {
+                    setTimeout(() => {
+                        resultsTarget.innerHTML = "";
+                    }, 150);
+                }
             });
         });
     })();
