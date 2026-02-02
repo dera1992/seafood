@@ -49,9 +49,25 @@
                         <h4>Add products to your shopping list</h4>
                         <form method="post" action="{% url 'budget:add-item' budget.id %}">
                             {% csrf_token %}
+                            <datalist id="product-options">
+                                {% for product in product_options %}
+                                    <option value="{{ product.title }}" data-id="{{ product.id }}"></option>
+                                {% endfor %}
+                            </datalist>
                             <div class="row">
                                 <div class="col-md-5 col-12 mb-25">
-                                    {{ add_form.product.label_tag }}
+                                    <label for="add-product-name">Product</label>
+                                    <input
+                                        id="add-product-name"
+                                        class="form-control"
+                                        name="product_name"
+                                        type="text"
+                                        list="product-options"
+                                        data-product-autocomplete
+                                        data-product-id-target="add-product-id"
+                                        placeholder="Start typing a product"
+                                    />
+                                    <input id="add-product-id" name="product_id" type="hidden" />
                                     {{ add_form.product }}
                                 </div>
                                 <div class="col-md-4 col-12 mb-25">
@@ -92,6 +108,7 @@
                                                 {{ item.product.title }}
                                             {% else %}
                                                 {{ item.name|default:"Custom item" }}
+                                                <span class="badge bg-warning text-dark ms-2">Unmatched</span>
                                                 {% if item.suggestions %}
                                                     <div class="text-muted small mt-1">Suggestions:</div>
                                                     <ul class="list-unstyled small mb-0">
@@ -106,10 +123,66 @@
                                         <td>{{ item.quantity }}</td>
                                         <td>£{{ item.total_cost|intcomma }}</td>
                                         <td>
-                                            <a class="me-2" href="{% url 'budget:edit-item' budget.id item.id %}"><i class="fa fa-pencil"></i></a>
+                                            <button
+                                                class="btn btn-sm btn-outline-secondary me-2"
+                                                type="button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editItemModal-{{ item.id }}"
+                                                aria-label="Edit item"
+                                            >
+                                                <i class="fa fa-pencil"></i>
+                                            </button>
                                             <a href="{% url 'budget:remove-item' budget.id item.id %}"><i class="fa fa-trash-o"></i></a>
                                         </td>
                                     </tr>
+                                    <div class="modal fade" id="editItemModal-{{ item.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <form method="post" action="{% url 'budget:edit-item' budget.id item.id %}">
+                                                    {% csrf_token %}
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Edit shopping list item</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label for="edit-product-name-{{ item.id }}">Product</label>
+                                                            <input
+                                                                id="edit-product-name-{{ item.id }}"
+                                                                class="form-control"
+                                                                name="product_name"
+                                                                type="text"
+                                                                list="product-options"
+                                                                value="{{ edit_forms[item.id].product_name.value|default_if_none:'' }}"
+                                                                data-product-autocomplete
+                                                                data-product-id-target="edit-product-id-{{ item.id }}"
+                                                                placeholder="Start typing a product"
+                                                            />
+                                                            <input
+                                                                id="edit-product-id-{{ item.id }}"
+                                                                name="product_id"
+                                                                type="hidden"
+                                                                value="{{ edit_forms[item.id].product_id.value|default_if_none:'' }}"
+                                                            />
+                                                            {{ edit_forms[item.id].product }}
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            {{ edit_forms[item.id].name.label_tag }}
+                                                            {{ edit_forms[item.id].name }}
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            {{ edit_forms[item.id].quantity.label_tag }}
+                                                            {{ edit_forms[item.id].quantity }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button class="btn btn-secondary" type="submit">Save</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                 {% empty %}
                                     <tr>
                                         <td colspan="5" class="text-center">No items yet. Add products to start planning.</td>
@@ -264,4 +337,24 @@
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        const options = document.querySelectorAll("#product-options option");
+        const lookup = new Map();
+        options.forEach((option) => {
+            lookup.set(option.value, option.dataset.id);
+        });
+
+        document.querySelectorAll("[data-product-autocomplete]").forEach((input) => {
+            input.addEventListener("input", () => {
+                const targetId = input.dataset.productIdTarget;
+                const hidden = document.getElementById(targetId);
+                if (!hidden) {
+                    return;
+                }
+                hidden.value = lookup.get(input.value) || "";
+            });
+        });
+    })();
+</script>
 {% endblock %}

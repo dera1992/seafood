@@ -45,6 +45,8 @@ def view_budget(request, budget_id):
     budget = get_object_or_404(Budget, id=budget_id, user=request.user)
     items = budget.items.select_related('product', 'product__category').all()
     add_form = ShoppingListItemForm()
+    edit_forms = {item.id: ShoppingListItemForm(instance=item) for item in items}
+    product_options = list(Products.objects.filter(is_active=True).order_by('title')[:200])
     template_form = BudgetTemplateForm()
 
     category_totals = {}
@@ -89,6 +91,8 @@ def view_budget(request, budget_id):
         'budget': budget,
         'items': items,
         'add_form': add_form,
+        'edit_forms': edit_forms,
+        'product_options': product_options,
         'category_totals': category_totals,
         'discounted_items': discounted_items,
         'affordable_discounts': affordable_discounts,
@@ -138,7 +142,12 @@ def edit_budget_item(request, budget_id, item_id):
             return redirect('budget:view-budget', budget_id=budget.id)
     else:
         form = ShoppingListItemForm(instance=item)
-    return render(request, 'budget/edit_item.html', {'budget': budget, 'form': form, 'item': item})
+    product_options = list(Products.objects.filter(is_active=True).order_by('title')[:200])
+    return render(
+        request,
+        'budget/edit_item.html',
+        {'budget': budget, 'form': form, 'item': item, 'product_options': product_options},
+    )
 
 
 @login_required

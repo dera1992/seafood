@@ -26,10 +26,32 @@
                 <div class="cart-summary">
                     <div class="cart-summary-wrap">
                         <h4>Edit shopping list item</h4>
+                        <datalist id="product-options">
+                            {% for product in product_options %}
+                                <option value="{{ product.title }}" data-id="{{ product.id }}"></option>
+                            {% endfor %}
+                        </datalist>
                         <form method="post">
                             {% csrf_token %}
                             <div class="mb-25">
-                                {{ form.product.label_tag }}
+                                <label for="edit-product-name">Product</label>
+                                <input
+                                    id="edit-product-name"
+                                    class="form-control"
+                                    name="product_name"
+                                    type="text"
+                                    list="product-options"
+                                    value="{{ form.product_name.value|default_if_none:'' }}"
+                                    data-product-autocomplete
+                                    data-product-id-target="edit-product-id"
+                                    placeholder="Start typing a product"
+                                />
+                                <input
+                                    id="edit-product-id"
+                                    name="product_id"
+                                    type="hidden"
+                                    value="{{ form.product_id.value|default_if_none:'' }}"
+                                />
                                 {{ form.product }}
                             </div>
                             <div class="mb-25">
@@ -49,4 +71,24 @@
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        const options = document.querySelectorAll("#product-options option");
+        const lookup = new Map();
+        options.forEach((option) => {
+            lookup.set(option.value, option.dataset.id);
+        });
+
+        document.querySelectorAll("[data-product-autocomplete]").forEach((input) => {
+            input.addEventListener("input", () => {
+                const targetId = input.dataset.productIdTarget;
+                const hidden = document.getElementById(targetId);
+                if (!hidden) {
+                    return;
+                }
+                hidden.value = lookup.get(input.value) || "";
+            });
+        });
+    })();
+</script>
 {% endblock %}
