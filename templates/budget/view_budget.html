@@ -49,6 +49,7 @@
                         <h4>Add products to your shopping list</h4>
                         <form method="post" action="{% url 'budget:add-item' budget.id %}">
                             {% csrf_token %}
+                            <datalist id="product-options"></datalist>
                             <div class="row">
                                 <div class="col-md-5 col-12 mb-25">
                                     {{ add_form.product.label_tag }}
@@ -113,6 +114,54 @@
                                             <a href="{% url 'budget:remove-item' budget.id item.id %}"><i class="fa fa-trash-o"></i></a>
                                         </td>
                                     </tr>
+                                    <div class="modal fade" id="editItemModal-{{ item.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <form method="post" action="{% url 'budget:edit-item' budget.id item.id %}">
+                                                    {% csrf_token %}
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Edit shopping list item</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label for="edit-product-name-{{ item.id }}">Product</label>
+                                                            <input
+                                                                id="edit-product-name-{{ item.id }}"
+                                                                class="form-control"
+                                                                name="product_name"
+                                                                type="text"
+                                                                list="product-options"
+                                                                value="{{ item.edit_form.product_name.value|default_if_none:'' }}"
+                                                                data-product-autocomplete
+                                                                data-product-id-target="edit-product-id-{{ item.id }}"
+                                                                placeholder="Start typing a product"
+                                                            />
+                                                            <input
+                                                                id="edit-product-id-{{ item.id }}"
+                                                                name="product_id"
+                                                                type="hidden"
+                                                                value="{{ item.edit_form.product_id.value|default_if_none:'' }}"
+                                                            />
+                                                            {{ item.edit_form.product }}
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            {{ item.edit_form.name.label_tag }}
+                                                            {{ item.edit_form.name }}
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            {{ item.edit_form.quantity.label_tag }}
+                                                            {{ item.edit_form.quantity }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button class="btn btn-secondary" type="submit">Save</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                 {% empty %}
                                     <tr>
                                         <td colspan="5" class="text-center">No items yet. Add products to start planning.</td>
@@ -267,4 +316,82 @@
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        const cache = new Map();
+
+        document.querySelectorAll("[data-product-autocomplete]").forEach((input) => {
+            let timeoutId = null;
+            const resultsTarget = document.getElementById(input.dataset.resultsTarget);
+            const renderResults = (results) => {
+                if (!resultsTarget) {
+                    return;
+                }
+                resultsTarget.innerHTML = "";
+                if (!results.length) {
+                    return;
+                }
+                results.forEach((result) => {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "autocomplete-results__item";
+                    button.textContent = result.title;
+                    button.addEventListener("click", () => {
+                        input.value = result.title;
+                        const hidden = document.getElementById(input.dataset.productIdTarget);
+                        if (hidden) {
+                            hidden.value = result.id;
+                        }
+                        resultsTarget.innerHTML = "";
+                    });
+                    resultsTarget.appendChild(button);
+                });
+            };
+
+            input.addEventListener("input", () => {
+                const targetId = input.dataset.productIdTarget;
+                const hidden = document.getElementById(targetId);
+                if (!hidden) {
+                    return;
+                }
+                const currentValue = input.value.trim();
+                hidden.value = "";
+
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+                if (!currentValue) {
+                    renderResults([]);
+                    return;
+                }
+                timeoutId = setTimeout(() => {
+                    if (cache.has(currentValue)) {
+                        renderResults(cache.get(currentValue));
+                        return;
+                    }
+                    const url = input.dataset.autocompleteUrl;
+                    if (!url) {
+                        return;
+                    }
+                    fetch(`${url}?q=${encodeURIComponent(currentValue)}`)
+                        .then((response) => response.json())
+                        .then((data) => {
+                            const results = data.results || [];
+                            cache.set(currentValue, results);
+                            renderResults(results);
+                        })
+                        .catch(() => {});
+                }, 200);
+            });
+
+            input.addEventListener("blur", () => {
+                if (resultsTarget) {
+                    setTimeout(() => {
+                        resultsTarget.innerHTML = "";
+                    }, 150);
+                }
+            });
+        });
+    })();
+</script>
 {% endblock %}
