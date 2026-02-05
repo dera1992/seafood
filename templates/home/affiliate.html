@@ -3,52 +3,19 @@
 {% load i18n %}
 {% load thumbnail %}
 
-<!--=============================================
-	=            Brand logo slider         =
-	=============================================-->
-
-	<div class="slider brand-logo-slider mb-35">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-12">
-					<!--=======  blog slider section title  =======-->
-
-					<div class="section-title">
-						<h3>Our Affiliate Partener</h3>
-					</div>
-
-					<!--=======  End of blog slider section title  =======-->
-				</div>
-			</div>
-
-			<div class="row">
-				<div class="col-lg-12">
-					<!--=======  brand logo wrapper  =======-->
-
-					<div class="brand-logo-wrapper pt-20 pb-20">
-
-						<!--=======  single-brand-logo  =======-->
-                        {% for affiliate in affiliates %}
-						<div class="col">
-
-							<div class="single-brand-logo">
-                                {% autoescape off %}
-                                    {{affiliate.iframe}}
-                                {% endautoescape %}
-							</div>
-
-						</div>
-                        {% endfor %}
-
-					</div>
-
-
-					<!--=======  End of brand logo wrapper  =======-->
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!--=====  End of Brand logo slider  ======-->
-
-
+<div class="modern-card p-6 mb-8">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-xl font-semibold">Our Affiliate Partners</h3>
+  </div>
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {% for affiliate in affiliates %}
+      <div class="border border-gray-100 rounded-xl p-3 hover:shadow-md hover:-translate-y-0.5 transition duration-200">
+        {% autoescape off %}
+          {{ affiliate.iframe }}
+        {% endautoescape %}
+      </div>
+    {% empty %}
+      <p class="text-gray-500">No affiliate partners available right now.</p>
+    {% endfor %}
+  </div>
+</div>

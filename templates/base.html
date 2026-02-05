@@ -4,265 +4,161 @@
 {% load django_bootstrap5 %}
 {% load thumbnail %}
 {% load humanize %}
-{#{% bootstrap_css %}#}
-{#{% bootstrap_javascript %}#}
-<html class="no-js" lang="zxx">
-
-
-<!-- Mirrored from demo.hasthemes.com/greenfarm-preview/greenfarm/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 18 Dec 2019 09:58:38 GMT -->
+<html class="no-js" lang="en">
 <head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>{% block title %}Bunchfood{% endblock %}</title>
-	<meta name="description" content="">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-    {% block extra_head %}
-    {% endblock %}
-	<!-- Favicon -->
-	<link rel="icon" href="{% static 'assets/images/favicon.png' %}">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{% block title %}Bunchfood{% endblock %}</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% block extra_head %}{% endblock %}
+    <link rel="icon" href="{% static 'assets/images/favicon.png' %}">
 
-	<!-- CSS
-	============================================ -->
-	<!-- Bootstrap CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            boxShadow: { soft: '0 10px 30px -18px rgba(2, 6, 23, 0.35)' }
+          }
+        }
+      }
+    </script>
 
-	<link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet">
-	<link href="{% static 'assets/css/font-awesome.min.css' %}" rel="stylesheet">
-
-	<!-- Elegent CSS -->
-	<link href="{% static 'assets/css/elegent.min.css' %}" rel="stylesheet">
-
-	<!-- Plugins CSS -->
-	<link href="{% static 'assets/css/plugins.css' %}" rel="stylesheet">
-
-	<!-- Helper CSS -->
-	<link href="{% static 'assets/css/helper.css' %}" rel="stylesheet">
-
-	<!-- Main CSS -->
-	<link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
-
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/font-awesome.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/elegent.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/plugins.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/helper.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
     <link href="{% static 'assets/css/custom.css' %}" rel="stylesheet">
-
-	<!-- Modernizer JS -->
-	<script src="{% static 'assets/js/vendor/modernizr-2.8.3.min.js' %}"></script>
     <link rel="stylesheet" href="{% static 'star-ratings/css/star-ratings.css' %}">
 
     <style>
-        .alert-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1050;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-width: 360px;
-        }
-        .alert-container .alert {
-            margin: 0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
+      body { background: #f9fafb; color: #0f172a; }
+      .page-shell { max-width: 72rem; margin: 0 auto; padding: 1.25rem 1rem 2.5rem; }
+      .modern-card, .card {
+        background: #fff; border: 1px solid #f1f5f9; border-radius: 1rem; box-shadow: 0 10px 30px -22px rgba(15, 23, 42, 0.35);
+        transition: box-shadow .2s ease, transform .2s ease;
+      }
+      .modern-card:hover, .card:hover { box-shadow: 0 16px 30px -20px rgba(15, 23, 42, .38); transform: translateY(-2px); }
+      .btn, button[type="submit"], button[type="button"] { border-radius: .75rem; transition: all .2s ease; }
+      input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="search"], input[type="tel"], input[type="date"], textarea, select {
+        width: 100%; border: 1px solid #d1d5db; border-radius: .75rem; padding: .6rem .8rem;
+      }
+      input:focus, textarea:focus, select:focus { outline: none; box-shadow: 0 0 0 2px #93c5fd; border-color: #60a5fa; }
+      .alert-container { position: fixed; top: 20px; right: 20px; z-index: 1050; display:flex; flex-direction:column; gap:10px; max-width:360px; }
+      .alert-container .alert { margin: 0; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+      .container { max-width: 72rem; }
+      .breadcrumb-area .breadcrumb-container, .page-content .login-form, .cart-summary, .table-content table,
+      .single-dashboard-panel, .sidebar, .shop-product-wrap article, .blog-post-wrapper, .contact-form-container {
+        background: #fff; border: 1px solid #f1f5f9; border-radius: 1rem;
+      }
+      .breadcrumb-area .breadcrumb-container { padding: .85rem 1rem; }
+      .page-content .login-form { padding: 1.5rem; }
+      .register-button, .checkout-btn, .update-btn, .slider-two-btn {
+        background: #2563eb; color: #fff; border-radius: .75rem; padding: .6rem 1rem; transition: all .2s ease;
+      }
+      .register-button:hover, .checkout-btn:hover, .update-btn:hover, .slider-two-btn:hover { background: #1d4ed8; color: #fff; }
+      .btn-outline-secondary { border-radius: .75rem; }
+      .badge, .label { border-radius: 999px; padding: .25rem .6rem; font-weight: 600; }
+      table thead th { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+      .pagination-content ul li a, .pagination-content ul li span { border-radius: .5rem; }
+      .empty-state { color:#64748b; background:#fff; border:1px dashed #cbd5e1; border-radius:1rem; padding:1.5rem; text-align:center; }
     </style>
 </head>
-
-<body>
-
-{#    <div id="output_box"></div>#}
+<body class="bg-gray-50">
     {% if messages %}
-        <div class="alert-container" role="status" aria-live="polite">
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-              {{ message }}
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            {% endfor %}
-        </div>
+      <div class="alert-container" role="status" aria-live="polite">
+          {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+      </div>
     {% endif %}
-	{% include 'navbar.html' %}
 
-    {% block content %}
+    {% include 'navbar.html' %}
 
-    {% endblock %}
-
+    <main class="page-shell">
+      {% block content %}{% endblock %}
+    </main>
 
     {% include 'footer.html' %}
 
-	<!-- scroll to top  -->
-	<a href="#" class="scroll-top"></a>
-	<!-- end of scroll to top -->
+    <a href="#" class="scroll-top"></a>
 
-	<!-- JS
-	============================================ -->
-	<!-- jQuery JS -->
-	<script src="{% static 'assets/js/vendor/jquery.min.js' %}"></script>
-
-    <!-- Popper JS -->
-	<script src="{% static 'assets/js/popper.min.js' %}"></script>
-
-    <!-- Bootstrap JS -->
-	<script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
-
-	<!-- Plugins JS -->
-	<script src="{% static 'assets/js/plugins.js' %}"></script>
-
-	<!-- Main JS -->
-	<script src="{% static 'assets/js/main.js' %}"></script>
+    <script src="{% static 'assets/js/vendor/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/js/plugins.js' %}"></script>
+    <script src="{% static 'assets/js/main.js' %}"></script>
     <script src="{% static 'assets/js/voice_assistant.js' %}"></script>
     <script type="text/javascript" src="{% static 'star-ratings/js/dist/star-ratings.min.js' %}"></script>
-
-{#    <script src="https://maps.google.com/maps/api/js?sensor=false&amp;libraries=geometry&amp;v=3.22&amp;key=AIzaSyDAq7MrCR1A2qIShmjbtLHSKjcEIEBEEwM"></script>#}
-
     <script src="{% static 'hitcount/hitcount-jquery.js' %}"></script>
-     <script type="text/javascript">
-          $(document).ready(function(event){
-            setTimeout(function() {
-              $('.alert').alert('close');
-            }, 3000);
 
-              $('#delete').click(function(){
-              return confirm("Are you sure to delete this post?");
-            });
+    <script type="text/javascript">
+      $(document).ready(function(){
+        setTimeout(function() { $('.alert').alert('close'); }, 3000);
+      });
+    </script>
+    
+    <script>
+      $(document).on('click', '#delete', function(){ return confirm("Are you sure to delete this post?"); });
 
-             $('.reply-btn').click(function() {
-              $(this).parent().parent().next('.replied-comments').fadeToggle()
-            });
+      $(document).on('click', '.reply-btn', function() {
+        $(this).parent().parent().next('.replied-comments').fadeToggle();
+      });
 
-             $(document).on('submit', '.comment-form', function(event){
-              event.preventDefault();
-              console.log($(this).serialize());
-              $.ajax({
-                type: 'POST',
-                url: $(this).attr('action'),
-                data: $(this).serialize(),
-                dataType: 'json',
-                success: function(response) {
-                  $('.main-comment-section').html(response['form']);
-                  $('textarea').val('');
-                  $('.reply-btn').click(function() {
-                    $(this).parent().parent().next('.replied-comments').fadeToggle();
-                    $('textarea').val('');
-                  });
-                },
-                error: function(rs, e) {
-                  console.log(rs.responseText);
-                },
-              });
-            });
+      $(document).on('submit', '.comment-form, .reply-form', function(event){
+        event.preventDefault();
+        var $form = $(this);
+        $.ajax({
+          type: 'POST',
+          url: $form.attr('action'),
+          data: $form.serialize(),
+          dataType: 'json',
+          success: function(response) {
+            $('.main-comment-section').html(response['form']);
+            $('textarea').val('');
+          }
+        });
+      });
 
+      $(document).on('click', '#wishlist', function(event){
+        event.preventDefault();
+        var pk = $(this).data('id');
+        $.ajax({
+          type: 'POST',
+          url: '{% url 'home:favourite_ads'%}',
+          data: {'id': pk, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+          dataType: 'json',
+          success: function(response){
+            $('#part' + pk).html(response['form']);
+          }
+        });
+      });
 
-            $(document).on('submit', '.reply-form', function(event){
-              event.preventDefault();
-              console.log($(this).serialize());
-              $.ajax({
-                type: 'POST',
-                url: $(this).attr('action'),
-                data: $(this).serialize(),
-                dataType: 'json',
-                success: function(response) {
-                  $('.main-comment-section').html(response['form']);
-                  $('textarea').val('');
-                  $('.reply-btn').click(function() {
-                    $(this).parent().parent().next('.replied-comments').fadeToggle();
-                    $('textarea').val('');
-                  });
-                },
-                error: function(rs, e) {
-                  console.log(rs.responseText);
-                },
-              });
-            });
+      $(document).on('click', '#cart', function(event){
+        event.preventDefault();
+        var pk = $(this).data('id');
+        $.ajax({
+          type: 'POST',
+          url: '{% url 'cart:add_to_cart_ajax'%}',
+          data: {'id': pk, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+          dataType: 'json',
+          success: function(response){
+            if (response['ok']) {
+              $('#part' + pk).html(response['ok']);
+            }
+          }
+        });
+      });
+    </script>
 
-           $(document).on('click', '#wishlist', function(event){
-              event.preventDefault();
-              var pk = $(this).data('id');
-              var check = pk;
-              $.ajax({
-                type: 'POST',
-                url: '{% url 'home:favourite_ads'%}',
-                data: {'id':pk, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
-                dataType: 'json',
-                success: function(response){
-                    $('#part' + check).html(response['form']);
-                  {#console.log($('#part' + check).html(response['form']));#}
-                },
-                error: function(rs, e){
-                  console.log(rs.responseText);
-                },
-              });
-            });
-
-           $(document).on('click', '#cart', function(event){
-              event.preventDefault();
-              var pk = $(this).data('id');
-              var check = pk;
-              $.ajax({
-                type: 'POST',
-                url: '{% url 'cart:add_to_cart_ajax'%}',
-                data: {'id':pk, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
-                dataType: 'json',
-                success: function(data){
-                    if (data['status'] == 'ok') {
-                        alert('This item quantity was updated');
-                        $('#part' + check).html(response['ok']);
-                    }
-                    elseif:
-                     if (data['status'] == 'ook') {
-                        alert('This item was added to your cart');
-                        $('#part' + check).html(response['ok']);
-                    }
-                    elseif:
-                     if (data['status'] == 'ko') {
-                        alert('This item was added to your cart');
-                        $('#part' + check).html(response['ok']);
-                    }
-                },
-                error: function(rs, e){
-                  console.log(rs.responseText);
-                },
-              });
-            });
-
-           {#$(document).ready(function() {#}
-           {#   $.ajaxSetup({ cache: false }); // This part addresses an IE bug.  without it, IE will only load the first number and will never refresh#}
-           {#   var pathname = window.location.pathname;#}
-           {#   var my_refresh = setInterval(function() {#}
-           {#     $('#carts').load(pathname);#}
-           {#   }, 10000); // the "1000"#}
-           {# });#}
-
-
-           {#$(document).on('click', '#sort', function(event){#}
-           {#     var latest = $(this).data('latest');#}
-           {#     var descending = $(this).data('descending');#}
-           {#     var ascending = $(this).data('ascending');#}
-           {#     $.ajax({#}
-           {#         url:'{% url 'search:filter'%}',#}
-           {#         method:"POST",#}
-           {#         data:{latest:latest, descending:descending, ascending:ascending ,'csrfmiddlewaretoken': '{{ csrf_token }}'},#}
-           {#         dataType: 'json',#}
-           {#         success:function(data){#}
-           {#             $('.filter_data').html(data);#}
-           {#         }#}
-           {#     });#}
-           {# });#}
-
-          });
-
-        </script>
-
-        {% block script %}
-
-        {% endblock %}
-        {% block favourite %}
-
-        {% endblock %}
-        {% block extra_scripts %}
-
-        {% endblock %}
-
+    {% block extra_js %}{% endblock %}
 </body>
-
-
-<!-- Mirrored from demo.hasthemes.com/greenfarm-preview/greenfarm/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 18 Dec 2019 09:59:31 GMT -->
 </html>

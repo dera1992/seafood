@@ -1,153 +1,39 @@
 {% load static %}
 {% load cart_template_tags %}
 
-<header>
-    <!--=======  header top  =======-->
+<header class="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur">
+  <div class="max-w-6xl mx-auto px-4 py-2 text-sm text-gray-600 flex items-center justify-between">
+    <p>Phone: <span class="font-semibold text-gray-900">+4477060805408</span></p>
+    <div class="flex items-center gap-3">
+      {% if user.is_authenticated %}
+        <a class="text-gray-600 hover:text-blue-600 transition" href="{% url 'profile_display' %}">{{ request.user.get_full_name|default:request.user.username }}</a>
+        <a class="text-gray-600 hover:text-blue-600 transition" href="{% url 'logout' %}">Log Out</a>
+      {% else %}
+        <a class="text-gray-600 hover:text-blue-600 transition" href="{% url 'login' %}">Login</a>
+        <a class="px-3 py-1.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition" href="{% url 'register' %}">Register</a>
+      {% endif %}
+    </div>
+  </div>
 
-    <div class="header-top pt-10 pb-10 pt-lg-10 pb-lg-10 pt-md-10 pb-md-10">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center text-sm-left">
-                    <!-- currncy language dropdown -->
-                    <div class="lang-currency-dropdown">
-                        <ul>
-                            <li> Phone: <span class="number">+4477060805408</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <!-- end of currncy language dropdown -->
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12  text-center text-sm-right">
-                    <!-- header top menu -->
-                    <div class="lang-currency-dropdown">
-                        {% if user.is_authenticated %}
-                        <ul>
-                            <li class="dropdown">
-                                {% if request.user.profile.photo %}
-                                     <img src="{{ request.user.profile.photo.url }}" alt="user" class="" style="border-radius:50%;" width="30px" height="30px" />
-                                    {% else %}
-                                     <img src="{% static 'images/users/1.jpg' %}" alt="user" class="" style="border-radius:50%;" width="30px" height="30px" />
-                                 {% endif %}
-                                <a> {{ request.user.get_full_name }} <i class="fa fa-chevron-down"></i></a>
-                                <ul>
-                                    {% if user.is_superuser %}
-                                    <li class="dropdown-item"><a href="{% url "home:dashboard" %}">Dashboard</a></li>
-                                    {% endif %}
-                                    {% if request.user.role == "customer" %}
-                                    <li class="dropdown-item"><a href="{% url "home:customer_analytics" %}">My Analytics</a></li>
-                                    {% endif %}
-                                    {% if request.user.role == "dispatcher" %}
-                                    <li class="dropdown-item"><a href="{% url "home:dispatcher_analytics" %}">Dispatcher Analytics</a></li>
-                                    {% endif %}
-                                    {% if request.user.role == "shop" %}
-                                    <li class="dropdown-item"><a href="{% url "home:shop_analytics" %}">Shop Analytics</a></li>
-                                    {% endif %}
-                                    <li class="dropdown-item"><a href="{% url "home:shop_notifications" %}">Shop notifications</a></li>
-                                    <li class="dropdown-item"><a href="{% url "profile_display" %}">Profile</a></li>
-                                    <li class="dropdown-item"><a href="{% url "password_change" %}">Change Password</a></li>
-                                    <li class="dropdown-item"><a href="{% url "logout" %}">Log Out</a></li>
-                                </ul>
-                            </li>
-{#                            <li><a href="{% url "home:favourites" %}">Wishlist : {{ request.user|wish_item_count }} item{{ request.user|wish_item_count|pluralize }}</a></li>#}
-                        </ul>
-                        {% else %}
-                         <ul>
-                              <li class="nav-item"> <a href="{% url "login" %}"> LOGIN </a></li>
-                              <li class="nav-item"> <a href="{% url "register" %}"> REGISTER </a></li>
-{#                              <li><a href="{% url "home:favourites" %}">Wishlist : {{ request.user|wish_item_count }} item{{ request.user|wish_item_count|pluralize }}</a></li>#}
+  <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <a href="{% url 'home:home' %}" class="inline-flex items-center gap-2">
+      <img src="{% static 'assets/images/logo.png' %}" class="h-10 w-auto" alt="Bunchfood">
+      <span class="font-semibold text-slate-900">Bunchfood</span>
+    </a>
 
-                          </ul>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="w-full lg:max-w-xl">
+      {% include 'search/other_search.html' %}
     </div>
 
-    <!--=======  End of header top  =======-->
-
-    <!--=======  header bottom  =======-->
-
-    <div class="header-bottom header-bottom-one">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-3 col-sm-12 col-xs-12 text-lg-left text-md-center text-sm-center">
-                    <!-- logo -->
-                    <div class="logo mt-15 mb-15">
-                        <a href="{% url "home:home" %}">
-                            <img src="{% static 'assets/images/logo.png' %}" class="img-fluid" alt="">
-                        </a>
-                    </div>
-                    <!-- end of logo -->
-                </div>
-                <div class="col-md-9 col-sm-12 col-xs-12">
-                    <div class="menubar-top d-flex justify-content-between align-items-center flex-sm-wrap flex-md-wrap flex-lg-nowrap mt-sm-15">
-                        <!-- search bar -->
-                        {% include 'search/other_search.html' %}
-                        <!-- end of search bar -->
-                        <!-- shopping cart -->
-                        {% if user.is_authenticated %}
-                        <div class="shopping-cart" id="shopping-cart">
-                             <a href="{% url "home:favourites" %}">
-                                <div class="cart-icon d-inline-block">
-                                    <span class="icon_heart_alt"></span>
-                                </div>
-                                <div class="cart-info d-inline-block" id="carts">
-                                    <span>
-                                        {{ request.user|wish_item_count }} item{{ request.user|wish_item_count|pluralize }}
-                                    </span>
-                                </div>
-                            </a>
-                            <a href="{% url 'cart:order-summary' %}">
-                                <div class="cart-icon d-inline-block">
-                                    <span class="icon_cart_alt"></span>
-                                </div>
-                                <div class="cart-info d-inline-block" id="carts">
-{#                                    <p>Shopping Cart#}
-                                        <span>
-                                            {{ request.user|cart_item_count }} item{{ request.user|cart_item_count|pluralize }}
-                                        </span>
-{#                                    </p>#}
-                                </div>
-                            </a>
-                        <!-- end of shopping cart -->
-                        </div>
-                        {% else %}
-                            <div class="shopping-cart" id="shopping-cart">
-                                <a href="{% url "home:favourites" %}">
-                                    <div class="cart-icon d-inline-block">
-                                        <span class="icon_heart_alt"></span>
-                                    </div>
-                                    <div class="cart-info d-inline-block" id="carts">
-                                        <span>
-                                            {{ request.user|wish_item_count }} item{{ request.user|wish_item_count|pluralize }}
-                                        </span>
-                                    </div>
-                                </a>
-                                <a href="{% url 'cart:order-summary' %}">
-                                    <div class="cart-icon d-inline-block">
-                                        <span class="icon_cart_alt"></span>
-                                    </div>
-                                    <div class="cart-info d-inline-block" id="carts">
-{#                                        <p>Shopping Cart#}
-                                            <span>
-                                                {{ request.user|cart_item_count }} item{{ request.user|cart_item_count|pluralize }}
-                                            </span>
-{#                                        </p>#}
-                                    </div>
-                                </a>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                </div>
-                <div class="col-12">
-                    <!-- Mobile Menu -->
-                    <div class="mobile-menu d-block d-lg-none"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!--=======  End of header bottom  =======-->
+    {% if user.is_authenticated %}
+      <div class="flex items-center gap-2 text-sm">
+        <a href="{% url 'home:favourites' %}" class="px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition">
+          Wishlist <span class="ml-1 text-gray-500">{{ request.user|wish_item_count }}</span>
+        </a>
+        <a href="{% url 'cart:order-summary' %}" class="px-3 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition">
+          Cart <span class="ml-1 text-blue-100">{{ request.user|cart_item_count }}</span>
+        </a>
+      </div>
+    {% endif %}
+  </div>
 </header>
