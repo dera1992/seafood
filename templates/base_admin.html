@@ -18,6 +18,7 @@
 <!-- Favicon icon -->
 <link rel="icon" href="{% static 'assets/images/favicon.png' %}">
 <title>{% block title %}Bunchfood Admin Panel{% endblock %}</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <link href="{% static 'assets/vendors/perfect-scrollbar/css/perfect-scrollbar.css' %}" rel="stylesheet">
 <!-- This page CSS -->
 <!-- Editable CSS -->
@@ -42,6 +43,25 @@
 <link rel="stylesheet" href="{% static 'date/jquery-ui.css' %}">
 <link rel='stylesheet' href="{% static 'date/jquery-ui-timepicker-addon.css' %}" />
 <style>
+  body { background: #f9fafb; color: #0f172a; }
+  .modern-card, .card {
+    background: #fff;
+    border: 1px solid #f1f5f9;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px -22px rgba(15, 23, 42, 0.35);
+    transition: box-shadow .2s ease, transform .2s ease;
+  }
+  .modern-card:hover, .card:hover {
+    box-shadow: 0 16px 30px -20px rgba(15, 23, 42, .38);
+    transform: translateY(-2px);
+  }
+  .btn, button[type="submit"], button[type="button"] { border-radius: .75rem; transition: all .2s ease; }
+  input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="search"], input[type="tel"], input[type="date"], textarea, select {
+    border: 1px solid #d1d5db;
+    border-radius: .75rem;
+    padding: .6rem .8rem;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; box-shadow: 0 0 0 2px #93c5fd; border-color: #60a5fa; }
   .alert-container {
     position: fixed;
     top: 20px;
@@ -56,6 +76,12 @@
     margin: 0;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
+  .container-fluid { max-width: 84rem; }
+  .page-titles { background:#fff; border:1px solid #f1f5f9; border-radius:1rem; padding:.8rem 1rem; margin-bottom:1rem; }
+  .table, .table-responsive, .box, .panel, .dashboard-wrapper { background:#fff; border:1px solid #f1f5f9; border-radius:1rem; }
+  .table thead th { background:#f8fafc; }
+  .left-sidebar .sidebar-nav ul li a { border-radius:.6rem; margin:.1rem .4rem; }
+  .modern-nav-link:hover { background:#f1f5f9; }
 </style>
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -74,7 +100,7 @@
       <!-- ============================================================== -->
       <!-- Logo -->
       <!-- ============================================================== -->
-      <div class="navbar-header"> <a class="navbar-brand" href="/">
+      <div class="navbar-header"> <a class="navbar-brand" href="{% url 'home:home' %}">
         <!-- Logo icon -->
         <b>
         <img src="{% static 'assets/images/logo.png' %}" alt="homepage" class="dark-logo" />

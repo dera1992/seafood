@@ -34,7 +34,7 @@
 				<div class="col-md-12 col-lg-6">
 					<form method="post" action="{% url 'register' %}">
                         {% csrf_token %}
-						<div class="login-form">
+						<div class="login-form modern-card">
 							<h4 class="login-title" style="text-align:center;">Register</h4>
 
                             {% bootstrap_form_errors user_form %}
@@ -55,7 +55,7 @@
                                 </div>
 
 								<div class="col-12">
-									<button class="register-button mt-0">Register</button>
+									<button class="register-button mt-0 bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2 transition">Register</button>
 								</div>
 							</div>
 
