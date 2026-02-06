@@ -1,29 +1,27 @@
 {% load static %}
 
 <div class="col-lg-4 col-md-12">
-    <div class="dashboard-navbar">
-
-        <div class="d-user-avater">
-            <img src="{{ user.profile.photo.url }}" width="180px" height="180px" class="img-fluid avater" alt="">
-            <h4>{{ user.profile.fullname }}</h4>
-            <span>{{ user.profile.address }}</span>
-        </div>
-
-        <div class="d-navigation">
-            <ul>
-                {% with request.resolver_match.url_name as url_name %}
-                    {% if user.is_admin %}
-                    <li class="{% if url_name == 'dashboard' %}active{% endif %}"><a href="{% url "home:dashboard" %}"><i class="ti-home"></i>Dashboard</a></li>
-                    {% endif %}
-                    <li class="{% if url_name == 'profile_display' %}active{% endif %}"><a href="{% url "profile_display" %}"><i class="ti-user"></i>My Profile</a></li>
-                    <li class="{% if url_name == 'favourites' %}active{% endif %}"><a href="{% url "home:favourites" %}"><i class="ti-bookmark"></i>Bookmarked Listings</a></li>
-                    <li class="{% if url_name == 'my_property' %}active{% endif %}"><a href="{% url "owner:my_property" %}"><i class="ti-layers"></i>My Properties</a></li>
-                    <li class="{% if url_name == 'post' %}active{% endif %}"><a href="{% url "advert:post" %}"><i class="ti-pencil-alt"></i>Submit New Property</a></li>
-                    <li class="{% if url_name == 'password_change' %}active{% endif %}"><a href="{% url "password_change" %}"><i class="ti-unlock"></i>Change Password</a></li>
-                    <li class="{% if url_name == 'logout' %}active{% endif %}"><a href="{% url "logout" %}"><i class="ti-power-off"></i>Log Out</a></li>
-                {% endwith %}
-            </ul>
-        </div>
-
+  <div class="modern-card p-5">
+    <div class="text-center pb-4 border-b border-gray-100">
+      {% if user.profile.photo %}<img src="{{ user.profile.photo.url }}" width="140" height="140" class="mx-auto rounded-full object-cover" alt="{{ user.profile.fullname }}">{% else %}<div class="mx-auto rounded-full bg-gray-200 w-[140px] h-[140px] flex items-center justify-center text-gray-500">No photo</div>{% endif %}
+      <h4 class="mt-3 text-lg font-semibold">{{ user.profile.fullname }}</h4>
+      <span class="text-sm text-gray-500">{{ user.profile.address }}</span>
     </div>
+
+    <nav class="pt-4">
+      <ul class="space-y-2">
+        {% with request.resolver_match.url_name as url_name %}
+          {% if user.is_admin %}
+            <li><a class="block px-3 py-2 rounded-xl {% if url_name == 'dashboard' %}bg-blue-600 text-white{% else %}bg-gray-100 hover:bg-gray-200{% endif %}" href="{% url 'home:dashboard' %}">Dashboard</a></li>
+          {% endif %}
+          <li><a class="block px-3 py-2 rounded-xl {% if url_name == 'profile_display' %}bg-blue-600 text-white{% else %}bg-gray-100 hover:bg-gray-200{% endif %}" href="{% url 'profile_display' %}">My Profile</a></li>
+          <li><a class="block px-3 py-2 rounded-xl {% if url_name == 'favourites' %}bg-blue-600 text-white{% else %}bg-gray-100 hover:bg-gray-200{% endif %}" href="{% url 'home:favourites' %}">Bookmarked Listings</a></li>
+          <li><a class="block px-3 py-2 rounded-xl {% if url_name == 'my_property' %}bg-blue-600 text-white{% else %}bg-gray-100 hover:bg-gray-200{% endif %}" href="{% url 'owner:bookmarked' %}">My Properties</a></li>
+          <li><a class="block px-3 py-2 rounded-xl {% if url_name == 'post' %}bg-blue-600 text-white{% else %}bg-gray-100 hover:bg-gray-200{% endif %}" href="{% url 'foodcreate:post' %}">Submit New Property</a></li>
+          <li><a class="block px-3 py-2 rounded-xl {% if url_name == 'password_change' %}bg-blue-600 text-white{% else %}bg-gray-100 hover:bg-gray-200{% endif %}" href="{% url 'password_change' %}">Change Password</a></li>
+          <li><a class="block px-3 py-2 rounded-xl {% if url_name == 'logout' %}bg-blue-600 text-white{% else %}bg-gray-100 hover:bg-gray-200{% endif %}" href="{% url 'logout' %}">Log Out</a></li>
+        {% endwith %}
+      </ul>
+    </nav>
+  </div>
 </div>

@@ -23,20 +23,20 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-10">
-                    <div class="text-center">
+                    <div class="text-center modern-card p-6">
                         <h2 class="mb-3">Choose your account type</h2>
                         <p class="text-muted mb-4">Tell us how you want to use Seafood so we can tailor your experience.</p>
 
                         <form method="post">
                             {% csrf_token %}
                             <div class="d-flex justify-content-center gap-4 flex-wrap">
-                                <button name="role" value="customer" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-3">
+                                <button name="role" value="customer" class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2 transition">
                                     🛍️ I’m a Customer
                                 </button>
-                                <button name="role" value="shop" class="btn btn-outline-success btn-lg px-5 py-3 rounded-3">
+                                <button name="role" value="shop" class="bg-gray-100 hover:bg-gray-200 rounded-xl px-4 py-2 transition">
                                     🏪 I’m a Shop Owner
                                 </button>
-                                <button name="role" value="dispatcher" class="btn btn-outline-info btn-lg px-5 py-3 rounded-3">
+                                <button name="role" value="dispatcher" class="bg-gray-100 hover:bg-gray-200 rounded-xl px-4 py-2 transition">
                                     🚚 I’m a Dispatcher
                                 </button>
                             </div>

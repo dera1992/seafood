@@ -6,105 +6,60 @@
 {% load hitcount_tags %}
 {% load templatehelpers %}
 
-<!--=======  Grid list view  =======-->
-
-<div class="shop-product-wrap {% if view_mode == 'grid' %}grid{% else %}list{% endif %} row no-gutters mb-35">
-
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
-        {% for ad in queryset %}
-            <div class="gf-product shop-list-view-product">
-                <div class="image">
-                    <a href="{{ ad.get_absolute_url }}">
-                        <span class="{{ ad.get_label_display }}">{{ ad.status }}</span>
-                        {% if ad.delivery %}
-                            <span class="days">Del:{{ ad.delivery }}</span>
-                        {% endif %}
-                        {% for images in ad.get_second_image %}
-                            {% thumbnail images.product_image "306x280" crop="10px 10px"  as im %}
-                                <a href="{{ ad.get_absolute_url }}">
-                                    <img  style="margin:{{ im|margin:"306x280" }}" src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" class="" alt="" />
-                                </a>
-                            {% endthumbnail %}
-                        {% endfor %}
-                    </a>
-                </div>
-                <div class="product-content">
-                    <div class="product-categories">
-                        <a>{{ ad.category }}</a>
-                    </div>
-                    <h3 class="product-title"><a href="{{ ad.get_absolute_url }}">{{ ad.title }}</a></h3>
-                    <div class="price-box mb-20">
-                         {% if ad.discount_price %}
-                          <span class="discounted-price">£{{ ad.discount_price|intcomma}}</span>
-                          <span class="main-price">£{{ ad.discount_price|intcomma}}</span>
-                         {% else %}
-                          <span class="discounted-price">£{{ ad.price|intcomma}}</span>
-                        {% endif %}
-                    </div>
-                    <p class="product-description"> {{ ad.description }}</p>
-                    <div class="list-product-icons" id = "part{{ ad.id }}">
-                        {% include 'home/special_section.html' %}
-                    </div>
-                </div>
-
-            </div>
-        {% empty %}
-            <div class="container-fluid">
-                <h3 style="text-align:center;">No search found </h3>
-            </div>
-        {% endfor %}
-        <!--=======  End of Shop list view product  =======-->
-    </div>
+<div class="shop-product-wrap {% if view_mode == 'grid' %}grid{% else %}list{% endif %} grid md:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">
+  {% for ad in queryset %}
+    <article class="modern-card overflow-hidden">
+      <div class="image">
+        <a href="{{ ad.get_absolute_url }}" class="block relative">
+          <span class="absolute left-3 top-3 z-10 text-xs rounded-full px-2 py-1 bg-blue-600 text-white">{{ ad.status }}</span>
+          {% if ad.delivery %}<span class="absolute right-3 top-3 z-10 text-xs rounded-full px-2 py-1 bg-gray-900/70 text-white">Del:{{ ad.delivery }}</span>{% endif %}
+          {% for images in ad.get_second_image %}
+            {% thumbnail images.product_image "450x320" crop="center" as im %}
+              <img src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" class="w-full h-52 object-cover" alt="{{ ad.title }}" />
+            {% endthumbnail %}
+          {% empty %}
+            <div class="h-52 flex items-center justify-center bg-gray-100 text-gray-500">No image</div>
+          {% endfor %}
+        </a>
+      </div>
+      <div class="p-4">
+        <p class="text-xs uppercase tracking-wide text-gray-500">{{ ad.category }}</p>
+        <h3 class="text-lg font-semibold"><a href="{{ ad.get_absolute_url }}">{{ ad.title }}</a></h3>
+        <div class="price-box mb-2">
+          {% if ad.discount_price %}
+            <span class="font-semibold">£{{ ad.discount_price|intcomma }}</span>
+            <span class="line-through text-gray-400 ml-2">£{{ ad.price|intcomma }}</span>
+          {% else %}
+            <span class="font-semibold">£{{ ad.price|intcomma }}</span>
+          {% endif %}
+        </div>
+        <p class="text-sm text-gray-600 line-clamp-2">{{ ad.description }}</p>
+        <div class="mt-3" id="part{{ ad.id }}">{% include 'home/special_section.html' %}</div>
+      </div>
+    </article>
+  {% empty %}
+    <div class="col-span-full modern-card p-8 text-center text-gray-500">No search results found.</div>
+  {% endfor %}
 </div>
-
-<!--=======  End of Grid list view  =======-->
-
-<!--=======  Pagination container  =======-->
 
 <div class="pagination-container">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <!--=======  pagination-content  =======-->
-
-                <div class="pagination-content text-center">
-                    {% if queryset.has_other_pages %}
-                      <ul class="">
-                        {% if queryset.has_previous %}
-                          <li><a class="js-filter-link" href={% relative_url queryset.previous_page_number 'page' request.GET.urlencode %}><i class="fa fa-angle-left"></i></a></li>
-                        {% else %}
-                          <li class="disabled"><span>&laquo;</span></li>
-                        {% endif %}
-
-                        {% if queryset.number|add:'-4' > 1 %}
-                            <li><a class="js-filter-link" href={% relative_url queryset.number|add:'-5' 'page' request.GET.urlencode %}>&hellip;</a></li>
-                        {% endif %}
-
-                        {% for i in queryset.paginator.page_range %}
-                          {% if queryset.number == i %}
-                            <li><a class="page-link active"><span>{{ i }}<span class="sr-only">(current)</span></span></a></li>
-                          {% elif i > queryset.number|add:'-5' and i < queryset.number|add:'5' %}
-                            <li><a class="js-filter-link" href={% relative_url i 'page' request.GET.urlencode %}>{{ i }}</a></li>
-                          {% endif %}
-                        {% endfor %}
-
-                        {% if queryset.paginator.num_pages > queryset.number|add:'4' %}
-                            <li><a class="js-filter-link" href={% relative_url queryset.number|add:'5' 'page' request.GET.urlencode %}>&hellip;</a></li>
-                        {% endif %}
-
-                        {% if queryset.has_next %}
-                          <li><a class="js-filter-link" href={% relative_url queryset.next_page_number 'page' request.GET.urlencode %}><i class="fa fa-angle-right"></i></a></li>
-                        {% else %}
-                          <li class="disabled"><span>&raquo;</span></li>
-                        {% endif %}
-                      </ul>
-                    {% endif %}
-                </div>
-
-                <!--=======  End of pagination-content  =======-->
-            </div>
-        </div>
-    </div>
+  <div class="pagination-content text-center">
+    {% if queryset.has_other_pages %}
+      <ul class="inline-flex items-center gap-2 text-sm">
+        {% if queryset.has_previous %}
+          <li><a class="js-filter-link px-3 py-1 rounded-lg bg-gray-100" href={% relative_url queryset.previous_page_number 'page' request.GET.urlencode %}>&laquo;</a></li>
+        {% endif %}
+        {% for i in queryset.paginator.page_range %}
+          {% if queryset.number == i %}
+            <li><span class="px-3 py-1 rounded-lg bg-blue-600 text-white">{{ i }}</span></li>
+          {% elif i > queryset.number|add:'-3' and i < queryset.number|add:'3' %}
+            <li><a class="js-filter-link px-3 py-1 rounded-lg bg-gray-100" href={% relative_url i 'page' request.GET.urlencode %}>{{ i }}</a></li>
+          {% endif %}
+        {% endfor %}
+        {% if queryset.has_next %}
+          <li><a class="js-filter-link px-3 py-1 rounded-lg bg-gray-100" href={% relative_url queryset.next_page_number 'page' request.GET.urlencode %}>&raquo;</a></li>
+        {% endif %}
+      </ul>
+    {% endif %}
+  </div>
 </div>
-
-<!--=======  End of Pagination container  =======-->

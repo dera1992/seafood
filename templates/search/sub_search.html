@@ -3,75 +3,40 @@
 {% load i18n %}
 {% load thumbnail %}
 
-
 <div class="col-lg-3 order-2 order-lg-1">
-					<!--=======  sidebar area  =======-->
+  <div class="modern-card p-4 mb-4 sticky-top" style="top: 96px;">
+    <form method="GET" action="{% url 'product_search:product_filter' %}" id="search-filter-form" class="space-y-4">
+      <input type="hidden" name="order" value="{{ request.GET.order.strip }}"/>
+      <input type="hidden" name="view" value="{{ request.GET.view.strip }}"/>
 
-					<div class="sidebar-area">
-                        <form method="GET" action="{% url 'product_search:product_filter' %}" id="search-filter-form">
-                            <input type="hidden" name="order" value="{{ request.GET.order.strip }}"/>
-                            <input type="hidden" name="view" value="{{ request.GET.view.strip }}"/>
-                            <!--=======  single sidebar  =======-->
+      <div>
+        <h3 class="text-base font-semibold mb-2">Filter By Category</h3>
+        <div class="space-y-2 max-h-56 overflow-auto pr-1">
+          {% for category in categories %}
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" name="category" value="{{ category.name }}" {% if category.name in selected_categories %}checked{% endif %}>
+              {{ category.name }}
+            </label>
+          {% endfor %}
+        </div>
+      </div>
 
-                            <div class="sidebar mb-35">
-                                <h3 class="sidebar-title">Search Products</h3>
-                                <div class="sidebar-search">
-                                    <input class="form-control {% if request.GET.title_contains_query.strip %}border border-success{% endif %}" type="text" name="title_contains_query"
-                                           placeholder="Search by name or description"
-                                           value="{{ request.GET.title_contains_query.strip }}">
-                                </div>
-                            </div>
+      <div>
+        <h3 class="text-base font-semibold mb-2">Filter By Price</h3>
+        <div id="price-range"></div>
+        <input type="text" id="price-amount" readonly>
+        <input type="hidden" name="price_min" id="txtMin" value="{{ request.GET.price_min.strip }}"/>
+        <input type="hidden" name="price_max" id="txtMax" value="{{ request.GET.price_max.strip }}"/>
+      </div>
 
-                            <div class="sidebar mb-35">
-                                <h3 class="sidebar-title">PRODUCT CATEGORIES</h3>
-                                <div class="row">
-                                    {% for category in categories %}
-                                    <div class="col-lg-8 col-md-8 col-sm-8">
+      <div>
+        <h3 class="text-base font-semibold mb-2">Nearby Shops</h3>
+        <label class="{% if nearby_only %}text-green-600 font-semibold{% endif %}">
+          <input type="checkbox" name="nearby" {% if nearby_only %}checked{% endif %}> Show shops close to me
+        </label>
+      </div>
 
-                                            <input type="radio" id="{{ category.name }}" {% if category.name == request.GET.category.strip %}checked{% endif %} name="category" value="{{ category.name }}">
-                                            <label for="{{ category.name }}" class="{% if category.name == request.GET.category.strip %}text-success font-weight-bold{% endif %}">{{ category.name }}</label>
-
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-
-                            <!--=======  End of single sidebar  =======-->
-
-                            <!--=======  single sidebar  =======-->
-
-                            <div class="sidebar mb-35">
-                                <h3 class="sidebar-title">Filter By Price</h3>
-                                <div class="sidebar-price">
-                                    <div id="price-range"></div>
-                                    <input type="text" id="price-amount" readonly>
-                                </div>
-                                <div>
-                                    <label for="txtMin"></label>
-                                    <input type="hidden" name="price_min" id="txtMin" value="{{ request.GET.price_min.strip }}"/>
-                                </div>
-                                <div>
-                                    <label for="txtMax"></label>
-                                    <input type="hidden" name="price_max" id="txtMax" value="{{ request.GET.price_max.strip }}"/>
-                                </div>
-
-                            </div>
-
-                            <div class="sidebar mb-35">
-                                <h3 class="sidebar-title">Nearby Shops</h3>
-                                <label class="{% if nearby_only %}text-success font-weight-bold{% endif %}">
-                                    <input type="checkbox" name="nearby" {% if nearby_only %}checked{% endif %}>
-                                    Show shops close to me
-                                </label>
-                            </div>
-
-                            <div class="">
-                                <button class="sidebar-title btn btn-success">Search</button>
-                            </div>
-
-                        </form>
-
-					</div>
-
-					<!--=======  End of sidebar area  =======-->
-				</div>
+      <button class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2 transition" type="submit">Apply filters</button>
+    </form>
+  </div>
+</div>

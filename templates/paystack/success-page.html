@@ -1,39 +1,27 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 {% load humanize %}
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Payment Confirmation</title>
-</head>
-<body>
 
-{% autoescape off %}
-Hi {{ payment.user.get_full_name }},
+{% block title %}Payment Confirmation{% endblock %}
 
-    <p>Success</p>
-    <p>Congratulations! You have successfully paid for your purchase.</p>
-
-     <tbody>
-        <tr>
-          <td><a href="mailto:test@example.com">{{ payment.user.email }}</a></td>
-          <td>
-              {% for ord_item in payment.items.all %}
-                  <p>Purchase Item : {{ ord_item.item.title }}</p>
-                  <p>Quantity : {{ ord_item.quantity }}</p>
-                  <p>Amount : £{{ ord_item.get_total|intcomma }}</p>
-              {% endfor %}
-          </td>
-          <td>{{ payment.ref }}</td>
-          <td>{{ payment.date_ordered }}</td>
-        </tr>
-      </tbody>
-
-<P>Regards,</P>
-
-<p>Bunchfood</p>
-{% endautoescape %}
-
-</body>
-</html>
+{% block content %}
+<div class="max-w-3xl mx-auto modern-card p-6 md:p-8">
+  <div class="mb-4">
+    <span class="inline-flex rounded-full bg-green-100 text-green-700 px-3 py-1 text-sm">Payment successful</span>
+    <h1 class="text-2xl font-semibold mt-3">Thanks, {{ payment.user.get_full_name }}</h1>
+    <p class="text-gray-600">Your order has been confirmed and recorded.</p>
+  </div>
+  <div class="space-y-2 text-sm">
+    <p><strong>Email:</strong> <a href="mailto:test@example.com" class="text-blue-600">{{ payment.user.email }}</a></p>
+    <p><strong>Reference:</strong> {{ payment.ref }}</p>
+    <p><strong>Date:</strong> {{ payment.date_ordered }}</p>
+  </div>
+  <div class="mt-5 border-t border-gray-100 pt-4 space-y-2">
+    {% for ord_item in payment.items.all %}
+      <div class="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2">
+        <span>{{ ord_item.item.title }} × {{ ord_item.quantity }}</span>
+        <span>£{{ ord_item.get_total|intcomma }}</span>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
